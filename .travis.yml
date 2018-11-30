@@ -8,5 +8,5 @@ branches:
   only:
   - develop
 before_install:
-- openssl aes-256-cbc -K $encrypted_5aa6d8f52943_key -iv $encrypted_5aa6d8f52943_iv
-  -in invtweaks.keystore.enc -out invtweaks.keystore -d || exit 0
+- 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then openssl aes-256-cbc -K $encrypted_5aa6d8f52943_key -iv $encrypted_5aa6d8f52943_iv
+  -in invtweaks.keystore.enc -out invtweaks.keystore -d; fi'
