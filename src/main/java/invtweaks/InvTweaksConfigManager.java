@@ -8,6 +8,8 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import invtweaks.integration.ItemListSorter;
+
 import java.io.*;
 import java.util.List;
 
@@ -177,6 +179,8 @@ public class InvTweaksConfigManager {
                 InvTweaks.logInGameStatic("invtweaks.loadconfig.done");
             }
             showConfigErrors(config);
+            ItemListSorter.ReloadItemList();
+            
         } catch(FileNotFoundException e) {
             error = "Config file not found";
             errorException = e;
@@ -206,6 +210,7 @@ public class InvTweaksConfigManager {
 
                 config.load();
                 shortcutsHandler.loadShortcuts();
+                ItemListSorter.ReloadItemList();
             } catch(Exception e) {
                 // But if this fails too there's not much point in trying again
                 config = null;
@@ -223,6 +228,11 @@ public class InvTweaksConfigManager {
         } else {
             return true;
         }
+    }
+    
+    public void ExtractModdedTreeFile()
+    {
+        extractFile(InvTweaksConst.MODDED_CONFIG_TREE_FILE, InvTweaksConst.CONFIG_TREE_FILE);
     }
 
     private boolean extractFile(@NotNull ResourceLocation resource, @NotNull File destination) {

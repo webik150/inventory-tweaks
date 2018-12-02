@@ -5,6 +5,7 @@ import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.MinecraftForge;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.xml.sax.Attributes;
@@ -32,6 +33,8 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
     private final static String ATTR_RANGE_DMAX = "dmax";
     private final static String ATTR_OREDICT_NAME = "oreDictName"; // OreDictionary names
     private final static String ATTR_DATA = "data";
+    private final static String ATTR_CLASS = "class";
+    private final static String ATTR_LAST_ORDER = "mergePrevious";
     private final static String ATTR_TREE_VERSION = "treeVersion";
     private static final List<IItemTreeListener> onLoadListeners = new ArrayList<>();
     private static InvTweaksItemTree tree;
@@ -96,6 +99,11 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
         return onLoadListeners.remove(listener);
     }
 
+    private int getNextItemOrder(boolean lastOrder) {
+        if (lastOrder && itemOrder > 0)
+            return itemOrder - 1;
+        return itemOrder++;
+    }
 
     @Override
     public synchronized void startElement(String uri, String localName, String name, @NotNull Attributes attributes)
@@ -104,6 +112,11 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
         String rangeDMinAttr = attributes.getValue(ATTR_RANGE_DMIN);
         String newTreeVersion = attributes.getValue(ATTR_TREE_VERSION);
         String oreDictNameAttr = attributes.getValue(ATTR_OREDICT_NAME);
+        String id = attributes.getValue(ATTR_ID);
+        String className = attributes.getValue(ATTR_CLASS);
+        String lastOrderValue = attributes.getValue(ATTR_LAST_ORDER);
+        lastOrderValue = lastOrderValue == null ? "" : lastOrderValue.toLowerCase();
+        boolean lastOrder = (lastOrderValue.equals("1") || lastOrderValue.equals("true") || lastOrderValue.equals("yes") || lastOrderValue.equals("t") || lastOrderValue.equals("y"));
 
         // Category
         if(attributes.getLength() == 0 || treeVersion == null || rangeDMinAttr != null) {
@@ -122,13 +135,12 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
             }
 
             // Handle damage ranges
-            if(rangeDMinAttr != null) {
-                String id = attributes.getValue(ATTR_ID);
+            if(rangeDMinAttr != null) {                
                 int rangeDMin = Integer.parseInt(rangeDMinAttr);
                 int rangeDMax = Integer.parseInt(attributes.getValue(ATTR_RANGE_DMAX));
                 for(int damage = rangeDMin; damage <= rangeDMax; damage++) {
                     tree.addItem(name, new InvTweaksItemTreeItem((name + id + "-" + damage), id, damage, null,
-                            itemOrder++));
+                            getNextItemOrder(lastOrder)));
                 }
             }
 
@@ -136,8 +148,7 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
         }
 
         // Item
-        else if(attributes.getValue(ATTR_ID) != null) {
-            String id = attributes.getValue(ATTR_ID);
+        else if(id != null) {
             int damage = InvTweaksConst.DAMAGE_WILDCARD;
             String extraDataAttr = attributes.getValue(ATTR_DATA);
             @Nullable NBTTagCompound extraData = null;
@@ -152,9 +163,21 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
                 damage = Integer.parseInt(attributes.getValue(ATTR_DAMAGE));
             }
             tree.addItem(categoryStack.getLast(),
-                    new InvTweaksItemTreeItem(name, id, damage, extraData, itemOrder++));
+                    new InvTweaksItemTreeItem(name, id, damage, extraData, getNextItemOrder(lastOrder)));
         } else if(oreDictNameAttr != null) {
-            tree.registerOre(categoryStack.getLast(), name, oreDictNameAttr, itemOrder++);
+            tree.registerOre(categoryStack.getLast(), name, oreDictNameAttr, getNextItemOrder(lastOrder));
+        } else if(className != null)
+        {
+            String extraDataAttr = attributes.getValue(ATTR_DATA);
+            @Nullable NBTTagCompound extraData = null;
+            if(extraDataAttr != null) {
+                try {
+                    extraData = JsonToNBT.getTagFromJson(extraDataAttr.toLowerCase());
+                } catch(NBTException e) {
+                    throw new RuntimeException("Data attribute failed for tree entry '" + name + "'", e);
+                }
+            }
+            tree.registerClass(categoryStack.getLast(), name, className.toLowerCase(), extraData, getNextItemOrder(lastOrder));
         }
     }
 
@@ -163,6 +186,11 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
         if(!categoryStack.isEmpty() && name.equals(categoryStack.getLast())) {
             categoryStack.removeLast();
         }
+    }
+    
+    @Override
+    public void endDocument () throws SAXException {
+        tree.endFileRead();
     }
 
     @Override
