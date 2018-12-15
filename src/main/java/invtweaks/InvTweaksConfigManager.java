@@ -3,6 +3,7 @@ package invtweaks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.client.resources.I18n;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +43,19 @@ public class InvTweaksConfigManager {
     }
 
     private static long computeConfigLastModified() {
-        return InvTweaksConst.CONFIG_RULES_FILE.lastModified() + InvTweaksConst.CONFIG_TREE_FILE.lastModified();
+        long sum = Long.MIN_VALUE;
+        if (InvTweaksConst.INVTWEAKS_TREES_DIR.exists())
+        {
+            File[] treeFiles = InvTweaksConst.INVTWEAKS_TREES_DIR.listFiles();
+            
+            for(File tree: treeFiles) {
+                //Make sure it is the type of file we want.
+                if (tree.getName().endsWith(".tree")) {
+                    sum += tree.lastModified();
+                }
+            }
+        }
+        return sum + InvTweaksConst.CONFIG_RULES_FILE.lastModified() + InvTweaksConst.CONFIG_TREE_FILE.lastModified();
     }
 
     private static void backupFile(@NotNull File file) {
@@ -119,7 +132,19 @@ public class InvTweaksConfigManager {
         if(!configDir.exists()) {
             configDir.mkdir();
         }
-
+        
+        //Create the Config file directory.
+        if (!InvTweaksConst.INVTWEAKS_CONFIG_DIR.exists()) {
+            InvTweaksConst.INVTWEAKS_CONFIG_DIR.mkdir();
+        }
+        
+        if (!InvTweaksConst.INVTWEAKS_TREES_DIR.exists()) {
+            if (InvTweaksConst.INVTWEAKS_TREES_DIR.mkdir()) {
+                extractFile(new ResourceLocation(InvTweaksConst.INVTWEAKS_RESOURCE_DOMAIN, "tree_readme.txt"),
+                    new File(InvTweaksConst.INVTWEAKS_TREES_DIR, "readme.txt"));
+            }
+        }
+       
         // Compatibility: Tree version check
         try {
             if(!(InvTweaksItemTreeLoader.isValidVersion(InvTweaksConst.CONFIG_TREE_FILE))) {
@@ -155,6 +180,11 @@ public class InvTweaksConfigManager {
                     I18n.format("invtweaks.loadconfig.filemissing"));
         }
 
+        boolean treeBuilt = false;
+        if (InvTweaksConst.INVTWEAKS_TREES_DIR.exists()) {            
+            treeBuilt = InvTweaksItemTreeBuilder.buildNewTree();
+        }
+
         storedConfigLastModified = computeConfigLastModified();
 
         // Load
@@ -166,7 +196,13 @@ public class InvTweaksConfigManager {
 
             // Configuration creation
             if(config == null) {
-                config = new InvTweaksConfig(InvTweaksConst.CONFIG_RULES_FILE, InvTweaksConst.CONFIG_TREE_FILE);
+                if (treeBuilt & InvTweaksConst.MERGED_TREE_FILE.exists()) {
+                    config = new InvTweaksConfig(InvTweaksConst.CONFIG_RULES_FILE, InvTweaksConst.MERGED_TREE_FILE);
+                } else if (treeBuilt & InvTweaksConst.MERGED_TREE_FILE_ALT.exists()) {
+                    config = new InvTweaksConfig(InvTweaksConst.CONFIG_RULES_FILE, InvTweaksConst.MERGED_TREE_FILE_ALT);
+                } else {
+                    config = new InvTweaksConfig(InvTweaksConst.CONFIG_RULES_FILE, InvTweaksConst.CONFIG_TREE_FILE);
+                }
                 autoRefillHandler = new InvTweaksHandlerAutoRefill(mc, config);
                 shortcutsHandler = new InvTweaksHandlerShortcuts(mc, config);
             }
@@ -201,6 +237,7 @@ public class InvTweaksConfigManager {
                 backupFile(InvTweaksConst.CONFIG_RULES_FILE);
                 backupFile(InvTweaksConst.CONFIG_PROPS_FILE);
 
+                //Intentionally not trying to use the merged file.
                 extractFile(InvTweaksConst.DEFAULT_CONFIG_FILE, InvTweaksConst.CONFIG_RULES_FILE);
                 extractFile(InvTweaksConst.DEFAULT_CONFIG_TREE_FILE, InvTweaksConst.CONFIG_TREE_FILE);
 
@@ -230,11 +267,6 @@ public class InvTweaksConfigManager {
         }
     }
     
-    public void ExtractModdedTreeFile()
-    {
-        extractFile(InvTweaksConst.MODDED_CONFIG_TREE_FILE, InvTweaksConst.CONFIG_TREE_FILE);
-    }
-
     private boolean extractFile(@NotNull ResourceLocation resource, @NotNull File destination) {
         try(@NotNull InputStream input = mc.getResourceManager().getResource(resource).getInputStream()) {
             try {
@@ -250,6 +282,6 @@ public class InvTweaksConfigManager {
             log.error("Cannot extract " + resource + " file: " + e.getMessage());
             return false;
         }
-    }
+    }    
 
 }
