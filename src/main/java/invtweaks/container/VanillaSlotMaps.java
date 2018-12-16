@@ -38,7 +38,7 @@ public class VanillaSlotMaps {
     @SideOnly(Side.CLIENT)
     public static boolean containerCreativeIsInventory(GuiContainerCreative.ContainerCreative container) {
         @Nullable GuiScreen currentScreen = FMLClientHandler.instance().getClient().currentScreen;
-        return currentScreen instanceof GuiContainerCreative && ((GuiContainerCreative) currentScreen).getSelectedTabIndex() == CreativeTabs.INVENTORY.getTabIndex();
+        return currentScreen instanceof GuiContainerCreative && ((GuiContainerCreative) currentScreen).getSelectedTabIndex() == CreativeTabs.INVENTORY.getIndex();
     }
 
     @NotNull

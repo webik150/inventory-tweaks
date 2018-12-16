@@ -11,6 +11,6 @@ public class ITPacketHandlerServer extends SimpleChannelInboundHandler<ITPacket>
     @Override
     protected void channelRead0(@NotNull ChannelHandlerContext ctx, @NotNull ITPacket msg) throws Exception {
         @NotNull final NetHandlerPlayServer handler = (NetHandlerPlayServer) ctx.channel().attr(NetworkRegistry.NET_HANDLER).get();
-        handler.player.mcServer.addScheduledTask(() -> msg.handle(handler));
+        handler.player.server.addScheduledTask(() -> msg.handle(handler));
     }
 }
