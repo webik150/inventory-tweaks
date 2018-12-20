@@ -39,8 +39,7 @@ public interface IContainerManager {
      * @return false if the destination slot is already occupied by a different item (meaning items cannot be moved to
      * destination).
      */
-    boolean moveSome(ContainerSection srcSection, int srcIndex, ContainerSection destSection, int destIndex,
-                     int amount);
+    boolean moveSome(ContainerSection srcSection, int srcIndex, ContainerSection destSection, int destIndex, int amount);
 
     // TODO: Server helper directly implementing this.
     default boolean drop(ContainerSection srcSection, int srcIndex) {

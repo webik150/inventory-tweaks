@@ -2,10 +2,7 @@ package invtweaks;
 
 public enum InvTweaksConfigSortingRuleType {
 
-    RECTANGLE(1),
-    ROW(2),
-    COLUMN(3),
-    SLOT(4);
+    RECTANGLE(1), ROW(2), COLUMN(3), SLOT(4);
 
     private int lowestPriority;
 

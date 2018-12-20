@@ -27,11 +27,10 @@ package invtweaks.api.container;
  * CHEST sections are available.
  */
 @SuppressWarnings("unused")
-public enum ContainerSection {
-    /**
-     * The player's inventory
-     */
-    INVENTORY,
+public enum ContainerSection {/**
+ * The player's inventory
+ */
+INVENTORY,
     /**
      * The player's inventory (only the hotbar)
      */
@@ -85,5 +84,4 @@ public enum ContainerSection {
      * The top slot in brewing tables
      * NOTE: Do not use without also using BREWING_BOTTLES.
      */
-    BREWING_INGREDIENT
-}
+    BREWING_INGREDIENT}

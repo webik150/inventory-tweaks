@@ -62,13 +62,9 @@ public class InvTweaksConfigInventoryRuleset {
             if(rulePattern.matcher(lineText).matches()) {
                 if(words[1].equalsIgnoreCase(InvTweaksConfig.LOCKED)) {
                     // Locking rule
-                    @Nullable int[] newLockedSlots = InvTweaksConfigSortingRule
-                            .getRulePreferredPositions(words[0], InvTweaksConst.INVENTORY_SIZE,
-                                    InvTweaksConst.INVENTORY_ROW_SIZE);
+                    @Nullable int[] newLockedSlots = InvTweaksConfigSortingRule.getRulePreferredPositions(words[0], InvTweaksConst.INVENTORY_SIZE, InvTweaksConst.INVENTORY_ROW_SIZE);
                     int lockPriority = InvTweaksConfigSortingRule.
-                            getRuleType(words[0],
-                                    InvTweaksConst.INVENTORY_ROW_SIZE)
-                            .getLowestPriority() - 1;
+                            getRuleType(words[0], InvTweaksConst.INVENTORY_ROW_SIZE).getLowestPriority() - 1;
                     for(int i : newLockedSlots) {
                         lockPriorities[i] = lockPriority;
                     }
@@ -76,9 +72,7 @@ public class InvTweaksConfigInventoryRuleset {
                 } else if(words[1].equalsIgnoreCase(InvTweaksConfig.FROZEN)) {
 
                     // Freeze rule
-                    @Nullable int[] newLockedSlots = InvTweaksConfigSortingRule
-                            .getRulePreferredPositions(words[0], InvTweaksConst.INVENTORY_SIZE,
-                                    InvTweaksConst.INVENTORY_ROW_SIZE);
+                    @Nullable int[] newLockedSlots = InvTweaksConfigSortingRule.getRulePreferredPositions(words[0], InvTweaksConst.INVENTORY_SIZE, InvTweaksConst.INVENTORY_ROW_SIZE);
                     for(int i : newLockedSlots) {
                         frozenSlots[i] = true;
                     }
@@ -108,9 +102,7 @@ public class InvTweaksConfigInventoryRuleset {
                     }*/
 
                     if(isValidKeyword) {
-                        newRule = new InvTweaksConfigSortingRule(tree, words[0], keyword,
-                                InvTweaksConst.INVENTORY_SIZE,
-                                InvTweaksConst.INVENTORY_ROW_SIZE);
+                        newRule = new InvTweaksConfigSortingRule(tree, words[0], keyword, InvTweaksConst.INVENTORY_SIZE, InvTweaksConst.INVENTORY_ROW_SIZE);
                         rules.add(newRule);
                         return null;
                     } else {

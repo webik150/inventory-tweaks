@@ -17,9 +17,7 @@ public class InvTweaksGuiSortingButton extends InvTweaksGuiIconButton {
     private SortingMethod algorithm;
     private int rowSize;
 
-    public InvTweaksGuiSortingButton(InvTweaksConfigManager cfgManager_, int id_, int x, int y, int w, int h,
-                                     String displayString_, String tooltip, SortingMethod algorithm_, int rowSize_,
-                                     boolean useCustomTexture) {
+    public InvTweaksGuiSortingButton(InvTweaksConfigManager cfgManager_, int id_, int x, int y, int w, int h, String displayString_, String tooltip, SortingMethod algorithm_, int rowSize_, boolean useCustomTexture) {
         super(cfgManager_, id_, x, y, w, h, displayString_, tooltip, useCustomTexture);
         algorithm = algorithm_;
         rowSize = rowSize_;
@@ -33,24 +31,18 @@ public class InvTweaksGuiSortingButton extends InvTweaksGuiIconButton {
         int textColor = getTextColor(mouseX, mouseY);
         switch(displayString) {
             case "h":
-                drawRect(x + 3, y + 3, x + width - 3, y + 4,
-                        textColor);
-                drawRect(x + 3, y + 6, x + width - 3, y + 7,
-                        textColor);
+                drawRect(x + 3, y + 3, x + width - 3, y + 4, textColor);
+                drawRect(x + 3, y + 6, x + width - 3, y + 7, textColor);
                 break;
             case "v":
-                drawRect(x + 3, y + 3, x + 4, y + height - 3,
-                        textColor);
-                drawRect(x + 6, y + 3, x + 7, y + height - 3,
-                        textColor);
+                drawRect(x + 3, y + 3, x + 4, y + height - 3, textColor);
+                drawRect(x + 6, y + 3, x + 7, y + height - 3, textColor);
                 break;
             default:
-                drawRect(x + 3, y + 3, x + width - 3, y + 4,
-                        textColor);
+                drawRect(x + 3, y + 3, x + width - 3, y + 4, textColor);
                 drawRect(x + 5, y + 4, x + 6, y + 5, textColor);
                 drawRect(x + 4, y + 5, x + 5, y + 6, textColor);
-                drawRect(x + 3, y + 6, x + width - 3, y + 7,
-                        textColor);
+                drawRect(x + 3, y + 6, x + width - 3, y + 7, textColor);
                 break;
         }
     }

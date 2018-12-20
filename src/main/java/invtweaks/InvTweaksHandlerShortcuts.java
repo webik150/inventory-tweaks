@@ -57,22 +57,15 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
         }
 
         // Add Minecraft's Up & Down mappings
-        int upKeyCode = getKeyBindingForwardKeyCode(),
-                downKeyCode = getKeyBindingBackKeyCode();
+        int upKeyCode = getKeyBindingForwardKeyCode(), downKeyCode = getKeyBindingBackKeyCode();
 
         registerShortcutMapping(InvTweaksShortcutType.MOVE_UP, new InvTweaksShortcutMapping(upKeyCode));
         registerShortcutMapping(InvTweaksShortcutType.MOVE_DOWN, new InvTweaksShortcutMapping(downKeyCode));
 
         // Add hotbar shortcuts (1-9) mappings
-        @NotNull int[] hotbarKeys = {
-                Keyboard.KEY_1, Keyboard.KEY_2, Keyboard.KEY_3, Keyboard.KEY_4, Keyboard.KEY_5, Keyboard.KEY_6,
-                Keyboard.KEY_7, Keyboard.KEY_8, Keyboard.KEY_9, Keyboard.KEY_NUMPAD1, Keyboard.KEY_NUMPAD2,
-                Keyboard.KEY_NUMPAD3, Keyboard.KEY_NUMPAD4, Keyboard.KEY_NUMPAD5, Keyboard.KEY_NUMPAD6,
-                Keyboard.KEY_NUMPAD7, Keyboard.KEY_NUMPAD8, Keyboard.KEY_NUMPAD9
-        };
+        @NotNull int[] hotbarKeys = {Keyboard.KEY_1, Keyboard.KEY_2, Keyboard.KEY_3, Keyboard.KEY_4, Keyboard.KEY_5, Keyboard.KEY_6, Keyboard.KEY_7, Keyboard.KEY_8, Keyboard.KEY_9, Keyboard.KEY_NUMPAD1, Keyboard.KEY_NUMPAD2, Keyboard.KEY_NUMPAD3, Keyboard.KEY_NUMPAD4, Keyboard.KEY_NUMPAD5, Keyboard.KEY_NUMPAD6, Keyboard.KEY_NUMPAD7, Keyboard.KEY_NUMPAD8, Keyboard.KEY_NUMPAD9};
         for(int i : hotbarKeys) {
-            registerShortcutMapping(InvTweaksShortcutType.MOVE_TO_SPECIFIC_HOTBAR_SLOT,
-                    new InvTweaksShortcutMapping(i));
+            registerShortcutMapping(InvTweaksShortcutType.MOVE_TO_SPECIFIC_HOTBAR_SLOT, new InvTweaksShortcutMapping(i));
         }
 
         // Register (L/R)SHIFT to allow to filter them
@@ -191,8 +184,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
                     // Compute shortcut target
                     if(shortcut.getTarget() == ShortcutSpecification.Target.HOTBAR_SLOT) {
                         shortcutConfig.toSection = ContainerSection.INVENTORY_HOTBAR;
-                        @Nullable InvTweaksShortcutMapping hotbarShortcut = isShortcutDown(
-                                InvTweaksShortcutType.MOVE_TO_SPECIFIC_HOTBAR_SLOT);
+                        @Nullable InvTweaksShortcutMapping hotbarShortcut = isShortcutDown(InvTweaksShortcutType.MOVE_TO_SPECIFIC_HOTBAR_SLOT);
                         if(hotbarShortcut != null && !hotbarShortcut.getKeyCodes().isEmpty()) {
                             String keyName = Keyboard.getKeyName(hotbarShortcut.getKeyCodes().get(0));
                             shortcutConfig.toIndex = -1 + Integer.parseInt(keyName.replace("NUMPAD", ""));
@@ -228,8 +220,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
                         orderedSections.add(ContainerSection.INVENTORY_HOTBAR);
 
                         // Choose target section
-                        if(shortcut
-                                .getTarget() != ShortcutSpecification.Target.UNSPECIFIED) { // Explicit section (up/down shortcuts)
+                        if(shortcut.getTarget() != ShortcutSpecification.Target.UNSPECIFIED) { // Explicit section (up/down shortcuts)
                             int sectionOffset = 0;
                             if(shortcut.getTarget() == ShortcutSpecification.Target.UP) {
                                 sectionOffset--;
@@ -238,8 +229,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
                             }
                             int fromSectionIndex = orderedSections.indexOf(shortcutConfig.fromSection);
                             if(fromSectionIndex != -1) {
-                                shortcutConfig.toSection = orderedSections.get((orderedSections
-                                        .size() + fromSectionIndex + sectionOffset) % orderedSections.size());
+                                shortcutConfig.toSection = orderedSections.get((orderedSections.size() + fromSectionIndex + sectionOffset) % orderedSections.size());
                             } else {
                                 shortcutConfig.toSection = ContainerSection.INVENTORY;
                             }
@@ -305,8 +295,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
      * @return true if the shortuts listeners have to be reset
      */
     private boolean haveControlsChanged() {
-        return (!pressedKeys.containsKey(getKeyBindingForwardKeyCode()) || !pressedKeys
-                .containsKey(getKeyBindingBackKeyCode()));
+        return (!pressedKeys.containsKey(getKeyBindingForwardKeyCode()) || !pressedKeys.containsKey(getKeyBindingBackKeyCode()));
     }
 
     private void runShortcut(@NotNull ShortcutConfig shortcut) throws TimeoutException {
@@ -357,18 +346,13 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
                                     toIndex = getNextTargetIndex(shortcut, slot.getStack());
                                     if(shortcut.fromSection != ContainerSection.CRAFTING_OUT && shortcut.toSection != ContainerSection.ENCHANTMENT) {
                                         while(slot.getHasStack() && toIndex != -1) {
-                                            success = container
-                                                    .move(shortcut.fromSection, shortcut.fromIndex, shortcut.toSection,
-                                                            toIndex);
+                                            success = container.move(shortcut.fromSection, shortcut.fromIndex, shortcut.toSection, toIndex);
                                             newIndex = getNextTargetIndex(shortcut, slot.getStack());
-                                            toIndex = (success ||
-                                                    (shortcut.action == ShortcutSpecification.Action.DROP) ||
-                                                    newIndex != toIndex) ? newIndex : -1; // Needed when we can't put items in the target slot
+                                            toIndex = (success || (shortcut.action == ShortcutSpecification.Action.DROP) || newIndex != toIndex) ? newIndex : -1; // Needed when we can't put items in the target slot
                                         }
                                     } else {
                                         // Move only once, since the crafting output might be refilled
-                                        container.move(shortcut.fromSection, shortcut.fromIndex, shortcut.toSection,
-                                                toIndex);
+                                        container.move(shortcut.fromSection, shortcut.fromIndex, shortcut.toSection, toIndex);
                                     }
                                 }
                                 break;
@@ -379,8 +363,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
                                 @Nullable Slot slot = container.getSlot(shortcut.fromSection, shortcut.fromIndex);
                                 if(slot.getHasStack()) {
                                     toIndex = getNextTargetIndex(shortcut, slot.getStack());
-                                    container.moveSome(shortcut.fromSection, shortcut.fromIndex, shortcut.toSection,
-                                            toIndex, 1);
+                                    container.moveSome(shortcut.fromSection, shortcut.fromIndex, shortcut.toSection, toIndex, 1);
                                 }
                                 break;
                             }
@@ -411,7 +394,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
     }
 
     private void dropAll(@NotNull ShortcutConfig shortcut, @NotNull ItemStack stackToMatch) {
-        container.getSlots(shortcut.fromSection).stream().filter(slot -> slot.getHasStack() && (stackToMatch.isEmpty()|| areSameItemType(stackToMatch, slot.getStack()))).forEach(slot -> {
+        container.getSlots(shortcut.fromSection).stream().filter(slot -> slot.getHasStack() && (stackToMatch.isEmpty() || areSameItemType(stackToMatch, slot.getStack()))).forEach(slot -> {
             int fromIndex = container.getSlotIndex(getSlotNumber(slot));
             while(slot.getHasStack()) {
                 container.drop(shortcut.fromSection, fromIndex);
@@ -432,8 +415,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
 
                 // Move while current slot has item, and there is a valid target that is not the same slot we're trying
                 // to move from.
-                while(slot.getHasStack() && toIndex != -1 &&
-                        !(shortcut.fromSection == shortcut.toSection && fromIndex == toIndex)) {
+                while(slot.getHasStack() && toIndex != -1 && !(shortcut.fromSection == shortcut.toSection && fromIndex == toIndex)) {
                     success = container.move(shortcut.fromSection, fromIndex, shortcut.toSection, toIndex);
                     newIndex = getNextTargetIndex(shortcut, slot.getStack());
 
@@ -472,8 +454,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
             for(@NotNull Slot slot : container.getSlots(shortcut.toSection)) {
                 if(slot.getHasStack()) {
                     @NotNull ItemStack stack = slot.getStack();
-                    if(InvTweaksObfuscation.areItemsStackable(current, stack) && stack.getCount() < stack
-                            .getMaxStackSize()) {
+                    if(InvTweaksObfuscation.areItemsStackable(current, stack) && stack.getCount() < stack.getMaxStackSize()) {
                         result = i;
                         break;
                     }

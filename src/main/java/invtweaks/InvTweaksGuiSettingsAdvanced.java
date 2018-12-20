@@ -54,63 +54,35 @@ public class InvTweaksGuiSettingsAdvanced extends InvTweaksGuiSettingsAbstract {
         // Create large buttons
 
         moveToButtonCoords(1, p);
-        controlList.add(new GuiButton(ID_EDITSHORTCUTS, p.getX() + 55, height / 6 + 144,
-                I18n.format("invtweaks.settings.advanced.mappingsfile")));
+        controlList.add(new GuiButton(ID_EDITSHORTCUTS, p.getX() + 55, height / 6 + 144, I18n.format("invtweaks.settings.advanced.mappingsfile")));
 
         // Create settings buttons
 
         i += 2;
         moveToButtonCoords(i++, p);
-        @NotNull InvTweaksGuiTooltipButton sortOnPickupBtn = new InvTweaksGuiTooltipButton(ID_SORT_ON_PICKUP, p.getX(), p.getY(),
-                computeBooleanButtonLabel(
-                        InvTweaksConfig.PROP_ENABLE_SORTING_ON_PICKUP,
-                        labelSortOnPickup),
-                I18n.format(
-                        "invtweaks.settings.advanced.sortonpickup.tooltip"));
+        @NotNull InvTweaksGuiTooltipButton sortOnPickupBtn = new InvTweaksGuiTooltipButton(ID_SORT_ON_PICKUP, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SORTING_ON_PICKUP, labelSortOnPickup), I18n.format("invtweaks.settings.advanced.sortonpickup.tooltip"));
         controlList.add(sortOnPickupBtn);
 
         moveToButtonCoords(i++, p);
-        @NotNull InvTweaksGuiTooltipButton enableSoundsBtn = new InvTweaksGuiTooltipButton(ID_ENABLE_SOUNDS, p.getX(), p.getY(),
-                computeBooleanButtonLabel(
-                        InvTweaksConfig.PROP_ENABLE_SOUNDS,
-                        labelEnableSounds),
-                I18n.format(
-                        "invtweaks.settings.advanced.sounds.tooltip"));
+        @NotNull InvTweaksGuiTooltipButton enableSoundsBtn = new InvTweaksGuiTooltipButton(ID_ENABLE_SOUNDS, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SOUNDS, labelEnableSounds), I18n.format("invtweaks.settings.advanced.sounds.tooltip"));
         controlList.add(enableSoundsBtn);
 
         moveToButtonCoords(i++, p);
-        controlList.add(new InvTweaksGuiTooltipButton(ID_CHESTS_BUTTONS, p.getX(), p.getY(),
-                computeBooleanButtonLabel(InvTweaksConfig.PROP_SHOW_CHEST_BUTTONS,
-                        labelChestButtons), I18n
-                .format(
-                        "invtweaks.settings.chestbuttons.tooltip")));
+        controlList.add(new InvTweaksGuiTooltipButton(ID_CHESTS_BUTTONS, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_SHOW_CHEST_BUTTONS, labelChestButtons), I18n.format("invtweaks.settings.chestbuttons.tooltip")));
 
         moveToButtonCoords(i++, p);
-        @NotNull InvTweaksGuiTooltipButton autoEquipArmorBtn = new InvTweaksGuiTooltipButton(ID_AUTO_EQUIP_ARMOR, p.getX(),
-                p.getY(), computeBooleanButtonLabel(
-                InvTweaksConfig.PROP_ENABLE_AUTO_EQUIP_ARMOR, labelEquipArmor), I18n.format(
-                "invtweaks.settings.advanced.autoequip.tooltip"));
+        @NotNull InvTweaksGuiTooltipButton autoEquipArmorBtn = new InvTweaksGuiTooltipButton(ID_AUTO_EQUIP_ARMOR, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_AUTO_EQUIP_ARMOR, labelEquipArmor), I18n.format("invtweaks.settings.advanced.autoequip.tooltip"));
         controlList.add(autoEquipArmorBtn);
 
         //noinspection UnusedAssignment
         moveToButtonCoords(i++, p);
-        @NotNull InvTweaksGuiTooltipButton serverAssistBtn = new InvTweaksGuiTooltipButton(ID_SERVER_ASSIST, p.getX(), p.getY(),
-                computeBooleanButtonLabel(
-                        InvTweaksConfig.PROP_ENABLE_SERVER_ITEMSWAP,
-                        labelServerAssist),
-                I18n.format(
-                        "invtweaks.settings.advanced.serverassist.tooltip"));
+        @NotNull InvTweaksGuiTooltipButton serverAssistBtn = new InvTweaksGuiTooltipButton(ID_SERVER_ASSIST, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SERVER_ITEMSWAP, labelServerAssist), I18n.format("invtweaks.settings.advanced.serverassist.tooltip"));
         controlList.add(serverAssistBtn);
 
         moveToButtonCoords(i++, p);
-        @NotNull InvTweaksGuiTooltipButton displayTooltipBtn = new InvTweaksGuiTooltipButton(ID_DISPLAY_TOOLTIP, p.getX(), p.getY(),
-                computeBooleanButtonLabel(
-                        InvTweaksConfig.PROP_TOOLTIP_PATH,
-                        labelDisplayTooltip),
-                I18n.format(
-                        "invtweaks.settings.displaytooltip.tooltip"));
+        @NotNull InvTweaksGuiTooltipButton displayTooltipBtn = new InvTweaksGuiTooltipButton(ID_DISPLAY_TOOLTIP, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_TOOLTIP_PATH, labelDisplayTooltip), I18n.format("invtweaks.settings.displaytooltip.tooltip"));
         controlList.add(displayTooltipBtn);
-        
+
         // Check if links to files are supported, if not disable the buttons
         if(!Desktop.isDesktopSupported()) {
             controlList.stream().forEach(button -> {
@@ -130,10 +102,8 @@ public class InvTweaksGuiSettingsAdvanced extends InvTweaksGuiSettingsAbstract {
         super.drawScreen(i, j, f);
 
         int x = width / 2;
-        drawCenteredString(obf.getFontRenderer(), I18n.format("invtweaks.settings.pvpwarning.pt1"),
-                x, 40, 0x999999);
-        drawCenteredString(obf.getFontRenderer(), I18n.format("invtweaks.settings.pvpwarning.pt2"),
-                x, 50, 0x999999);
+        drawCenteredString(obf.getFontRenderer(), I18n.format("invtweaks.settings.pvpwarning.pt1"), x, 40, 0x999999);
+        drawCenteredString(obf.getFontRenderer(), I18n.format("invtweaks.settings.pvpwarning.pt2"), x, 50, 0x999999);
     }
 
     @Override
@@ -146,7 +116,7 @@ public class InvTweaksGuiSettingsAdvanced extends InvTweaksGuiSettingsAbstract {
             case ID_DISPLAY_TOOLTIP:
                 toggleBooleanButton(guibutton, InvTweaksConfig.PROP_TOOLTIP_PATH, labelDisplayTooltip);
                 break;
-        
+
             // Toggle auto-refill sound
             case ID_SORT_ON_PICKUP:
                 toggleBooleanButton(guibutton, InvTweaksConfig.PROP_ENABLE_SORTING_ON_PICKUP, labelSortOnPickup);
@@ -170,8 +140,7 @@ public class InvTweaksGuiSettingsAdvanced extends InvTweaksGuiSettingsAbstract {
             // Toggle server assistance
             case ID_SERVER_ASSIST:
                 toggleBooleanButton(guibutton, InvTweaksConfig.PROP_ENABLE_SERVER_ITEMSWAP, labelServerAssist);
-                InvTweaksMod.proxy.setServerAssistEnabled(!InvTweaks.getConfigManager().getConfig().getProperty(
-                        InvTweaksConfig.PROP_ENABLE_SERVER_ITEMSWAP).equals(InvTweaksConfig.VALUE_FALSE));
+                InvTweaksMod.proxy.setServerAssistEnabled(!InvTweaks.getConfigManager().getConfig().getProperty(InvTweaksConfig.PROP_ENABLE_SERVER_ITEMSWAP).equals(InvTweaksConfig.VALUE_FALSE));
                 break;
 
 

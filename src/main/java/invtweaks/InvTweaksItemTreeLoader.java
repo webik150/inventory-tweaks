@@ -5,7 +5,6 @@ import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.MinecraftForge;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.xml.sax.Attributes;
@@ -106,14 +105,12 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
     }
 
     private int getNextItemOrder(boolean lastOrder) {
-        if ((lastOrder || mergeChildren > 0) && itemOrder > 0)
-            return itemOrder - 1;
+        if((lastOrder || mergeChildren > 0) && itemOrder > 0) { return itemOrder - 1; }
         return itemOrder++;
     }
 
     @Override
-    public synchronized void startElement(String uri, String localName, String name, @NotNull Attributes attributes)
-            throws SAXException {
+    public synchronized void startElement(String uri, String localName, String name, @NotNull Attributes attributes) throws SAXException {
 
         String rangeDMinAttr = attributes.getValue(ATTR_RANGE_DMIN);
         String newTreeVersion = attributes.getValue(ATTR_TREE_VERSION);
@@ -127,12 +124,12 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
         mergeChildrenValue = mergeChildrenValue == null ? "" : mergeChildrenValue.toLowerCase();
         boolean willMergeChildren = (mergeChildrenValue.equals("1") || mergeChildrenValue.equals("true") || mergeChildrenValue.equals("yes") || mergeChildrenValue.equals("t") || mergeChildrenValue.equals("y"));
         mergeStack.add(willMergeChildren);
-        
+
         // Tree version
         if(treeVersion == null) {
             treeVersion = newTreeVersion;
         }
-        
+
 
         // Item
         if(id != null) {
@@ -149,8 +146,7 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
             if(attributes.getValue(ATTR_DAMAGE) != null) {
                 damage = Integer.parseInt(attributes.getValue(ATTR_DAMAGE));
             }
-            tree.addItem(categoryStack.getLast(),
-                    new InvTweaksItemTreeItem(name, id, damage, extraData, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + name));
+            tree.addItem(categoryStack.getLast(), new InvTweaksItemTreeItem(name, id, damage, extraData, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + name));
         } else if(oreDictNameAttr != null) {
             tree.registerOre(categoryStack.getLast(), name, oreDictNameAttr, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + name);
         } else if(className != null) {
@@ -164,7 +160,7 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
                 }
             }
             tree.registerClass(categoryStack.getLast(), name, className.toLowerCase(), extraData, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + name);
-        } else { 
+        } else {
             // Category
             if(categoryStack.isEmpty()) {
                 // Root category
@@ -175,25 +171,23 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
             }
 
             // Handle damage ranges
-            if(rangeDMinAttr != null) {                
+            if(rangeDMinAttr != null) {
                 int rangeDMin = Integer.parseInt(rangeDMinAttr);
                 int rangeDMax = Integer.parseInt(attributes.getValue(ATTR_RANGE_DMAX));
                 for(int damage = rangeDMin; damage <= rangeDMax; damage++) {
-                    tree.addItem(name, new InvTweaksItemTreeItem((name + id + "-" + damage), id, damage, null,
-                            getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + name));
+                    tree.addItem(name, new InvTweaksItemTreeItem((name + id + "-" + damage), id, damage, null, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + name));
                 }
-            } else if (willMergeChildren) {
+            } else if(willMergeChildren) {
                 //Try to get a new ID for the children to use.  
                 //(If an ancestor already set the flag, this will do nothing.)
                 getNextItemOrder(lastOrder);
             }
             categoryStack.add(name);
         }
-            
+
         //This happens last so if this node got an ID and it was supposed to be new, it did.
-        if (willMergeChildren)
-            mergeChildren++;
-        
+        if(willMergeChildren) { mergeChildren++; }
+
     }
 
     @Override
@@ -201,15 +195,14 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
         if(!categoryStack.isEmpty() && name.equals(categoryStack.getLast())) {
             categoryStack.removeLast();
         }
-        if (!mergeStack.isEmpty()) {
-            if (mergeStack.getLast() && mergeChildren > 0)
-                mergeChildren--;
+        if(!mergeStack.isEmpty()) {
+            if(mergeStack.getLast() && mergeChildren > 0) { mergeChildren--; }
             mergeStack.removeLast();
         }
     }
-    
+
     @Override
-    public void endDocument () throws SAXException {
+    public void endDocument() throws SAXException {
         tree.endFileRead();
     }
 
@@ -233,8 +226,7 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
         String version;
 
         @Override
-        public synchronized void startElement(String uri, String localName, String name, @NotNull Attributes attributes)
-                throws SAXException {
+        public synchronized void startElement(String uri, String localName, String name, @NotNull Attributes attributes) throws SAXException {
             if(version == null) {
                 version = attributes.getValue(ATTR_TREE_VERSION);
             }

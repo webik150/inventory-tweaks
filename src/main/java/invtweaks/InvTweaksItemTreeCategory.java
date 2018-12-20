@@ -114,7 +114,7 @@ public class InvTweaksItemTreeCategory implements IItemTreeCategory {
             return -1;
         }
     }
-    
+
     @Override
     public String findKeywordPath(String keyword) {
         if(name.equals(keyword)) {
@@ -155,8 +155,7 @@ public class InvTweaksItemTreeCategory implements IItemTreeCategory {
 
     @NotNull
     public String toString() {
-        return name + " (" + subCategories.size() +
-                " cats, " + items.size() + " items)";
+        return name + " (" + subCategories.size() + " cats, " + items.size() + " items)";
     }
 
 }

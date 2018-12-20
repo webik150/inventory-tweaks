@@ -25,8 +25,7 @@ public class ContainerSectionManager {
         this(InvTweaks.getCurrentContainerManager(), section_);
     }
 
-    public ContainerSectionManager(IContainerManager manager, ContainerSection section_)
-            throws Exception {
+    public ContainerSectionManager(IContainerManager manager, ContainerSection section_) throws Exception {
         containerMgr = manager;
         section = section_;
         if(!containerMgr.hasSection(section)) {

@@ -36,21 +36,14 @@ public class ShortcutSpecification {
     }
 
     public enum Action {
-        MOVE,
-        DROP
+        MOVE, DROP
     }
 
     public enum Target {
-        UP,
-        DOWN,
-        HOTBAR_SLOT,
-        UNSPECIFIED
+        UP, DOWN, HOTBAR_SLOT, UNSPECIFIED
     }
 
     public enum Scope {
-        EVERYTHING,
-        ALL_ITEMS,
-        ONE_STACK,
-        ONE_ITEM
+        EVERYTHING, ALL_ITEMS, ONE_STACK, ONE_ITEM
     }
 }

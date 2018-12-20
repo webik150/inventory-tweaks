@@ -5,14 +5,7 @@ package invtweaks;
  */
 public enum InvTweaksShortcutType {
 
-    MOVE_ALL_ITEMS,
-    MOVE_EVERYTHING,
-    MOVE_ONE_STACK,
-    MOVE_ONE_ITEM,
-    MOVE_UP,
-    MOVE_DOWN,
-    MOVE_TO_SPECIFIC_HOTBAR_SLOT,
-    DROP;
+    MOVE_ALL_ITEMS, MOVE_EVERYTHING, MOVE_ONE_STACK, MOVE_ONE_ITEM, MOVE_UP, MOVE_DOWN, MOVE_TO_SPECIFIC_HOTBAR_SLOT, DROP;
 
     public static InvTweaksShortcutType fromConfigKey(String property) {
         if(InvTweaksConfig.PROP_SHORTCUT_ALL_ITEMS.equals(property)) {
@@ -30,5 +23,4 @@ public enum InvTweaksShortcutType {
         } else {
             return null;
         }
-    }
-}
+    }}

@@ -135,8 +135,7 @@ public class InvTweaksObfuscation {
 
     @SideOnly(Side.CLIENT)
     private static int getMouseY(@NotNull GuiContainer guiContainer) {
-        return guiContainer.height -
-                (Mouse.getEventY() * guiContainer.height) / getDisplayHeight() - 1;
+        return guiContainer.height - (Mouse.getEventY() * guiContainer.height) / getDisplayHeight() - 1;
     }
 
     @Contract("!null->_")
@@ -213,8 +212,7 @@ public class InvTweaksObfuscation {
     }
 
     public static boolean isBasicSlot(@Nullable Object o) { // Slot
-        return o != null && (o.getClass()
-                .equals(Slot.class) || o.getClass().equals(GuiContainerCreative.CreativeSlot.class));
+        return o != null && (o.getClass().equals(Slot.class) || o.getClass().equals(GuiContainerCreative.CreativeSlot.class));
     }
 
     // Container members
@@ -232,16 +230,11 @@ public class InvTweaksObfuscation {
     // Slot members
 
     public static boolean areSameItemType(@NotNull ItemStack itemStack1, @NotNull ItemStack itemStack2) {
-        return !itemStack1.isEmpty() && !itemStack2.isEmpty() &&
-                (itemStack1.isItemEqual(itemStack2) ||
-                        (itemStack1.isItemStackDamageable() && itemStack1.getItem() == itemStack2.getItem()));
+        return !itemStack1.isEmpty() && !itemStack2.isEmpty() && (itemStack1.isItemEqual(itemStack2) || (itemStack1.isItemStackDamageable() && itemStack1.getItem() == itemStack2.getItem()));
     }
 
     public static boolean areItemsStackable(@NotNull ItemStack itemStack1, @NotNull ItemStack itemStack2) {
-        return !itemStack1.isEmpty() && !itemStack2.isEmpty() && itemStack1.isItemEqual(itemStack2) &&
-                itemStack1.isStackable() &&
-                (!itemStack1.getHasSubtypes() || itemStack1.getItemDamage() == itemStack2.getItemDamage()) &&
-                ItemStack.areItemStackTagsEqual(itemStack1, itemStack2);
+        return !itemStack1.isEmpty() && !itemStack2.isEmpty() && itemStack1.isItemEqual(itemStack2) && itemStack1.isStackable() && (!itemStack1.getHasSubtypes() || itemStack1.getItemDamage() == itemStack2.getItemDamage()) && ItemStack.areItemStackTagsEqual(itemStack1, itemStack2);
     }
 
     public void addChatMessage(@NotNull String message) {

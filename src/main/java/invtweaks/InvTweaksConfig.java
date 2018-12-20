@@ -143,8 +143,7 @@ public class InvTweaksConfig {
                             activeRuleset.finalizeRules();
                             rulesets.add(activeRuleset);
                         }
-                        activeRuleset = new InvTweaksConfigInventoryRuleset(tree, trimmedLine
-                                .substring(0, trimmedLine.length() - 1));
+                        activeRuleset = new InvTweaksConfigInventoryRuleset(tree, trimmedLine.substring(0, trimmedLine.length() - 1));
                         defaultRuleset = false;
                     }
 
@@ -215,8 +214,7 @@ public class InvTweaksConfig {
         if(configPropsFile.exists()) {
             try {
                 @Nullable FileOutputStream fos = new FileOutputStream(configPropsFile);
-                properties.store(fos,
-                        "Inventory Tweaks Configuration\n" + "(Regarding shortcuts, all key names can be found at: http://legacy.lwjgl.org/javadoc/org/lwjgl/input/Keyboard.html)");
+                properties.store(fos, "Inventory Tweaks Configuration\n" + "(Regarding shortcuts, all key names can be found at: http://legacy.lwjgl.org/javadoc/org/lwjgl/input/Keyboard.html)");
                 fos.flush();
                 fos.close();
                 storedConfigLastModified = InvTweaksConst.CONFIG_PROPS_FILE.lastModified();

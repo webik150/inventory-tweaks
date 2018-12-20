@@ -81,15 +81,12 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void setServerHasInvTweaks(boolean hasInvTweaks) {
         serverSupportDetected = hasInvTweaks;
-        serverSupportEnabled = hasInvTweaks && !InvTweaks.getConfigManager().getConfig()
-                .getProperty(InvTweaksConfig.PROP_ENABLE_SERVER_ITEMSWAP)
-                .equals(InvTweaksConfig.VALUE_FALSE);
+        serverSupportEnabled = hasInvTweaks && !InvTweaks.getConfigManager().getConfig().getProperty(InvTweaksConfig.PROP_ENABLE_SERVER_ITEMSWAP).equals(InvTweaksConfig.VALUE_FALSE);
         //InvTweaks.log.info("Server has support: " + hasInvTweaks + " support enabled: " + serverSupportEnabled);
     }
 
     @Override
-    public void slotClick(@NotNull PlayerControllerMP playerController, int windowId, int slot, int data, @NotNull ClickType action,
-                          @NotNull EntityPlayer player) {
+    public void slotClick(@NotNull PlayerControllerMP playerController, int windowId, int slot, int data, @NotNull ClickType action, @NotNull EntityPlayer player) {
         //int modiferKeys = (shiftHold) ? 1 : 0 /* XXX Placeholder */;
         if(serverSupportEnabled) {
             player.openContainer.slotClick(slot, data, action, player);

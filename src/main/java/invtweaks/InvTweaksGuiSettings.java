@@ -63,65 +63,38 @@ public class InvTweaksGuiSettings extends InvTweaksGuiSettingsAbstract {
         // Create large buttons
 
         moveToButtonCoords(1, p);
-        controlList.add(new GuiButton(ID_EDITRULES, p.getX() + 55, height / 6 + 96,
-                I18n.format("invtweaks.settings.rulesfile")));
-        controlList.add(new GuiButton(ID_HELP, p.getX() + 55, height / 6 + 144,
-                I18n.format("invtweaks.settings.onlinehelp")));
+        controlList.add(new GuiButton(ID_EDITRULES, p.getX() + 55, height / 6 + 96, I18n.format("invtweaks.settings.rulesfile")));
+        controlList.add(new GuiButton(ID_HELP, p.getX() + 55, height / 6 + 144, I18n.format("invtweaks.settings.onlinehelp")));
 
         moveToButtonCoords(11, p);
-        controlList.add(new GuiButton(ID_EDITTREE, p.getX(), p.getY(), 150, 20,
-                I18n.format("invtweaks.settings.treefile")));
+        controlList.add(new GuiButton(ID_EDITTREE, p.getX(), p.getY(), 150, 20, I18n.format("invtweaks.settings.treefile")));
         moveToButtonCoords(10, p);
-        controlList.add(new GuiButton(ID_MODDEDTREE, p.getX(), p.getY(), 150, 20, 
-                I18n.format("invtweaks.settings.moddedtreefile")));
+        controlList.add(new GuiButton(ID_MODDEDTREE, p.getX(), p.getY(), 150, 20, I18n.format("invtweaks.settings.moddedtreefile")));
 
-        
+
         // Create settings buttons
 
         moveToButtonCoords(i++, p);
-        controlList.add(new InvTweaksGuiTooltipButton(ID_SHORTCUTS_HELP, p.getX() + 130, p.getY(), 20, 20, "?",
-                "Shortcuts help"));
-        @NotNull InvTweaksGuiTooltipButton shortcutsBtn = new InvTweaksGuiTooltipButton(ID_SHORTCUTS, p.getX(), p.getY(), 130,
-                20, computeBooleanButtonLabel(
-                InvTweaksConfig.PROP_ENABLE_SHORTCUTS, labelShortcuts),
-                I18n.format(
-                        "invtweaks.settings.shortcuts.tooltip"));
+        controlList.add(new InvTweaksGuiTooltipButton(ID_SHORTCUTS_HELP, p.getX() + 130, p.getY(), 20, 20, "?", "Shortcuts help"));
+        @NotNull InvTweaksGuiTooltipButton shortcutsBtn = new InvTweaksGuiTooltipButton(ID_SHORTCUTS, p.getX(), p.getY(), 130, 20, computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SHORTCUTS, labelShortcuts), I18n.format("invtweaks.settings.shortcuts.tooltip"));
         controlList.add(shortcutsBtn);
 
         moveToButtonCoords(i++, p);
-        @NotNull InvTweaksGuiTooltipButton beforeBreakBtn = new InvTweaksGuiTooltipButton(ID_BEFORE_BREAK, p.getX(), p.getY(),
-                computeBooleanButtonLabel(
-                        InvTweaksConfig.PROP_AUTO_REFILL_BEFORE_BREAK,
-                        labelAutoRefillBeforeBreak),
-                I18n.format(
-                        "invtweaks.settings.beforebreak.tooltip"));
+        @NotNull InvTweaksGuiTooltipButton beforeBreakBtn = new InvTweaksGuiTooltipButton(ID_BEFORE_BREAK, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_AUTO_REFILL_BEFORE_BREAK, labelAutoRefillBeforeBreak), I18n.format("invtweaks.settings.beforebreak.tooltip"));
         controlList.add(beforeBreakBtn);
 
         moveToButtonCoords(i++, p);
-        @NotNull InvTweaksGuiTooltipButton autoRefillBtn = new InvTweaksGuiTooltipButton(ID_AUTO_REFILL, p.getX(), p.getY(),
-                computeBooleanButtonLabel(
-                        InvTweaksConfig.PROP_ENABLE_AUTO_REFILL,
-                        labelAutoRefill), I18n
-                .format(
-                        "invtweaks.settings.autorefill.tooltip"));
+        @NotNull InvTweaksGuiTooltipButton autoRefillBtn = new InvTweaksGuiTooltipButton(ID_AUTO_REFILL, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_AUTO_REFILL, labelAutoRefill), I18n.format("invtweaks.settings.autorefill.tooltip"));
         controlList.add(autoRefillBtn);
 
         moveToButtonCoords(i++, p);
-        controlList.add(new InvTweaksGuiTooltipButton(ID_MORE_OPTIONS, p.getX(), p.getY(), labelMoreOptions,
-                I18n.format(
-                        "invtweaks.settings.moreoptions.tooltip")));
+        controlList.add(new InvTweaksGuiTooltipButton(ID_MORE_OPTIONS, p.getX(), p.getY(), labelMoreOptions, I18n.format("invtweaks.settings.moreoptions.tooltip")));
 
-        controlList.add(new InvTweaksGuiTooltipButton(ID_BUG_SORTING, 5, this.height - 20, 100, 20,
-                labelBugSorting, null, false));
+        controlList.add(new InvTweaksGuiTooltipButton(ID_BUG_SORTING, 5, this.height - 20, 100, 20, labelBugSorting, null, false));
 
         //noinspection UnusedAssignment
         moveToButtonCoords(i++, p);
-        @NotNull InvTweaksGuiTooltipButton middleClickBtn = new InvTweaksGuiTooltipButton(ID_MIDDLE_CLICK, p.getX(), p.getY(),
-                computeBooleanButtonLabel(
-                        InvTweaksConfig.PROP_ENABLE_MIDDLE_CLICK,
-                        labelMiddleClick),
-                I18n.format(
-                        "invtweaks.settings.middleclick.tooltip"));
+        @NotNull InvTweaksGuiTooltipButton middleClickBtn = new InvTweaksGuiTooltipButton(ID_MIDDLE_CLICK, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_MIDDLE_CLICK, labelMiddleClick), I18n.format("invtweaks.settings.middleclick.tooltip"));
         controlList.add(middleClickBtn);
 
         // Check if links to files are supported, if not disable the buttons
@@ -156,8 +129,7 @@ public class InvTweaksGuiSettings extends InvTweaksGuiSettingsAbstract {
 
             // Toggle auto-refill before tool break
             case ID_BEFORE_BREAK:
-                toggleBooleanButton(guibutton, InvTweaksConfig.PROP_AUTO_REFILL_BEFORE_BREAK,
-                        labelAutoRefillBeforeBreak);
+                toggleBooleanButton(guibutton, InvTweaksConfig.PROP_AUTO_REFILL_BEFORE_BREAK, labelAutoRefillBeforeBreak);
                 break;
 
             // Toggle shortcuts
@@ -188,7 +160,7 @@ public class InvTweaksGuiSettings extends InvTweaksGuiSettingsAbstract {
                     InvTweaks.logInGameErrorStatic("invtweaks.settings.rulesfile.error", e);
                 }
                 break;
-                
+
             // Open tree configuration in external editor
             case ID_EDITTREE:
                 try {
@@ -200,9 +172,9 @@ public class InvTweaksGuiSettings extends InvTweaksGuiSettingsAbstract {
 
             //Replace the current tree file with the modded tree file.
             case ID_MODDEDTREE:
-                try {                    
+                try {
                     Desktop.getDesktop().browse(new URL(InvTweaksConst.TREE_URL).toURI());
-                } catch (Exception e) {
+                } catch(Exception e) {
                     InvTweaks.logInGameErrorStatic("invtweaks.settings.moddedtreefile.error", e);
                 }
                 break;

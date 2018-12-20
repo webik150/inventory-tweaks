@@ -54,8 +54,7 @@ public abstract class InvTweaksGuiSettingsAbstract extends GuiScreen {
     @Override
     public void drawScreen(int i, int j, float f) {
         drawDefaultBackground();
-        drawCenteredString(obf.getFontRenderer(), I18n.format("invtweaks.settings.title"),
-                width / 2, 20, 0xffffff);
+        drawCenteredString(obf.getFontRenderer(), I18n.format("invtweaks.settings.title"), width / 2, 20, 0xffffff);
         super.drawScreen(i, j, f);
     }
 

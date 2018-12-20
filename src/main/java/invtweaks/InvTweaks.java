@@ -1,5 +1,6 @@
 package invtweaks;
 
+import com.google.common.collect.Multimap;
 import invtweaks.api.IItemTree;
 import invtweaks.api.IItemTreeItem;
 import invtweaks.api.SortingMethod;
@@ -16,6 +17,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiCrafting;
 import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -25,15 +27,9 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemFishingRod;
-import net.minecraft.item.ItemHoe;
-import net.minecraft.item.ItemShears;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.client.resources.I18n;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -43,16 +39,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 
-import com.google.common.collect.Multimap;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -61,28 +48,30 @@ import java.util.stream.Collectors;
  * Main class for Inventory Tweaks, which maintains various hooks and dispatches the events to the correct handlers.
  *
  * @author Jimeo Wan
- *         <p>
- *         Contact: jimeo.wan (at) gmail (dot) com Website: <a href="https://inventory-tweaks.readthedocs.org/">https://inventory-tweaks.readthedocs.org/</a>
- *         Source code: <a href="https://github.com/kobata/inventory-tweaks">GitHub</a> License: MIT
+ * <p>
+ * Contact: jimeo.wan (at) gmail (dot) com Website: <a href="https://inventory-tweaks.readthedocs.org/">https://inventory-tweaks.readthedocs.org/</a>
+ * Source code: <a href="https://github.com/kobata/inventory-tweaks">GitHub</a> License: MIT
  */
 public class InvTweaks extends InvTweaksObfuscation {
     public static Logger log;
 
     private static InvTweaks instance;
-
+    @NotNull
+    private final ItemStack[] hotbarClone = new ItemStack[InvTweaksConst.INVENTORY_HOTBAR_SIZE];
+    @NotNull
+    private final List<String> queuedMessages = new ArrayList<>();
+    private final ItemListChecker itemListChecker = new ItemListChecker();
     /**
      * The configuration loader.
      */
     @Nullable
     private InvTweaksConfigManager cfgManager = null;
-
     /**
      * Attributes to remember the status of chest sorting while using middle clicks.
      */
     private SortingMethod chestAlgorithm = SortingMethod.DEFAULT;
     private long chestAlgorithmClickTimestamp = 0;
     private boolean chestAlgorithmButtonDown = false;
-    
     /**
      * Various information concerning the context, stored on each tick to allow for certain features (auto-refill,
      * sorting on pick up...)
@@ -92,19 +81,13 @@ public class InvTweaks extends InvTweaksObfuscation {
     @Nullable
     private String storedStackId = null;
     private int storedStackDamage = InvTweaksConst.DAMAGE_WILDCARD, storedFocusedSlot = -1;
-    @NotNull
-    private final ItemStack[] hotbarClone = new ItemStack[InvTweaksConst.INVENTORY_HOTBAR_SIZE];
     private boolean hadFocus = true, mouseWasDown = false;
-
     private boolean wasInGUI = false;
-
     private boolean previousRecipeBookVisibility = false;
-
     /**
      * Allows to trigger some logic only every Const.POLLING_DELAY.
      */
     private int tickNumber = 0, lastPollingTickNumber = -InvTweaksConst.POLLING_DELAY;
-
     /**
      * Stores when the sorting key was last pressed (allows to detect long key holding)
      */
@@ -112,20 +95,13 @@ public class InvTweaks extends InvTweaksObfuscation {
     private boolean sortKeyDown = false;
     private boolean sortKeyEnabled = true;
     private boolean textboxMode = false;
-
     private boolean itemPickupPending = false;
     private int itemPickupTimeout = 0;
-    
     /**
      * Debug tools:
      */
     private String mostRecentComparison = "";
     private boolean debugTree = false;
-
-    @NotNull
-    private final List<String> queuedMessages = new ArrayList<>();
-
-    private final ItemListChecker itemListChecker = new ItemListChecker();
 
     /**
      * Creates an instance of the mod, and loads the configuration from the files, creating them if necessary.
@@ -171,8 +147,7 @@ public class InvTweaks extends InvTweaksObfuscation {
 
     @Nullable
     public static InvTweaksConfigManager getConfigManager() {
-        if (instance == null)
-            return null;
+        if(instance == null) { return null; }
         return instance.cfgManager;
     }
 
@@ -182,7 +157,7 @@ public class InvTweaks extends InvTweaksObfuscation {
         //if(getConfigManager().getConfig().getProperty(InvTweaksConfig.PROP_ENABLE_CONTAINER_MIRRORING).equals(InvTweaksConfig.VALUE_TRUE)) {
         //    return new MirroredContainerManager(container);
         //} else {
-            return new DirectContainerManager(container);
+        return new DirectContainerManager(container);
         //}
     }
 
@@ -206,8 +181,7 @@ public class InvTweaks extends InvTweaksObfuscation {
 
             StackTraceElement exceptionLine = trace[0];
             if(exceptionLine != null && exceptionLine.getFileName() != null) {
-                return buildLogString(level, message) + ": " + e.getMessage() + " (l" + exceptionLine.getLineNumber() +
-                        " in " + exceptionLine.getFileName().replace("InvTweaks", "") + ")";
+                return buildLogString(level, message) + ": " + e.getMessage() + " (l" + exceptionLine.getLineNumber() + " in " + exceptionLine.getFileName().replace("InvTweaks", "") + ")";
             } else {
                 return buildLogString(level, message) + ": " + e.getMessage();
             }
@@ -219,6 +193,54 @@ public class InvTweaks extends InvTweaksObfuscation {
     @NotNull
     private static String buildLogString(@NotNull Level level, String message) {
         return InvTweaksConst.INGAME_LOG_PREFIX + ((level.equals(Level.SEVERE)) ? "[ERROR] " : "") + message;
+    }
+
+    private static int compareMaxDamage(ItemStack i, ItemStack j) {
+        //Use durability to sort, favoring more durable items.
+        int maxDamage1 = i.getMaxDamage() <= 0 ? Integer.MAX_VALUE : i.getMaxDamage();
+        int maxDamage2 = j.getMaxDamage() <= 0 ? Integer.MAX_VALUE : j.getMaxDamage();
+        return maxDamage2 - maxDamage1;
+    }
+
+    private static int compareCurDamage(ItemStack i, ItemStack j) {
+        //Use remaining durability to sort, favoring more damaged.
+        int curDamage1 = i.getItemDamage();
+        int curDamage2 = j.getItemDamage();
+        if(i.isItemStackDamageable() && !getConfigManager().getConfig().getProperty(InvTweaksConfig.PROP_INVERT_TOOL_DAMAGE).equals(InvTweaksConfig.VALUE_TRUE)) {
+            return curDamage2 - curDamage1;
+        } else {
+            return curDamage1 - curDamage2;
+        }
+    }
+
+    public static String getToolClass(ItemStack itemStack, Item item) {
+        if(itemStack == null || item == null) { return ""; }
+        Set<String> toolClassSet = item.getToolClasses(itemStack);
+
+        if(toolClassSet.contains("sword")) {
+            //Swords are not "tools".
+            Set<String> newClassSet = new HashSet<String>();
+            for(String toolClass : toolClassSet) { if(toolClass != "sword") { newClassSet.add(toolClass); } }
+            toolClassSet = newClassSet;
+        }
+
+        //Minecraft hoes, shears, and fishing rods don't have tool class names.
+        if(toolClassSet.isEmpty()) {
+            if(item instanceof ItemHoe) { return "hoe"; }
+            if(item instanceof ItemShears) { return "shears"; }
+            if(item instanceof ItemFishingRod) { return "fishingrod"; }
+            return "";
+        }
+
+        //Get the only thing.
+        if(toolClassSet.size() == 1) { return (String) toolClassSet.toArray()[0]; }
+
+        //We have a preferred type to list tools under, primarily the pickaxe for harvest level.
+        String[] prefOrder = {"pickaxe", "axe", "shovel", "hoe", "shears", "wrench"};
+        for(int i = 0; i < prefOrder.length; i++) { if(toolClassSet.contains(prefOrder[i])) { return prefOrder[i]; } }
+
+        //Whatever happens to be the first thing:
+        return (String) toolClassSet.toArray()[0];
     }
 
     public void addScheduledTask(Runnable task) {
@@ -295,9 +317,7 @@ public class InvTweaks extends InvTweaksObfuscation {
 
             // Check current GUI
             @Nullable GuiScreen guiScreen = getCurrentScreen();
-            if(guiScreen == null || (isGuiContainer(guiScreen) && (isValidChest(
-                    ((GuiContainer) guiScreen).inventorySlots) || isValidInventory(
-                    ((GuiContainer) guiScreen).inventorySlots)))) {
+            if(guiScreen == null || (isGuiContainer(guiScreen) && (isValidChest(((GuiContainer) guiScreen).inventorySlots) || isValidInventory(((GuiContainer) guiScreen).inventorySlots)))) {
                 // Sorting!
                 handleSorting(guiScreen);
             }
@@ -321,8 +341,7 @@ public class InvTweaks extends InvTweaksObfuscation {
         }
 
         try {
-            @NotNull ContainerSectionManager containerMgr = new ContainerSectionManager(
-                    ContainerSection.INVENTORY);
+            @NotNull ContainerSectionManager containerMgr = new ContainerSectionManager(ContainerSection.INVENTORY);
 
             // Find stack slot (look in hotbar only).
             // We're looking for a brand new stack in the hotbar
@@ -346,10 +365,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                 // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
                 List<IItemTreeItem> items = tree.getItems(stack.getItem().getRegistryName().toString(), stack.getItemDamage());
 
-                List<Integer> preferredPositions = config.getRules().stream().filter(rule -> tree.matches(items, rule.getKeyword()))
-                        .flatMapToInt(e -> Arrays.stream(e.getPreferredSlots()))
-                        .boxed()
-                        .collect(Collectors.toList());
+                List<Integer> preferredPositions = config.getRules().stream().filter(rule -> tree.matches(items, rule.getKeyword())).flatMapToInt(e -> Arrays.stream(e.getPreferredSlots())).boxed().collect(Collectors.toList());
 
                 // Find best slot for stack
                 boolean hasToBeMoved = true;
@@ -401,107 +417,100 @@ public class InvTweaks extends InvTweaksObfuscation {
     public int compareItems(@NotNull ItemStack i, @NotNull ItemStack j, boolean onlyTreeSort) {
         return compareItems(i, j, getItemOrder(i), getItemOrder(j), onlyTreeSort);
     }
-    
+
     int compareItems(@NotNull ItemStack i, @NotNull ItemStack j, int orderI, int orderJ) {
         return compareItems(i, j, orderI, orderJ, false);
     }
-        
+
     int compareItems(@NotNull ItemStack i, @NotNull ItemStack j, int orderI, int orderJ, boolean api) {
-        if (i.isEmpty() && j.isEmpty()) {
+        if(i.isEmpty() && j.isEmpty()) {
             //Technically, if both are empty, they are equal.
-            if (debugTree) mostRecentComparison = "Both stacks are Empty.";
+            if(debugTree) { mostRecentComparison = "Both stacks are Empty."; }
             return 0;
-        } else if(j.isEmpty()) {            
-            if (debugTree) mostRecentComparison = "J is Empty.";
+        } else if(j.isEmpty()) {
+            if(debugTree) { mostRecentComparison = "J is Empty."; }
             return -1;
         } else if(i.isEmpty() || orderI == -1) {
-            if (debugTree) mostRecentComparison = "I is Empty or orderI was -1.";
+            if(debugTree) { mostRecentComparison = "I is Empty or orderI was -1."; }
             return 1;
         } else {
-            if (debugTree) mostRecentComparison = "";
-            if (api) {
-                if (debugTree) mostRecentComparison = "API Active, ";
+            if(debugTree) { mostRecentComparison = ""; }
+            if(api) {
+                if(debugTree) { mostRecentComparison = "API Active, "; }
                 int lastOrder = cfgManager.getConfig().getTree().getLastTreeOrder();
-                if (orderI > lastOrder) orderI = Integer.MAX_VALUE;
-                if (orderJ > lastOrder) orderJ = Integer.MAX_VALUE;
+                if(orderI > lastOrder) { orderI = Integer.MAX_VALUE; }
+                if(orderJ > lastOrder) { orderJ = Integer.MAX_VALUE; }
             }
-            
-            if (debugTree) mostRecentComparison += "I: " + orderI + ", J: " + orderJ;
+
+            if(debugTree) { mostRecentComparison += "I: " + orderI + ", J: " + orderJ; }
 
             //If items are in different order slots, they are inherently comparator contract friendly.
             if(orderI != orderJ) {
-                if (debugTree) mostRecentComparison += ", Normal: " + (orderI - orderJ);
+                if(debugTree) { mostRecentComparison += ", Normal: " + (orderI - orderJ); }
                 return orderI - orderJ;
             }
-            
+
             //All items in the same sort slot need to be treated the same for the comparator contract.
 
             //Allow external sorting systems to take control of unsorted items not handled by the tree.
-            if (orderI == Integer.MAX_VALUE && orderJ == Integer.MAX_VALUE && api == true) {
-                if (debugTree) mostRecentComparison += ", API Bailout.";
+            if(orderI == Integer.MAX_VALUE && orderJ == Integer.MAX_VALUE && api == true) {
+                if(debugTree) { mostRecentComparison += ", API Bailout."; }
                 return 0;
             }
 
             Item iItem = i.getItem(), jItem = j.getItem();
             //Sort By Tool type then Harvest Level, (Better first.)
             int cTool = compareTools(i, j, iItem, jItem);
-            if (debugTree) mostRecentComparison += ", Tool: " + cTool;
-            if (cTool != 0)
-                return cTool;
-            
+            if(debugTree) { mostRecentComparison += ", Tool: " + cTool; }
+            if(cTool != 0) { return cTool; }
+
             //Sort by main-hand damage capability:  (Higher first, faster first for same damage)
             //Most tools also do damage, so they were tested as tools first.
             //If a tool reaches here, it has the same max durabilty, harvest level, and tool class.
             int cSword = compareSword(i, j, iItem, jItem);
-            if (debugTree) mostRecentComparison += ", Sword: " + cSword;
-            if (cSword != 0)
-                return cSword;
-            
+            if(debugTree) { mostRecentComparison += ", Sword: " + cSword; }
+            if(cSword != 0) { return cSword; }
+
             //Sort By Armor utility:  (More First)
             int cArmor = compareArmor(i, j, iItem, jItem);
-            if (debugTree) mostRecentComparison += ", Armor: " + cArmor;
-            if (cArmor != 0)
-                return cArmor;
-                            
+            if(debugTree) { mostRecentComparison += ", Armor: " + cArmor; }
+            if(cArmor != 0) { return cArmor; }
+
             //Sort my display name:
             int cName = compareNames(i, j);
-            if (debugTree) mostRecentComparison += ", Name" + cName;
-            if (cName != 0)
-                return cName;
-            
+            if(debugTree) { mostRecentComparison += ", Name" + cName; }
+            if(cName != 0) { return cName; }
+
             //Sort By enchantments:
             int cEnchant = compareEnchantment(i, j);
-            if (cEnchant != 0)
-                return cEnchant;
-                
+            if(cEnchant != 0) { return cEnchant; }
+
             //Use durability to sort, favoring more durable items.  (Non-Tools, Non-Armor, Non-Weapons.)
             int maxDamage = compareMaxDamage(i, j);
-            if (debugTree) mostRecentComparison += ", Max Damage: " + maxDamage;
-            if (maxDamage != 0)
-                return maxDamage;  
+            if(debugTree) { mostRecentComparison += ", Max Damage: " + maxDamage; }
+            if(maxDamage != 0) { return maxDamage; }
 
             //Use remaining durability to sort, favoring config option on damaged.
             int curDamage = compareCurDamage(i, j);
-            if (debugTree) mostRecentComparison += ", Current Damage: " + curDamage;
-            if (curDamage != 0)
-                return curDamage;  
+            if(debugTree) { mostRecentComparison += ", Current Damage: " + curDamage; }
+            if(curDamage != 0) { return curDamage; }
 
             //Use stack size to put bigger stacks first.
-            if (j.getCount() != i.getCount()) {
-                 if (debugTree) mostRecentComparison += ", Stack Size";
+            if(j.getCount() != i.getCount()) {
+                if(debugTree) { mostRecentComparison += ", Stack Size"; }
                 return j.getCount() - i.getCount();
             }
-            
+
             //Final catch all:
-            if (debugTree) mostRecentComparison += ", Final: " + ObjectUtils.compare(i.getItem().getRegistryName().toString(),
-                    j.getItem().getRegistryName().toString());
+            if(debugTree) {
+                mostRecentComparison += ", Final: " + ObjectUtils.compare(i.getItem().getRegistryName().toString(), j.getItem().getRegistryName().toString());
+            }
             // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
-            return ObjectUtils.compare(i.getItem().getRegistryName().toString(),
-                    j.getItem().getRegistryName().toString());
-            
+            return ObjectUtils.compare(i.getItem().getRegistryName().toString(), j.getItem().getRegistryName().toString());
+
         }
     }
-    
+
     private int compareNames(ItemStack i, ItemStack j) {
         boolean iHasName = i.hasDisplayName();
         boolean jHasName = j.hasDisplayName();
@@ -511,109 +520,52 @@ public class InvTweaks extends InvTweaksObfuscation {
         //Custom named items come first.
         if(iHasName || jHasName) {
             if(!iHasName) {
-                if (debugTree) mostRecentComparison += ", J has custom Name";
+                if(debugTree) { mostRecentComparison += ", J has custom Name"; }
                 return -1;
             } else if(!jHasName) {
-                if (debugTree) mostRecentComparison += ", I has custom Name";
+                if(debugTree) { mostRecentComparison += ", I has custom Name"; }
                 return 1;
             }
         }
-        //Differently named items (either both custom or both default, like bees or resource chickens.) 
+        //Differently named items (either both custom or both default, like bees or resource chickens.)
         if(!iDisplayName.equals(jDisplayName)) {
-            if (debugTree) mostRecentComparison += ", Name: " + iDisplayName.compareTo(jDisplayName);
+            if(debugTree) { mostRecentComparison += ", Name: " + iDisplayName.compareTo(jDisplayName); }
             return iDisplayName.compareTo(jDisplayName);
         }
-        
-        return 0;        
-    }
-    
-    private static int compareMaxDamage(ItemStack i, ItemStack j) {
-        //Use durability to sort, favoring more durable items.
-        int maxDamage1 = i.getMaxDamage() <= 0 ? Integer.MAX_VALUE : i.getMaxDamage();
-        int maxDamage2 = j.getMaxDamage() <= 0 ? Integer.MAX_VALUE : j.getMaxDamage();
-        return maxDamage2 - maxDamage1;      	
+
+        return 0;
     }
 
-    private static int compareCurDamage(ItemStack i, ItemStack j) {
-        //Use remaining durability to sort, favoring more damaged.
-        int curDamage1 = i.getItemDamage();
-        int curDamage2 = j.getItemDamage();
-        if(i.isItemStackDamageable() && !getConfigManager().getConfig().getProperty(InvTweaksConfig.PROP_INVERT_TOOL_DAMAGE).equals(InvTweaksConfig.VALUE_TRUE)) {
-            return curDamage2 - curDamage1;
-        } else {
-            return curDamage1 - curDamage2;
-        }
-    }
-
-    
-    public static String getToolClass(ItemStack itemStack, Item item)
-    {
-        if (itemStack == null || item == null) return "";
-        Set<String> toolClassSet = item.getToolClasses(itemStack);
-
-        if (toolClassSet.contains("sword")) {
-            //Swords are not "tools".
-            Set<String> newClassSet = new HashSet<String>();
-            for (String toolClass: toolClassSet)
-                if (toolClass != "sword")
-                    newClassSet.add(toolClass);
-            toolClassSet = newClassSet;
-        }
-
-        //Minecraft hoes, shears, and fishing rods don't have tool class names.
-        if (toolClassSet.isEmpty()) {
-            if (item instanceof ItemHoe) return "hoe";
-            if (item instanceof ItemShears) return "shears";
-            if (item instanceof ItemFishingRod) return "fishingrod";
-            return "";
-        }
-        
-        //Get the only thing.
-        if (toolClassSet.size() == 1)
-            return (String) toolClassSet.toArray()[0];
-        
-        //We have a preferred type to list tools under, primarily the pickaxe for harvest level.
-        String[] prefOrder = {"pickaxe", "axe", "shovel", "hoe", "shears", "wrench"};
-        for (int i = 0; i < prefOrder.length; i++)
-            if (toolClassSet.contains(prefOrder[i])) 
-                return prefOrder[i];
-        
-        //Whatever happens to be the first thing:
-        return (String) toolClassSet.toArray()[0];
-    }
-    
-    private int compareTools(ItemStack i, ItemStack j, Item iItem, Item jItem)
-    {
+    private int compareTools(ItemStack i, ItemStack j, Item iItem, Item jItem) {
         String toolClass1 = getToolClass(i, iItem);
         String toolClass2 = getToolClass(j, jItem);
 
-        if (debugTree) mostRecentComparison += ", ToolClass (" + toolClass1 + ", " + toolClass2 + ")";
+        if(debugTree) { mostRecentComparison += ", ToolClass (" + toolClass1 + ", " + toolClass2 + ")"; }
         boolean isTool1 = toolClass1 != "";
         boolean isTool2 = toolClass2 != "";
-        if (!isTool1  || !isTool2 ) {
+        if(!isTool1 || !isTool2) {
             //This should catch any instances where one of the stacks is null.
             return Boolean.compare(isTool2, isTool1);
         } else {
             int toolClassComparison = toolClass1.compareTo(toolClass2);
-            if (toolClassComparison != 0) {
+            if(toolClassComparison != 0) {
                 return toolClassComparison;
             }
             // If they were the same type, sort with the better harvest level first.
             int harvestLevel1 = iItem.getHarvestLevel(i, toolClass1, null, null);
             int harvestLevel2 = jItem.getHarvestLevel(j, toolClass2, null, null);
             int toolLevelComparison = harvestLevel2 - harvestLevel1;
-            if (debugTree) mostRecentComparison += ", HarvestLevel (" + harvestLevel1 + ", " + harvestLevel2 + ")";
-            if (toolLevelComparison != 0) {
-                return Integer.compare(harvestLevel2 , harvestLevel1);
+            if(debugTree) { mostRecentComparison += ", HarvestLevel (" + harvestLevel1 + ", " + harvestLevel2 + ")"; }
+            if(toolLevelComparison != 0) {
+                return Integer.compare(harvestLevel2, harvestLevel1);
             }
         }
-        
+
         return compareMaxDamage(i, j);
-        
+
     }
 
-    private int compareSword(ItemStack itemStack1, ItemStack itemStack2, Item iItem, Item jItem)
-    {
+    private int compareSword(ItemStack itemStack1, ItemStack itemStack2, Item iItem, Item jItem) {
         Multimap<String, AttributeModifier> multimap1 = itemStack1 != null ? itemStack1.getAttributeModifiers(EntityEquipmentSlot.MAINHAND) : null;
         Multimap<String, AttributeModifier> multimap2 = itemStack2 != null ? itemStack2.getAttributeModifiers(EntityEquipmentSlot.MAINHAND) : null;
 
@@ -625,9 +577,9 @@ public class InvTweaks extends InvTweaksObfuscation {
         boolean hasSpeed1 = itemStack1 != null ? multimap1.containsKey(attackSpeedName) : false;
         boolean hasSpeed2 = itemStack2 != null ? multimap2.containsKey(attackSpeedName) : false;
 
-        if (debugTree) mostRecentComparison += ", HasDamage (" + hasDamage1 + ", " + hasDamage2 + ")";
-        
-        if (!hasDamage1 || !hasDamage2) {
+        if(debugTree) { mostRecentComparison += ", HasDamage (" + hasDamage1 + ", " + hasDamage2 + ")"; }
+
+        if(!hasDamage1 || !hasDamage2) {
             return Boolean.compare(hasDamage2, hasDamage1);
         } else {
             Collection<AttributeModifier> damageMap1 = multimap1.get(attackDamageName);
@@ -636,55 +588,53 @@ public class InvTweaks extends InvTweaksObfuscation {
             Double attackDamage2 = ((AttributeModifier) damageMap2.toArray()[0]).getAmount();
             // This funny comparison is because Double == Double never seems to work.
             int damageComparison = Double.compare(attackDamage2, attackDamage1);
-            if (damageComparison == 0 && hasSpeed1 && hasSpeed2) {
+            if(damageComparison == 0 && hasSpeed1 && hasSpeed2) {
                 // Same damage, sort faster weapon first.
                 Collection<AttributeModifier> speedMap1 = multimap1.get(attackSpeedName);
                 Collection<AttributeModifier> speedMap2 = multimap2.get(attackSpeedName);
                 Double speed1 = ((AttributeModifier) speedMap1.toArray()[0]).getAmount();
                 Double speed2 = ((AttributeModifier) speedMap2.toArray()[0]).getAmount();
                 int speedComparison = Double.compare(speed2, speed1);
-                if (speedComparison != 0)
-                    return speedComparison;
+                if(speedComparison != 0) { return speedComparison; }
 
-            } else if (damageComparison != 0) {
+            } else if(damageComparison != 0) {
                 // Higher damage first.
                 return damageComparison;
-            } 
+            }
             return compareMaxDamage(itemStack1, itemStack2);
         }
     }
-    
-    private int compareArmor(ItemStack i, ItemStack j, Item iItem, Item jItem)
-    {
+
+    private int compareArmor(ItemStack i, ItemStack j, Item iItem, Item jItem) {
         int isArmor1 = (iItem instanceof ItemArmor) ? 1 : 0;
         int isArmor2 = (jItem instanceof ItemArmor) ? 1 : 0;
-        if (isArmor1 == 0 || isArmor2 == 0) { 
+        if(isArmor1 == 0 || isArmor2 == 0) {
             //This should catch any instances where one of the stacks is null.
             return isArmor2 - isArmor1;
         } else {
             ItemArmor a1 = (ItemArmor) iItem;
             ItemArmor a2 = (ItemArmor) jItem;
-            if (a1.armorType != a2.armorType) {
+            if(a1.armorType != a2.armorType) {
                 return a2.armorType.compareTo(a1.armorType);
-            } else if (a1.damageReduceAmount != a2.damageReduceAmount) {
+            } else if(a1.damageReduceAmount != a2.damageReduceAmount) {
                 return a2.damageReduceAmount - a1.damageReduceAmount;
-            } else if (a1.toughness != a2.toughness) {
+            } else if(a1.toughness != a2.toughness) {
                 return a2.toughness > a1.toughness ? -1 : 1;
             }
             return compareMaxDamage(i, j);
         }
     }
-    
+
     private int compareEnchantment(ItemStack i, ItemStack j) {
         @NotNull Map<Enchantment, Integer> iEnchs = EnchantmentHelper.getEnchantments(i);
         @NotNull Map<Enchantment, Integer> jEnchs = EnchantmentHelper.getEnchantments(j);
-        
+
         //Pick the item with the most enchantments first.
         if(iEnchs.size() != jEnchs.size()) {
-            if (debugTree) mostRecentComparison += ", Enchantment Count";
-            return jEnchs.size() - iEnchs.size();            
+            if(debugTree) { mostRecentComparison += ", Enchantment Count"; }
+            return jEnchs.size() - iEnchs.size();
         }
-        
+
         int iEnchMaxId = 0, iEnchMaxLvl = 0;
         int jEnchMaxId = 0, jEnchMaxLvl = 0;
 
@@ -711,18 +661,18 @@ public class InvTweaks extends InvTweaksObfuscation {
 
         //The highest enchantment ID, (random actual enchantment.)
         if(iEnchMaxId != jEnchMaxId) {
-            if (debugTree) mostRecentComparison += ", Highest Enchantment";
-            return jEnchMaxId - iEnchMaxId;                        
+            if(debugTree) { mostRecentComparison += ", Highest Enchantment"; }
+            return jEnchMaxId - iEnchMaxId;
         }
-        
+
         //Highest level if they both have the same coolest enchantment.
         if(iEnchMaxLvl != jEnchMaxLvl) {
-            if (debugTree) mostRecentComparison += ", Highest Enchantment Level";
+            if(debugTree) { mostRecentComparison += ", Highest Enchantment Level"; }
             return jEnchMaxLvl - iEnchMaxLvl;
         }
-        
+
         //Enchantments aren't different.
-        if (debugTree) mostRecentComparison += ", Enchantment Level same";
+        if(debugTree) { mostRecentComparison += ", Enchantment Level same"; }
         return 0;
     }
 
@@ -751,8 +701,7 @@ public class InvTweaks extends InvTweaksObfuscation {
     }
 
     public void logInGame(@NotNull String message, boolean alreadyTranslated) {
-        @NotNull String formattedMsg = buildLogString(Level.INFO,
-                (alreadyTranslated) ? message : I18n.format(message));
+        @NotNull String formattedMsg = buildLogString(Level.INFO, (alreadyTranslated) ? message : I18n.format(message));
 
         if(mc.ingameGUI == null) {
             queuedMessages.add(formattedMsg);
@@ -822,8 +771,7 @@ public class InvTweaks extends InvTweaksObfuscation {
 
         // Switch between configurations (shortcut)
         cfgManager.getShortcutsHandler().updatePressedKeys();
-        @Nullable InvTweaksShortcutMapping switchMapping = cfgManager.getShortcutsHandler().isShortcutDown(
-                InvTweaksShortcutType.MOVE_TO_SPECIFIC_HOTBAR_SLOT);
+        @Nullable InvTweaksShortcutMapping switchMapping = cfgManager.getShortcutsHandler().isShortcutDown(InvTweaksShortcutType.MOVE_TO_SPECIFIC_HOTBAR_SLOT);
         if(isSortingShortcutDown() && switchMapping != null) {
             @Nullable String newRuleset = null;
             int pressedKey = switchMapping.getKeyCodes().get(0);
@@ -862,8 +810,7 @@ public class InvTweaks extends InvTweaksObfuscation {
             }
 
             if(newRuleset != null) {
-                logInGame(String.format(I18n.format("invtweaks.loadconfig.enabled"), newRuleset),
-                        true);
+                logInGame(String.format(I18n.format("invtweaks.loadconfig.enabled"), newRuleset), true);
                 // Hack to prevent 2nd way to switch configs from being enabled
                 sortingKeyPressedDate = Integer.MAX_VALUE;
             }
@@ -879,8 +826,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                 @Nullable String newRuleset = config.switchConfig();
                 // Log only if there is more than 1 ruleset
                 if(previousRuleset != null && newRuleset != null && !previousRuleset.equals(newRuleset)) {
-                    logInGame(String.format(I18n.format("invtweaks.loadconfig.enabled"), newRuleset),
-                            true);
+                    logInGame(String.format(I18n.format("invtweaks.loadconfig.enabled"), newRuleset), true);
                     handleSorting(currentScreen);
                 }
                 sortingKeyPressedDate = currentTime;
@@ -890,17 +836,15 @@ public class InvTweaks extends InvTweaksObfuscation {
         }
 
     }
-    
-    private String ListOfClassNameKind(Object o)
-    {
+
+    private String ListOfClassNameKind(Object o) {
         String resString = "";
         Class testClass = o.getClass();
-        while (testClass != null)
-        {
+        while(testClass != null) {
             resString += testClass.getName().toLowerCase();
             //The secret sauce:
             testClass = testClass.getSuperclass();
-            if (testClass != null) resString += ", ";
+            if(testClass != null) { resString += ", "; }
         }
         return resString;
     }
@@ -914,13 +858,13 @@ public class InvTweaks extends InvTweaksObfuscation {
             selectedItem = mainInventory.get(focusedSlot);
         }
 
-        if (debugTree && selectedItem != null && !selectedItem.isEmpty()) {
+        if(debugTree && selectedItem != null && !selectedItem.isEmpty()) {
             logInGame("Hand Item Details:", true);
             logInGame(selectedItem.toString(), true);
             logInGame("Classes: " + ListOfClassNameKind(selectedItem.getItem()));
             logInGame("Item Order Index: " + getItemOrder(selectedItem), true);
             @NotNull ItemStack offhandStack = getOffhandStack();
-            if (offhandStack != null && !offhandStack.isEmpty()) {
+            if(offhandStack != null && !offhandStack.isEmpty()) {
                 logInGame("Off-Hand Item Details:", true);
                 logInGame(offhandStack.toString(), true);
                 logInGame("Item Order Index: " + getItemOrder(offhandStack), true);
@@ -928,12 +872,10 @@ public class InvTweaks extends InvTweaksObfuscation {
                 logInGame("Comparator debug: " + mostRecentComparison, true);
             }
         }
-        
+
         // Sorting
         try {
-            new InvTweaksHandlerSorting(mc, cfgManager.getConfig(), ContainerSection.INVENTORY,
-                    SortingMethod.INVENTORY, InvTweaksConst.INVENTORY_ROW_SIZE)
-                    .sort();
+            new InvTweaksHandlerSorting(mc, cfgManager.getConfig(), ContainerSection.INVENTORY, SortingMethod.INVENTORY, InvTweaksConst.INVENTORY_ROW_SIZE).sort();
         } catch(Exception e) {
             logInGameError("invtweaks.sort.inventory.error", e);
             e.printStackTrace();
@@ -957,14 +899,13 @@ public class InvTweaks extends InvTweaksObfuscation {
         if(storedFocusedSlot != focusedSlot) { // Filter selection change
             storedFocusedSlot = focusedSlot;
         } else if(!ItemStack.areItemsEqual(currentStack, storedStack) && storedStackId != null) {
-            if (!storedStack.isEmpty() && !ItemStack.areItemStacksEqual(offhandStack, storedStack)) { // Checks not switched to offhand
-                if (currentStack.isEmpty() || (currentStack.getItem() == Items.BOWL && Objects.equals(storedStackId, "minecraft:mushroom_stew"))
-                    // Handle eaten mushroom soup
+            if(!storedStack.isEmpty() && !ItemStack.areItemStacksEqual(offhandStack, storedStack)) { // Checks not switched to offhand
+                if(currentStack.isEmpty() || (currentStack.getItem() == Items.BOWL && Objects.equals(storedStackId, "minecraft:mushroom_stew"))
+                        // Handle eaten mushroom soup
                         && (getCurrentScreen() == null || // Filter open inventory or other window
-                        isGuiEditSign(
-                                getCurrentScreen()))) { // TODO: This should be more expandable on 'equivalent' items (API?) and allowed GUIs
+                        isGuiEditSign(getCurrentScreen()))) { // TODO: This should be more expandable on 'equivalent' items (API?) and allowed GUIs
 
-                    if (config.isAutoRefillEnabled(storedStackId, storedStackDamage)) {
+                    if(config.isAutoRefillEnabled(storedStackId, storedStackDamage)) {
                         try {
                             cfgManager.getAutoRefillHandler().autoRefillSlot(focusedSlot, storedStackId, storedStackDamage);
                         } catch(Exception e) {
@@ -975,14 +916,11 @@ public class InvTweaks extends InvTweaksObfuscation {
                     // Item
                     int itemMaxDamage = currentStack.getMaxDamage();
                     int autoRefillThreshhold = config.getIntProperty(InvTweaksConfig.PROP_AUTO_REFILL_DAMAGE_THRESHHOLD);
-                    if (canToolBeReplaced(currentStackDamage, itemMaxDamage, autoRefillThreshhold) && config
-                            .getProperty(InvTweaksConfig.PROP_AUTO_REFILL_BEFORE_BREAK)
-                            .equals(InvTweaksConfig.VALUE_TRUE) && config
-                            .isAutoRefillEnabled(storedStackId, storedStackDamage)) {
+                    if(canToolBeReplaced(currentStackDamage, itemMaxDamage, autoRefillThreshhold) && config.getProperty(InvTweaksConfig.PROP_AUTO_REFILL_BEFORE_BREAK).equals(InvTweaksConfig.VALUE_TRUE) && config.isAutoRefillEnabled(storedStackId, storedStackDamage)) {
                         // Trigger auto-refill before the tool breaks
                         try {
                             cfgManager.getAutoRefillHandler().autoRefillSlot(focusedSlot, storedStackId, storedStackDamage);
-                        } catch (Exception e) {
+                        } catch(Exception e) {
                             logInGameError("invtweaks.sort.autorefill.error", e);
                         }
                     }
@@ -1010,8 +948,7 @@ public class InvTweaks extends InvTweaksObfuscation {
             @Nullable InvTweaksConfig config = cfgManager.getConfig();
 
             // Check that middle click sorting is allowed
-            if(config.getProperty(InvTweaksConfig.PROP_ENABLE_MIDDLE_CLICK)
-                    .equals(InvTweaksConfig.VALUE_TRUE) && isGuiContainer(guiScreen)) {
+            if(config.getProperty(InvTweaksConfig.PROP_ENABLE_MIDDLE_CLICK).equals(InvTweaksConfig.VALUE_TRUE) && isGuiContainer(guiScreen)) {
 
                 @NotNull GuiContainer guiContainer = (GuiContainer) guiScreen;
                 Container container = guiContainer.inventorySlots;
@@ -1020,8 +957,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                     chestAlgorithmButtonDown = true;
 
                     @NotNull IContainerManager containerMgr = getContainerManager(container);
-                    @Nullable Slot slotAtMousePosition = InvTweaksObfuscation
-                            .getSlotAtMousePosition((GuiContainer) getCurrentScreen());
+                    @Nullable Slot slotAtMousePosition = InvTweaksObfuscation.getSlotAtMousePosition((GuiContainer) getCurrentScreen());
                     @Nullable ContainerSection target = null;
                     if(slotAtMousePosition != null) {
                         target = containerMgr.getSlotSection(getSlotNumber(slotAtMousePosition));
@@ -1042,8 +978,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                                 chestAlgorithm = SortingMethod.DEFAULT;
                             }
                             try {
-                                new InvTweaksHandlerSorting(mc, cfgManager.getConfig(), ContainerSection.CHEST,
-                                        chestAlgorithm, getContainerRowSize(guiContainer)).sort();
+                                new InvTweaksHandlerSorting(mc, cfgManager.getConfig(), ContainerSection.CHEST, chestAlgorithm, getContainerRowSize(guiContainer)).sort();
                             } catch(Exception e) {
                                 logInGameError("invtweaks.sort.chest.error", e);
                                 e.printStackTrace();
@@ -1052,30 +987,23 @@ public class InvTweaks extends InvTweaksObfuscation {
                             chestAlgorithm = SortingMethod.values()[(chestAlgorithm.ordinal() + 1) % 3];
                             chestAlgorithmClickTimestamp = timestamp;
 
-                        } else if(ContainerSection.CRAFTING_IN.equals(target) || ContainerSection.CRAFTING_IN_PERSISTENT
-                                .equals(target)) {
+                        } else if(ContainerSection.CRAFTING_IN.equals(target) || ContainerSection.CRAFTING_IN_PERSISTENT.equals(target)) {
                             try {
-                                new InvTweaksHandlerSorting(mc, cfgManager.getConfig(), target,
-                                        SortingMethod.EVEN_STACKS,
-                                        (containerMgr.getSize(target) == 9) ? 3 : 2).sort();
+                                new InvTweaksHandlerSorting(mc, cfgManager.getConfig(), target, SortingMethod.EVEN_STACKS, (containerMgr.getSize(target) == 9) ? 3 : 2).sort();
                             } catch(Exception e) {
                                 logInGameError("invtweaks.sort.crafting.error", e);
                                 e.printStackTrace();
                             }
 
-                        } else if(ContainerSection.INVENTORY_HOTBAR.equals(target) || (ContainerSection
-                                .INVENTORY_NOT_HOTBAR.equals(target))) {
+                        } else if(ContainerSection.INVENTORY_HOTBAR.equals(target) || (ContainerSection.INVENTORY_NOT_HOTBAR.equals(target))) {
                             handleSorting(guiScreen);
                         }
 
                     } else if(isValidInventory(container)) {
-                        if(ContainerSection.CRAFTING_IN.equals(target) || ContainerSection.CRAFTING_IN_PERSISTENT
-                                .equals(target)) {
+                        if(ContainerSection.CRAFTING_IN.equals(target) || ContainerSection.CRAFTING_IN_PERSISTENT.equals(target)) {
                             // Crafting stacks evening
                             try {
-                                new InvTweaksHandlerSorting(mc, cfgManager.getConfig(), target,
-                                        SortingMethod.EVEN_STACKS,
-                                        (containerMgr.getSize(target) == 9) ? 3 : 2).sort();
+                                new InvTweaksHandlerSorting(mc, cfgManager.getConfig(), target, SortingMethod.EVEN_STACKS, (containerMgr.getSize(target) == 9) ? 3 : 2).sort();
                             } catch(Exception e) {
                                 logInGameError("invtweaks.sort.crafting.error", e);
                                 e.printStackTrace();
@@ -1107,9 +1035,9 @@ public class InvTweaks extends InvTweaksObfuscation {
     // See note above
     private boolean isRecipeBookVisible(@NotNull GuiContainer guiContainer) {
         if(guiContainer instanceof GuiInventory) {
-            return ((GuiInventory)guiContainer).recipeBookGui.isVisible();
+            return ((GuiInventory) guiContainer).recipeBookGui.isVisible();
         } else if(guiContainer instanceof GuiCrafting) {
-            return ((GuiCrafting)guiContainer).recipeBookGui.isVisible();
+            return ((GuiCrafting) guiContainer).recipeBookGui.isVisible();
         } else {
             return false;
         }
@@ -1154,22 +1082,15 @@ public class InvTweaks extends InvTweaksObfuscation {
             if(!customButtonsAdded) {
 
                 // Check for custom button texture
-                boolean customTextureAvailable = hasTexture(
-                        new ResourceLocation("inventorytweaks", "textures/gui/button10px.png"));
+                boolean customTextureAvailable = hasTexture(new ResourceLocation("inventorytweaks", "textures/gui/button10px.png"));
 
-                int id = InvTweaksConst.JIMEOWAN_ID,
-                        x = guiContainer.guiLeft + guiContainer.xSize - 16,
-                        y = guiContainer.guiTop + 5;
+                int id = InvTweaksConst.JIMEOWAN_ID, x = guiContainer.guiLeft + guiContainer.xSize - 16, y = guiContainer.guiTop + 5;
                 // Inventory button
                 if(!isValidChest) {
                     /*if(hasRecipeButton(guiContainer)) {
                         x -= 20;
                     }*/
-                    controlList.add(new InvTweaksGuiSettingsButton(cfgManager, id,
-                            x, y, w, h, "...",
-                            I18n.format(
-                                    "invtweaks.button.settings.tooltip"),
-                            customTextureAvailable));
+                    controlList.add(new InvTweaksGuiSettingsButton(cfgManager, id, x, y, w, h, "...", I18n.format("invtweaks.button.settings.tooltip"), customTextureAvailable));
                 }
 
                 // Chest buttons
@@ -1188,37 +1109,20 @@ public class InvTweaks extends InvTweaksObfuscation {
                     }*/
 
                     // Settings button
-                    controlList
-                            .add(new InvTweaksGuiSettingsButton(cfgManager, id++, (isChestWayTooBig) ? x + 22 : x - 1,
-                                    (isChestWayTooBig) ? y - 3 : y, w, h, "...",
-                                    I18n.format(
-                                            "invtweaks.button.settings.tooltip"),
-                                    customTextureAvailable));
+                    controlList.add(new InvTweaksGuiSettingsButton(cfgManager, id++, (isChestWayTooBig) ? x + 22 : x - 1, (isChestWayTooBig) ? y - 3 : y, w, h, "...", I18n.format("invtweaks.button.settings.tooltip"), customTextureAvailable));
 
                     // Sorting buttons
                     if(!config.getProperty(InvTweaksConfig.PROP_SHOW_CHEST_BUTTONS).equals("false")) {
                         int rowSize = getContainerRowSize(guiContainer);
-                        @NotNull GuiButton button = new InvTweaksGuiSortingButton(cfgManager, id++, (isChestWayTooBig) ? x + 22 : x - 37,
-                                (isChestWayTooBig) ? y + 38 : y, w, h, "s", I18n.format("invtweaks.button.chest1.tooltip"),
-                                SortingMethod.DEFAULT, rowSize,
-                                customTextureAvailable);
+                        @NotNull GuiButton button = new InvTweaksGuiSortingButton(cfgManager, id++, (isChestWayTooBig) ? x + 22 : x - 37, (isChestWayTooBig) ? y + 38 : y, w, h, "s", I18n.format("invtweaks.button.chest1.tooltip"), SortingMethod.DEFAULT, rowSize, customTextureAvailable);
                         controlList.add(button);
 
                         if(rowSize <= 9) {
-                             button = new InvTweaksGuiSortingButton(cfgManager, id++,
-                                    (isChestWayTooBig) ? x + 22 : x - 13,
-                                    (isChestWayTooBig) ? y + 12 : y, w, h, "h",
-                                    I18n.format(
-                                            "invtweaks.button.chest3.tooltip"),
-                                    SortingMethod.HORIZONTAL,
-                                    rowSize, customTextureAvailable);
+                            button = new InvTweaksGuiSortingButton(cfgManager, id++, (isChestWayTooBig) ? x + 22 : x - 13, (isChestWayTooBig) ? y + 12 : y, w, h, "h", I18n.format("invtweaks.button.chest3.tooltip"), SortingMethod.HORIZONTAL, rowSize, customTextureAvailable);
                             controlList.add(button);
 
                             //noinspection UnusedAssignment (Using ++ for extensibility)
-                            button = new InvTweaksGuiSortingButton(cfgManager, id++, (isChestWayTooBig) ? x + 22 : x - 25,
-                                    (isChestWayTooBig) ? y + 25 : y, w, h, "v", I18n.format("invtweaks.button.chest2.tooltip"),
-                                    SortingMethod.VERTICAL, rowSize,
-                                    customTextureAvailable);
+                            button = new InvTweaksGuiSortingButton(cfgManager, id++, (isChestWayTooBig) ? x + 22 : x - 25, (isChestWayTooBig) ? y + 25 : y, w, h, "v", I18n.format("invtweaks.button.chest2.tooltip"), SortingMethod.VERTICAL, rowSize, customTextureAvailable);
                             controlList.add(button);
                         }
 
@@ -1270,8 +1174,7 @@ public class InvTweaks extends InvTweaksObfuscation {
 
     private int getItemOrder(@NotNull ItemStack itemStack) {
         // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
-        List<IItemTreeItem> items = cfgManager.getConfig().getTree().getItems(itemStack.getItem().getRegistryName().toString(),
-                itemStack.getItemDamage(), itemStack.getTagCompound());
+        List<IItemTreeItem> items = cfgManager.getConfig().getTree().getItems(itemStack.getItem().getRegistryName().toString(), itemStack.getItemDamage(), itemStack.getTagCompound());
         return (items.size() > 0) ? items.get(0).getOrder() : Integer.MAX_VALUE;
     }
 
@@ -1332,10 +1235,8 @@ public class InvTweaks extends InvTweaksObfuscation {
     }
 
     private void playClick() {
-        if(!cfgManager.getConfig().getProperty(InvTweaksConfig.PROP_ENABLE_SOUNDS)
-                .equals(InvTweaksConfig.VALUE_FALSE)) {
-            mc.getSoundHandler()
-                    .playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        if(!cfgManager.getConfig().getProperty(InvTweaksConfig.PROP_ENABLE_SOUNDS).equals(InvTweaksConfig.VALUE_FALSE)) {
+            mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }
     }
 

@@ -156,8 +156,7 @@ public class DirectContainerManager implements IContainerManager {
      */
     // TODO: Server helper directly implementing this.
     @Override
-    public boolean moveSome(ContainerSection srcSection, int srcIndex, ContainerSection destSection, int destIndex,
-                            int amount) {
+    public boolean moveSome(ContainerSection srcSection, int srcIndex, ContainerSection destSection, int destIndex, int amount) {
         @NotNull ItemStack source = getItemStack(srcSection, srcIndex);
         if(source.isEmpty() || srcSection == destSection && srcIndex == destIndex) {
             return true;
@@ -208,9 +207,7 @@ public class DirectContainerManager implements IContainerManager {
         int slot = indexToSlot(section, index);
         if(slot != -1) {
             int data = (rightClick) ? 1 : 0;
-            InvTweaksMod.proxy
-                    .slotClick(InvTweaks.getInstance().getPlayerController(), container.windowId, slot, data, PICKUP,
-                            InvTweaks.getInstance().getThePlayer());
+            InvTweaksMod.proxy.slotClick(InvTweaks.getInstance().getPlayerController(), container.windowId, slot, data, PICKUP, InvTweaks.getInstance().getThePlayer());
         }
     }
 

@@ -1,17 +1,18 @@
 package invtweaks;
 
+import invtweaks.integration.ItemListSorter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.client.resources.I18n;
-
+import net.minecraft.util.ResourceLocation;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import invtweaks.integration.ItemListSorter;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -44,13 +45,12 @@ public class InvTweaksConfigManager {
 
     private static long computeConfigLastModified() {
         long sum = Long.MIN_VALUE;
-        if (InvTweaksConst.INVTWEAKS_TREES_DIR.exists())
-        {
+        if(InvTweaksConst.INVTWEAKS_TREES_DIR.exists()) {
             File[] treeFiles = InvTweaksConst.INVTWEAKS_TREES_DIR.listFiles();
-            
-            for(File tree: treeFiles) {
+
+            for(File tree : treeFiles) {
                 //Make sure it is the type of file we want.
-                if (tree.getName().endsWith(".tree")) {
+                if(tree.getName().endsWith(".tree")) {
                     sum += tree.lastModified();
                 }
             }
@@ -132,19 +132,18 @@ public class InvTweaksConfigManager {
         if(!configDir.exists()) {
             configDir.mkdir();
         }
-        
+
         //Create the Config file directory.
-        if (!InvTweaksConst.INVTWEAKS_CONFIG_DIR.exists()) {
+        if(!InvTweaksConst.INVTWEAKS_CONFIG_DIR.exists()) {
             InvTweaksConst.INVTWEAKS_CONFIG_DIR.mkdir();
         }
-        
-        if (!InvTweaksConst.INVTWEAKS_TREES_DIR.exists()) {
-            if (InvTweaksConst.INVTWEAKS_TREES_DIR.mkdir()) {
-                extractFile(new ResourceLocation(InvTweaksConst.INVTWEAKS_RESOURCE_DOMAIN, "tree_readme.txt"),
-                    new File(InvTweaksConst.INVTWEAKS_TREES_DIR, "readme.txt"));
+
+        if(!InvTweaksConst.INVTWEAKS_TREES_DIR.exists()) {
+            if(InvTweaksConst.INVTWEAKS_TREES_DIR.mkdir()) {
+                extractFile(new ResourceLocation(InvTweaksConst.INVTWEAKS_RESOURCE_DOMAIN, "tree_readme.txt"), new File(InvTweaksConst.INVTWEAKS_TREES_DIR, "readme.txt"));
             }
         }
-       
+
         // Compatibility: Tree version check
         try {
             if(!(InvTweaksItemTreeLoader.isValidVersion(InvTweaksConst.CONFIG_TREE_FILE))) {
@@ -169,19 +168,15 @@ public class InvTweaksConfigManager {
 
         // Create missing files
 
-        if(!InvTweaksConst.CONFIG_RULES_FILE.exists() && extractFile(InvTweaksConst.DEFAULT_CONFIG_FILE,
-                InvTweaksConst.CONFIG_RULES_FILE)) {
-            InvTweaks.logInGameStatic(InvTweaksConst.CONFIG_RULES_FILE + " " +
-                    I18n.format("invtweaks.loadconfig.filemissing"));
+        if(!InvTweaksConst.CONFIG_RULES_FILE.exists() && extractFile(InvTweaksConst.DEFAULT_CONFIG_FILE, InvTweaksConst.CONFIG_RULES_FILE)) {
+            InvTweaks.logInGameStatic(InvTweaksConst.CONFIG_RULES_FILE + " " + I18n.format("invtweaks.loadconfig.filemissing"));
         }
-        if(!InvTweaksConst.CONFIG_TREE_FILE.exists() && extractFile(InvTweaksConst.DEFAULT_CONFIG_TREE_FILE,
-                InvTweaksConst.CONFIG_TREE_FILE)) {
-            InvTweaks.logInGameStatic(InvTweaksConst.CONFIG_TREE_FILE + " " +
-                    I18n.format("invtweaks.loadconfig.filemissing"));
+        if(!InvTweaksConst.CONFIG_TREE_FILE.exists() && extractFile(InvTweaksConst.DEFAULT_CONFIG_TREE_FILE, InvTweaksConst.CONFIG_TREE_FILE)) {
+            InvTweaks.logInGameStatic(InvTweaksConst.CONFIG_TREE_FILE + " " + I18n.format("invtweaks.loadconfig.filemissing"));
         }
 
         boolean treeBuilt = false;
-        if (InvTweaksConst.INVTWEAKS_TREES_DIR.exists()) {            
+        if(InvTweaksConst.INVTWEAKS_TREES_DIR.exists()) {
             treeBuilt = InvTweaksItemTreeBuilder.buildNewTree();
         }
 
@@ -196,9 +191,9 @@ public class InvTweaksConfigManager {
 
             // Configuration creation
             if(config == null) {
-                if (treeBuilt & InvTweaksConst.MERGED_TREE_FILE.exists()) {
+                if(treeBuilt & InvTweaksConst.MERGED_TREE_FILE.exists()) {
                     config = new InvTweaksConfig(InvTweaksConst.CONFIG_RULES_FILE, InvTweaksConst.MERGED_TREE_FILE);
-                } else if (treeBuilt & InvTweaksConst.MERGED_TREE_FILE_ALT.exists()) {
+                } else if(treeBuilt & InvTweaksConst.MERGED_TREE_FILE_ALT.exists()) {
                     config = new InvTweaksConfig(InvTweaksConst.CONFIG_RULES_FILE, InvTweaksConst.MERGED_TREE_FILE_ALT);
                 } else {
                     config = new InvTweaksConfig(InvTweaksConst.CONFIG_RULES_FILE, InvTweaksConst.CONFIG_TREE_FILE);
@@ -216,7 +211,7 @@ public class InvTweaksConfigManager {
             }
             showConfigErrors(config);
             ItemListSorter.ReloadItemList();
-            
+
         } catch(FileNotFoundException e) {
             error = "Config file not found";
             errorException = e;
@@ -266,7 +261,7 @@ public class InvTweaksConfigManager {
             return true;
         }
     }
-    
+
     private boolean extractFile(@NotNull ResourceLocation resource, @NotNull File destination) {
         try(@NotNull InputStream input = mc.getResourceManager().getResource(resource).getInputStream()) {
             try {
@@ -282,6 +277,6 @@ public class InvTweaksConfigManager {
             log.error("Cannot extract " + resource + " file: " + e.getMessage());
             return false;
         }
-    }    
+    }
 
 }

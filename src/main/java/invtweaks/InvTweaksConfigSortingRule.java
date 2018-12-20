@@ -25,8 +25,7 @@ public class InvTweaksConfigSortingRule implements Comparable<InvTweaksConfigSor
     private int containerSize;
     private int containerRowSize;
 
-    public InvTweaksConfigSortingRule(@NotNull InvTweaksItemTree tree, String constraint_, String keyword_, int containerSize_,
-                                      int containerRowSize_) {
+    public InvTweaksConfigSortingRule(@NotNull InvTweaksItemTree tree, String constraint_, String keyword_, int containerSize_, int containerRowSize_) {
 
         keyword = keyword_;
         constraint = constraint_;
@@ -40,8 +39,7 @@ public class InvTweaksConfigSortingRule implements Comparable<InvTweaksConfigSor
         // 2st criteria : the keyword category depth
         // 3st criteria : the item order in a same category
 
-        priority = type.getLowestPriority() + 100000 +
-                tree.getKeywordDepth(keyword) * 1000 - tree.getKeywordOrder(keyword);
+        priority = type.getLowestPriority() + 100000 + tree.getKeywordDepth(keyword) * 1000 - tree.getKeywordOrder(keyword);
 
     }
 
@@ -68,8 +66,7 @@ public class InvTweaksConfigSortingRule implements Comparable<InvTweaksConfigSor
 
                     int slot1 = slots1[0], slot2 = slots2[0];
 
-                    @NotNull Point point1 = new Point(slot1 % containerRowSize, slot1 / containerRowSize),
-                            point2 = new Point(slot2 % containerRowSize, slot2 / containerRowSize);
+                    @NotNull Point point1 = new Point(slot1 % containerRowSize, slot1 / containerRowSize), point2 = new Point(slot2 % containerRowSize, slot2 / containerRowSize);
 
                     result = new int[(Math.abs(point2.y - point1.y) + 1) * (Math.abs(point2.x - point1.x) + 1)];
                     int resultIndex = 0;
@@ -88,8 +85,7 @@ public class InvTweaksConfigSortingRule implements Comparable<InvTweaksConfigSor
                     while((point1.y < point2.y) ? y <= point2.y : y >= point2.y) {
                         int x = point1.x;
                         while((point1.x < point2.x) ? x <= point2.x : x >= point2.x) {
-                            result[resultIndex++] = (vertical) ? index(containerRowSize, x, y) : index(containerRowSize,
-                                    y, x);
+                            result[resultIndex++] = (vertical) ? index(containerRowSize, x, y) : index(containerRowSize, y, x);
                             x += (point1.x < point2.x) ? 1 : -1;
                         }
                         y += (point1.y < point2.y) ? 1 : -1;

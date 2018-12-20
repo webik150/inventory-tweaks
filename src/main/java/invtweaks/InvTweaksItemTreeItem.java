@@ -63,7 +63,7 @@ public class InvTweaksItemTreeItem implements IItemTreeItem {
     public int getOrder() {
         return order;
     }
-    
+
     @Override
     public String getPath() {
         return path;
@@ -78,9 +78,7 @@ public class InvTweaksItemTreeItem implements IItemTreeItem {
             return false;
         }
         @Nullable IItemTreeItem item = (IItemTreeItem) o;
-        return Objects.equals(id, item.getId())
-                && NBTUtil.areNBTEquals(extraData, item.getExtraData(), true)
-                && (damage == InvTweaksConst.DAMAGE_WILDCARD || damage == item.getDamage());
+        return Objects.equals(id, item.getId()) && NBTUtil.areNBTEquals(extraData, item.getExtraData(), true) && (damage == InvTweaksConst.DAMAGE_WILDCARD || damage == item.getDamage());
     }
 
     public String toString() {

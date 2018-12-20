@@ -15,7 +15,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.oredict.OreDictionary;
-
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -53,12 +52,12 @@ public class InvTweaksItemTree implements IItemTree {
     private String rootCategory;
     @NotNull
     private List<OreDictInfo> oresRegistered = new ArrayList<>();
-    
+
     @NotNull
     private List<ItemStack> allGameItems = new ArrayList<ItemStack>();
 
     private int highestOrder = 0;
-    
+
     private int lastTreeOrder = 0;
 
     public InvTweaksItemTree() {
@@ -69,8 +68,7 @@ public class InvTweaksItemTree implements IItemTree {
 
         if(defaultItems == null) {
             defaultItems = new ArrayList<>();
-            defaultItems.add(new InvTweaksItemTreeItem(UNKNOWN_ITEM, null, InvTweaksConst.DAMAGE_WILDCARD, null,
-                    Integer.MAX_VALUE, getRootCategory().getName()));
+            defaultItems.add(new InvTweaksItemTreeItem(UNKNOWN_ITEM, null, InvTweaksConst.DAMAGE_WILDCARD, null, Integer.MAX_VALUE, getRootCategory().getName()));
         }
 
         // Reset tree
@@ -215,10 +213,8 @@ public class InvTweaksItemTree implements IItemTree {
         // If there's no matching item, create new ones
         if(filteredItems.isEmpty()) {
             int newItemOrder = highestOrder + 1;
-            @NotNull IItemTreeItem newItemId = new InvTweaksItemTreeItem(String.format("%s-%d", id, damage), id, damage, null,
-                    newItemOrder, getRootCategory().getName() + "\\_uncategorized\\" + String.format("%s-%d", id, damage));
-            @NotNull IItemTreeItem newItemDamage = new InvTweaksItemTreeItem(id, id,
-                    InvTweaksConst.DAMAGE_WILDCARD, null, newItemOrder, getRootCategory().getName() + "\\_uncategorized\\" + id);
+            @NotNull IItemTreeItem newItemId = new InvTweaksItemTreeItem(String.format("%s-%d", id, damage), id, damage, null, newItemOrder, getRootCategory().getName() + "\\_uncategorized\\" + String.format("%s-%d", id, damage));
+            @NotNull IItemTreeItem newItemDamage = new InvTweaksItemTreeItem(id, id, InvTweaksConst.DAMAGE_WILDCARD, null, newItemOrder, getRootCategory().getName() + "\\_uncategorized\\" + id);
             addItem(getRootCategory().getName(), newItemId);
             addItem(getRootCategory().getName(), newItemDamage);
             filteredItems.add(newItemId);
@@ -268,15 +264,13 @@ public class InvTweaksItemTree implements IItemTree {
 
     @NotNull
     @Override
-    public IItemTreeItem addItem(String parentCategory, String name, String id, int damage, int order)
-            throws NullPointerException {
+    public IItemTreeItem addItem(String parentCategory, String name, String id, int damage, int order) throws NullPointerException {
         return addItem(parentCategory, name, id, damage, null, order);
     }
 
     @NotNull
     @Override
-    public IItemTreeItem addItem(String parentCategory, String name, String id, int damage, NBTTagCompound extra, int order)
-            throws NullPointerException {
+    public IItemTreeItem addItem(String parentCategory, String name, String id, int damage, NBTTagCompound extra, int order) throws NullPointerException {
         @NotNull InvTweaksItemTreeItem addedItem = new InvTweaksItemTreeItem(name, id, damage, extra, order, getRootCategory().findKeywordPath(parentCategory) + "\\" + name);
         addItem(parentCategory, addedItem);
         return addedItem;
@@ -328,8 +322,7 @@ public class InvTweaksItemTree implements IItemTree {
         for(@Nullable ItemStack i : OreDictionary.getOres(oreName)) {
             if(i != null) {
                 // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
-                addItem(category,
-                        new InvTweaksItemTreeItem(name, i.getItem().getRegistryName().toString(), i.getItemDamage(), null, order, path));
+                addItem(category, new InvTweaksItemTreeItem(name, i.getItem().getRegistryName().toString(), i.getItemDamage(), null, order, path));
             } else {
                 log.warn(String.format("An OreDictionary entry for %s is null", oreName));
             }
@@ -344,56 +337,91 @@ public class InvTweaksItemTree implements IItemTree {
             @NotNull ItemStack evOre = ev.getOre();
             if(!evOre.isEmpty()) {
                 // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
-                addItem(ore.category, new InvTweaksItemTreeItem(ore.name, evOre.getItem().getRegistryName().toString(),
-                        evOre.getItemDamage(), null, ore.order, ore.orePath));
+                addItem(ore.category, new InvTweaksItemTreeItem(ore.name, evOre.getItem().getRegistryName().toString(), evOre.getItemDamage(), null, ore.order, ore.orePath));
             } else {
                 log.warn(String.format("An OreDictionary entry for %s is null", ev.getName()));
             }
         });
     }
-    
-    public void registerClass(String category, String name, String className, NBTTagCompound extraData, int order, String path)
-    {
-        if (allGameItems.size() == 0)
-        {
+
+    public void registerClass(String category, String name, String className, NBTTagCompound extraData, int order, String path) {
+        if(allGameItems.size() == 0) {
             populateGameItems();
         }
-        
-        for(ItemStack stack : allGameItems)
-        {
+
+        for(ItemStack stack : allGameItems) {
             Item item = stack.getItem();
             boolean isClass = InstanceOfClassNameKind(item, className);
-            if (isClass) {
+            if(isClass) {
                 boolean doIt = true;
-                if (extraData != null) {
-                    if (doIt && extraData.hasKey("toolclass")) 
-                    {
+                if(extraData != null) {
+                    if(doIt && extraData.hasKey("toolclass")) {
                         String tclass = extraData.getString("toolclass");
                         //We don't want the set, we want the one we will use during comparisons.
                         //An empty toolclass will match non-tools.                        
-                        doIt = tclass.equals(InvTweaks.getToolClass(stack, item));                        
+                        doIt = tclass.equals(InvTweaks.getToolClass(stack, item));
                     }
-                    if (doIt && extraData.hasKey("armortype") && item instanceof ItemArmor) 
-                    {
+                    if(doIt && extraData.hasKey("armortype") && item instanceof ItemArmor) {
                         ItemArmor armor = (ItemArmor) item;
                         String keyArmorType = extraData.getString("armortype");
                         String itemArmorType = armor.armorType.getName().toLowerCase();
                         doIt = (keyArmorType.equals(itemArmorType));
                         armor = null;
                     }
-                    if (doIt && extraData.hasKey("isshield")) 
-                    {                        
+                    if(doIt && extraData.hasKey("isshield")) {
                         doIt = item.isShield(stack, null);
                     }
                 }
                 //Checks out, add it to the tree:
-                if (doIt) {
+                if(doIt) {
                     int dmg = item.isDamageable() ? InvTweaksConst.DAMAGE_WILDCARD : stack.getItemDamage();
-                    addItem(category,
-                            new InvTweaksItemTreeItem(name, item.getRegistryName().toString(), dmg, null, order, path));
+                    addItem(category, new InvTweaksItemTreeItem(name, item.getRegistryName().toString(), dmg, null, order, path));
                 }
             }
         }
+    }
+
+    private void populateGameItems() {
+        for(Map.Entry<ResourceLocation, Item> entry : ForgeRegistries.ITEMS.getEntries()) {
+            //getDataForItemSubtypes(itemDump, entry.getValue(), entry.getKey(), includeToolClass, dumpNBT);
+            Item item = entry.getValue();
+
+            if(item.getHasSubtypes()) {
+                for(CreativeTabs tab : item.getCreativeTabs()) {
+                    if(tab != null) {
+                        NonNullList<ItemStack> stacks = NonNullList.<ItemStack>create();
+                        item.getSubItems(tab, stacks);
+
+                        for(ItemStack stack : stacks) {
+                            allGameItems.add(stack);
+                            // FIXME: Ignore identical duplicate entries from different tabs...
+                            //addData(itemDump, item, rl, true, includeToolClass, dumpNBT, stack);
+                        }
+                    }
+                }
+            } else {
+                allGameItems.add(item.getDefaultInstance());
+                //addData(itemDump, item, rl, false, includeToolClass, dumpNBT, new ItemStack(item, 1, 0));
+            }
+        }
+    }
+
+    private boolean InstanceOfClassNameKind(Object o, String className) {
+        Class testClass = o.getClass();
+        while(testClass != null) {
+            if(testClass.getName().toLowerCase().endsWith(className)) { return true; }
+            //The secret sauce:
+            testClass = testClass.getSuperclass();
+        }
+        return false;
+    }
+
+    public void endFileRead() {
+        //We are done with this, let's release the memory.
+        allGameItems.clear();
+
+        //Remember where the last entry was placed in the tree for the API to leave these unsorted.
+        lastTreeOrder = highestOrder;
     }
 
     private static class OreDictInfo {
@@ -410,60 +438,5 @@ public class InvTweaksItemTree implements IItemTree {
             order = order_;
             orePath = orePath_;
         }
-    }
-    
-    private void populateGameItems()
-    {
-        for (Map.Entry<ResourceLocation, Item> entry : ForgeRegistries.ITEMS.getEntries())
-        {
-            //getDataForItemSubtypes(itemDump, entry.getValue(), entry.getKey(), includeToolClass, dumpNBT);
-            Item item = entry.getValue();
-            
-            if (item.getHasSubtypes())
-            {
-                for (CreativeTabs tab : item.getCreativeTabs())
-                {
-                    if (tab != null)
-                    {
-                        NonNullList<ItemStack> stacks = NonNullList.<ItemStack>create();
-                        item.getSubItems(tab, stacks);
-
-                        for (ItemStack stack : stacks)
-                        {
-                            allGameItems.add(stack);
-                            // FIXME: Ignore identical duplicate entries from different tabs...
-                            //addData(itemDump, item, rl, true, includeToolClass, dumpNBT, stack);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                allGameItems.add(item.getDefaultInstance());
-                //addData(itemDump, item, rl, false, includeToolClass, dumpNBT, new ItemStack(item, 1, 0));
-            }
-        }
-    }
-    
-    private boolean InstanceOfClassNameKind(Object o, String className)
-    {
-        Class testClass = o.getClass();
-        while (testClass != null)
-        {
-            if (testClass.getName().toLowerCase().endsWith(className))
-                return true;
-            //The secret sauce:
-            testClass = testClass.getSuperclass();
-        }
-        return false;
-    }
-    
-    public void endFileRead()
-    {
-        //We are done with this, let's release the memory.
-        allGameItems.clear();
-        
-        //Remember where the last entry was placed in the tree for the API to leave these unsorted.
-        lastTreeOrder = highestOrder;
     }
 }

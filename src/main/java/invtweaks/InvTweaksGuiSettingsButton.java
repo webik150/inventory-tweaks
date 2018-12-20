@@ -7,8 +7,6 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.concurrent.TimeoutException;
-
 /**
  * Button that opens the inventory & chest settings screen.
  *
@@ -18,8 +16,7 @@ public class InvTweaksGuiSettingsButton extends InvTweaksGuiIconButton {
 
     private static final Logger log = InvTweaks.log;
 
-    public InvTweaksGuiSettingsButton(InvTweaksConfigManager cfgManager_, int id_, int x, int y, int w, int h,
-                                      String displayString_, String tooltip, boolean useCustomTexture) {
+    public InvTweaksGuiSettingsButton(InvTweaksConfigManager cfgManager_, int id_, int x, int y, int w, int h, String displayString_, String tooltip, boolean useCustomTexture) {
         super(cfgManager_, id_, x, y, w, h, displayString_, tooltip, useCustomTexture);
     }
 
@@ -29,8 +26,7 @@ public class InvTweaksGuiSettingsButton extends InvTweaksGuiIconButton {
 
         // Display string
         @NotNull InvTweaksObfuscation obf = new InvTweaksObfuscation(mc);
-        drawCenteredString(obf.getFontRenderer(), displayString, x + 5, y - 1,
-                getTextColor(mouseX, mouseY));
+        drawCenteredString(obf.getFontRenderer(), displayString, x + 5, y - 1, getTextColor(mouseX, mouseY));
     }
 
     /**

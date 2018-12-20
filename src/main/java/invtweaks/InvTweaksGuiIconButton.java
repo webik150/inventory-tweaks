@@ -13,15 +13,13 @@ import org.lwjgl.opengl.GL11;
 public class InvTweaksGuiIconButton extends InvTweaksGuiTooltipButton {
 
     @NotNull
-    private static ResourceLocation resourceButtonCustom = new ResourceLocation("inventorytweaks",
-            "textures/gui/button10px.png");
+    private static ResourceLocation resourceButtonCustom = new ResourceLocation("inventorytweaks", "textures/gui/button10px.png");
     @NotNull
     private static ResourceLocation resourceButtonDefault = new ResourceLocation("textures/gui/widgets.png");
     protected InvTweaksConfigManager cfgManager;
     private boolean useCustomTexture;
 
-    public InvTweaksGuiIconButton(InvTweaksConfigManager cfgManager_, int id_, int x, int y, int w, int h,
-                                  String displayString_, String tooltip, boolean useCustomTexture_) {
+    public InvTweaksGuiIconButton(InvTweaksConfigManager cfgManager_, int id_, int x, int y, int w, int h, String displayString_, String tooltip, boolean useCustomTexture_) {
         super(id_, x, y, w, h, displayString_, tooltip);
         cfgManager = cfgManager_;
         useCustomTexture = useCustomTexture_;
@@ -40,15 +38,10 @@ public class InvTweaksGuiIconButton extends InvTweaksGuiTooltipButton {
             drawTexturedModalRect(x, y, (k - 1) * 10, 0, width, height);
         } else {
             mc.getTextureManager().bindTexture(resourceButtonDefault);
-            drawTexturedModalRect(x, y, 1, 46 + k * 20 + 1, width / 2,
-                    height / 2);
-            drawTexturedModalRect(x, y + height / 2, 1,
-                    46 + k * 20 + 20 - height / 2 - 1, width / 2, height / 2);
-            drawTexturedModalRect(x + width / 2, y, 200 - width / 2 - 1,
-                    46 + k * 20 + 1, width / 2, height / 2);
-            drawTexturedModalRect(x + width / 2, y + height / 2,
-                    200 - width / 2 - 1, 46 + k * 20 + 19 - height / 2,
-                    width / 2, height / 2);
+            drawTexturedModalRect(x, y, 1, 46 + k * 20 + 1, width / 2, height / 2);
+            drawTexturedModalRect(x, y + height / 2, 1, 46 + k * 20 + 20 - height / 2 - 1, width / 2, height / 2);
+            drawTexturedModalRect(x + width / 2, y, 200 - width / 2 - 1, 46 + k * 20 + 1, width / 2, height / 2);
+            drawTexturedModalRect(x + width / 2, y + height / 2, 200 - width / 2 - 1, 46 + k * 20 + 19 - height / 2, width / 2, height / 2);
         }
 
     }

@@ -74,7 +74,7 @@ public class VanillaSlotMaps {
 
         int size = container.inventorySlots.size();
 
-        if (container.horse instanceof AbstractChestHorse && ((AbstractChestHorse)container.horse).hasChest()) { // Chest slots are only added if chest is added. Saddle/armor slots always exist.
+        if(container.horse instanceof AbstractChestHorse && ((AbstractChestHorse) container.horse).hasChest()) { // Chest slots are only added if chest is added. Saddle/armor slots always exist.
             slotRefs.put(ContainerSection.CHEST, container.inventorySlots.subList(2, size - InvTweaksConst.INVENTORY_SIZE));
         }
         slotRefs.put(ContainerSection.INVENTORY, container.inventorySlots.subList(size - InvTweaksConst.INVENTORY_SIZE, size));
@@ -85,7 +85,7 @@ public class VanillaSlotMaps {
     }
 
     public static boolean containerHorseIsInventory(@NotNull ContainerHorseInventory container) {
-        return container.horse instanceof AbstractChestHorse && ((AbstractChestHorse)container.horse).hasChest();
+        return container.horse instanceof AbstractChestHorse && ((AbstractChestHorse) container.horse).hasChest();
     }
 
     @NotNull
@@ -160,8 +160,7 @@ public class VanillaSlotMaps {
 
         if(size >= InvTweaksConst.INVENTORY_SIZE) {
             // Assuming the container ends with the inventory, just like all vanilla containers.
-            slotRefs.put(ContainerSection.CHEST,
-                    container.inventorySlots.subList(0, size - InvTweaksConst.INVENTORY_SIZE));
+            slotRefs.put(ContainerSection.CHEST, container.inventorySlots.subList(0, size - InvTweaksConst.INVENTORY_SIZE));
             slotRefs.put(ContainerSection.INVENTORY, container.inventorySlots.subList(size - InvTweaksConst.INVENTORY_SIZE, size));
             slotRefs.put(ContainerSection.INVENTORY_NOT_HOTBAR, container.inventorySlots.subList(size - InvTweaksConst.INVENTORY_SIZE, size - InvTweaksConst.HOTBAR_SIZE));
             slotRefs.put(ContainerSection.INVENTORY_HOTBAR, container.inventorySlots.subList(size - InvTweaksConst.HOTBAR_SIZE, size));

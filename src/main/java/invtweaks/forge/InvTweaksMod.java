@@ -14,16 +14,11 @@ import org.jetbrains.annotations.NotNull;
  * ModLoader entry point to load and configure the mod.
  *
  * @author Jimeo Wan
- *         <p>
- *         Contact: jimeo.wan (at) gmail (dot) com Website: <a href="https://inventory-tweaks.readthedocs.org/">https://inventory-tweaks.readthedocs.org/</a>
- *         Source code: <a href="https://github.com/kobata/inventory-tweaks">GitHub</a> License: MIT
+ * <p>
+ * Contact: jimeo.wan (at) gmail (dot) com Website: <a href="https://inventory-tweaks.readthedocs.org/">https://inventory-tweaks.readthedocs.org/</a>
+ * Source code: <a href="https://github.com/kobata/inventory-tweaks">GitHub</a> License: MIT
  */
-@Mod(modid = "inventorytweaks",
-        dependencies = "required-after:forge@[14.21.0,)",
-        acceptableRemoteVersions = "*",
-        acceptedMinecraftVersions = "",
-        guiFactory = "invtweaks.forge.ModGuiFactory",
-        certificateFingerprint = "55d2cd4f5f0961410bf7b91ef6c6bf00a766dcbe")
+@Mod(modid = "inventorytweaks", dependencies = "required-after:forge@[14.21.0,)", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "", guiFactory = "invtweaks.forge.ModGuiFactory", certificateFingerprint = "55d2cd4f5f0961410bf7b91ef6c6bf00a766dcbe")
 public class InvTweaksMod implements InvTweaksAPI {
     @Mod.Instance
     public static InvTweaksMod instance;
@@ -66,6 +61,7 @@ public class InvTweaksMod implements InvTweaksAPI {
     public void serverStopped(FMLServerStoppedEvent e) {
         proxy.serverStopped(e);
     }
+
     @Override
     public void addOnLoadListener(IItemTreeListener listener) {
         proxy.addOnLoadListener(listener);
@@ -90,7 +86,7 @@ public class InvTweaksMod implements InvTweaksAPI {
     public int compareItems(@NotNull ItemStack i, @NotNull ItemStack j) {
         return proxy.compareItems(i, j);
     }
-    
+
     @Override
     public int compareItems(@NotNull ItemStack i, @NotNull ItemStack j, boolean onlyTreeSort) {
         return proxy.compareItems(i, j, onlyTreeSort);

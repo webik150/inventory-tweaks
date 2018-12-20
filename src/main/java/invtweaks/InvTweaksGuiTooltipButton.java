@@ -38,8 +38,7 @@ public class InvTweaksGuiTooltipButton extends GuiButton {
         }
     }
 
-    public InvTweaksGuiTooltipButton(int id_, int x, int y, int w, int h, @NotNull String displayString_, @Nullable String tooltip_,
-                                     boolean drawBackground_) {
+    public InvTweaksGuiTooltipButton(int id_, int x, int y, int w, int h, @NotNull String displayString_, @Nullable String tooltip_, boolean drawBackground_) {
         super(id_, x, y, w, h, displayString_);
         if(tooltip_ != null) {
             setTooltip(tooltip_);
@@ -52,8 +51,7 @@ public class InvTweaksGuiTooltipButton extends GuiButton {
         if(this.drawBackground) {
             super.drawButton(mc, mouseX, mouseY, partialTicks);
         } else {
-            this.drawString(mc.fontRenderer, this.displayString, this.x,
-                    this.y + (this.height - 8) / 2, 0x999999);
+            this.drawString(mc.fontRenderer, this.displayString, this.x, this.y + (this.height - 8) / 2, 0x999999);
         }
 
         @NotNull InvTweaksObfuscation obf = new InvTweaksObfuscation(mc);
@@ -88,8 +86,7 @@ public class InvTweaksGuiTooltipButton extends GuiButton {
                 }
 
                 // Draw background
-                drawGradientRect(x - 3, y - 3, x + tooltipWidth + 3, y + LINE_HEIGHT * tooltipLines.length, 0xc0000000,
-                        0xc0000000);
+                drawGradientRect(x - 3, y - 3, x + tooltipWidth + 3, y + LINE_HEIGHT * tooltipLines.length, 0xc0000000, 0xc0000000);
 
                 // Draw lines
                 int lineCount = 0;

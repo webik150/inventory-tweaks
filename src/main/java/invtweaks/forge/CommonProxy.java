@@ -37,8 +37,7 @@ public class CommonProxy implements InvTweaksAPI {
     }
 
     public void init(FMLInitializationEvent e) {
-        invtweaksChannel = NetworkRegistry.INSTANCE
-                .newChannel(InvTweaksConst.INVTWEAKS_CHANNEL, new ITMessageToMessageCodec());
+        invtweaksChannel = NetworkRegistry.INSTANCE.newChannel(InvTweaksConst.INVTWEAKS_CHANNEL, new ITMessageToMessageCodec());
         invtweaksChannel.get(Side.SERVER).pipeline().addAfter("ITMessageToMessageCodec#0", "InvTweaks Handler Server", new ITPacketHandlerServer());
 
         MinecraftForge.EVENT_BUS.register(this);
@@ -72,8 +71,7 @@ public class CommonProxy implements InvTweaksAPI {
      * 6: Merge all valid items with held item
      */
     @SideOnly(Side.CLIENT)
-    public void slotClick(PlayerControllerMP playerController, int windowId, int slot, int data, ClickType action,
-                          EntityPlayer player) {
+    public void slotClick(PlayerControllerMP playerController, int windowId, int slot, int data, ClickType action, EntityPlayer player) {
     }
 
     public void sortComplete() {
@@ -102,7 +100,7 @@ public class CommonProxy implements InvTweaksAPI {
     public int compareItems(@NotNull ItemStack i, @NotNull ItemStack j) {
         return 0;
     }
-    
+
     @Override
     public int compareItems(@NotNull ItemStack i, @NotNull ItemStack j, boolean onlyTreeSort) {
         return 0;
@@ -116,8 +114,7 @@ public class CommonProxy implements InvTweaksAPI {
     public void onPlayerLoggedIn(@NotNull PlayerEvent.PlayerLoggedInEvent e) {
         FMLEmbeddedChannel channel = invtweaksChannel.get(Side.SERVER);
 
-        channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(
-                FMLOutboundHandler.OutboundTarget.PLAYER);
+        channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
         channel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(e.player);
 
         channel.writeOutbound(new ITPacketLogin());
