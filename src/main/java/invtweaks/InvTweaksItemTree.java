@@ -319,7 +319,7 @@ public class InvTweaksItemTree implements IItemTree {
 
     @Override
     public void registerOre(String category, String name, String oreName, int order, String path) {
-        for(@Nullable ItemStack i : OreDictionary.getOres(oreName)) {
+        for(@Nullable ItemStack i : OreDictionary.getOres(oreName, false)) {
             if(i != null) {
                 // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
                 addItem(category, new InvTweaksItemTreeItem(name, i.getItem().getRegistryName().toString(), i.getItemDamage(), null, order, path));
