@@ -7,7 +7,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
 
@@ -16,10 +16,11 @@ plugins {
     id "com.matthewprenger.cursegradle" version "1.0.9"
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'idea'
 
 dependencies {
+    minecraft 'net.minecraftforge:forge:' + minecraft_version + '-' + forge_version
     compile 'org.jetbrains:annotations:13.0'
 }
 
@@ -129,16 +130,33 @@ group = mod_group
 archivesBaseName = mod_name
 
 minecraft {
-    version = forge_version
-    mappings = mcp_version
+    mappings channel: mcp_channel, version: mcp_version
 
-    runDir = "run"
-    makeObfSourceJar = false
+    runs {
+        client = {
+            // recommended logging data for a userdev environment
+            properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
+            // recommended logging level for the console
+            properties 'forge.logging.console.level': 'debug'
+            workingDirectory project.file('run').canonicalPath
+            source sourceSets.main
+        }
+        server = {
+            // recommended logging data for a userdev environment
+            properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
+            // recommended logging level for the console
+            properties 'forge.logging.console.level': 'debug'
+            workingDirectory project.file('run').canonicalPath
+            source sourceSets.main
+        }
+    }
 
-    replace '@VERSION@', project.internal_version
-    replaceIn 'InvTweaksConst.java'
+    // TODO: Replace this somehow
+    //replace '@VERSION@', project.internal_version
+    //replaceIn 'InvTweaksConst.java'
 }
-
+// TODO: Find out what replaced this
+/*
 if(hasProperty('mod_core_plugin')) {
     minecraft.coreMod = mod_core_plugin
 
@@ -148,7 +166,7 @@ if(hasProperty('mod_core_plugin')) {
         }
     }
 }
-
+*/
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
@@ -162,7 +180,8 @@ ext.keystorePass = System.getenv("KEYSTORE_PASSWORD")
 ext.keyPass = System.getenv("KEY_PASSWORD")
 ext.keyAlias = System.getenv("KEY_ALIAS")
 
-task signJar(type: Exec, dependsOn: reobfJar) {
+// TODO: ?? Find out correct dependsOn:
+task signJar(type: Exec, dependsOn: jar) {
     onlyIf {
         project.keystore && project.keystorePass && project.keyPass && project.keyAlias
     }
@@ -231,7 +250,7 @@ if(curseKey && hasProperty('curse_id')) {
             id = curse_id
             changelog = getGitChangelog()
             releaseType = curseType
-            addGameVersion minecraft.version
+            addGameVersion minecraft_version
 
             if(hasProperty('curseExtraVersions')) {
                 for(version in curseExtraVersions) {
@@ -257,14 +276,14 @@ if(curseKey && hasProperty('curse_id')) {
 
 processResources {
     inputs.property 'version', internal_version
-    inputs.property 'mcversion', minecraft.version
+    inputs.property 'mcversion', minecraft_version
 
     from(sourceSets.main.resources.srcDirs) {
         exclude '**/*.png'
         exclude '**/*_at.cfg'
         exclude '**/*itemtree.xml'
 
-        expand version: internal_version, mcversion: minecraft.version
+        expand version: internal_version, mcversion: minecraft_version
     }
     from(sourceSets.main.resources.srcDirs) {
         include '**/*.png'
