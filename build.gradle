@@ -174,7 +174,7 @@ compileJava {
     options.debugOptions.debugLevel = 'source,lines,vars'
 }
 
-/*
+
 ext.keystore = System.getenv("KEYSTORE")
 ext.keystorePass = System.getenv("KEYSTORE_PASSWORD")
 ext.keyPass = System.getenv("KEY_PASSWORD")
@@ -275,7 +275,7 @@ if(curseKey && hasProperty('curse_id')) {
         }
     }
 }
-*/
+
 processResources {
     inputs.property 'version', internal_version
     inputs.property 'mcversion', minecraft_version
