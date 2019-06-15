@@ -11,10 +11,10 @@ buildscript {
     }
 }
 
-plugins {
-    //id "net.minecraftforge.gradle.forge" version "2.0.2"
-    id "com.matthewprenger.cursegradle" version "1.0.9"
-}
+//plugins {
+//    //id "net.minecraftforge.gradle.forge" version "2.0.2"
+//    id "com.matthewprenger.cursegradle" version "1.0.9"
+//}
 
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'idea'
@@ -167,14 +167,14 @@ if(hasProperty('mod_core_plugin')) {
     }
 }
 */
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 compileJava {
     options.debug = true
     options.debugOptions.debugLevel = 'source,lines,vars'
 }
 
+/*
 ext.keystore = System.getenv("KEYSTORE")
 ext.keystorePass = System.getenv("KEYSTORE_PASSWORD")
 ext.keyPass = System.getenv("KEY_PASSWORD")
@@ -218,10 +218,12 @@ task deobfJar(type: Jar) {
     classifier 'deobf'
 }
 
+
 artifacts {
     archives apiJar
     archives deobfJar
 }
+
 
 ext.curseKey = System.getenv("CURSE_API_KEY")
 if(mod_version.endsWith("dev")) {
@@ -235,8 +237,8 @@ if(mod_version.endsWith("dev")) {
     ext.curseVersion = mod_version
 }
 
-tasks.curseforge.onlyIf { curseKey }
-tasks.curseforge.dependsOn signJar, apiJar, deobfJar
+//tasks.curseforge.onlyIf { curseKey }
+//tasks.curseforge.dependsOn signJar, apiJar, deobfJar
 
 if(hasProperty('curse_extra_versions')) {
     ext.curseExtraVersions = curse_extra_versions.tokenize(',')
@@ -273,7 +275,7 @@ if(curseKey && hasProperty('curse_id')) {
         }
     }
 }
-
+*/
 processResources {
     inputs.property 'version', internal_version
     inputs.property 'mcversion', minecraft_version
