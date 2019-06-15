@@ -4,11 +4,11 @@ package invtweaks;
 import invtweaks.api.IItemTree;
 import invtweaks.api.IItemTreeCategory;
 import invtweaks.api.IItemTreeItem;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ArmorItem;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -186,7 +186,7 @@ public class InvTweaksItemTree implements IItemTree {
 
     @NotNull
     @Override
-    public List<IItemTreeItem> getItems(@Nullable String id, int damage, @Nullable NBTTagCompound extra) {
+    public List<IItemTreeItem> getItems(@Nullable String id, int damage, @Nullable CompoundNBT extra) {
         if(id == null) {
             return new ArrayList<>();
         }
@@ -270,7 +270,7 @@ public class InvTweaksItemTree implements IItemTree {
 
     @NotNull
     @Override
-    public IItemTreeItem addItem(String parentCategory, String name, String id, int damage, NBTTagCompound extra, int order) throws NullPointerException {
+    public IItemTreeItem addItem(String parentCategory, String name, String id, int damage, CompoundNBT extra, int order) throws NullPointerException {
         @NotNull InvTweaksItemTreeItem addedItem = new InvTweaksItemTreeItem(name, id, damage, extra, order, getRootCategory().findKeywordPath(parentCategory) + "\\" + name);
         addItem(parentCategory, addedItem);
         return addedItem;
@@ -344,7 +344,7 @@ public class InvTweaksItemTree implements IItemTree {
         });
     }
 
-    public void registerClass(String category, String name, String className, NBTTagCompound extraData, int order, String path) {
+    public void registerClass(String category, String name, String className, CompoundNBT extraData, int order, String path) {
         if(allGameItems.size() == 0) {
             populateGameItems();
         }
@@ -361,8 +361,8 @@ public class InvTweaksItemTree implements IItemTree {
                         //An empty toolclass will match non-tools.                        
                         doIt = tclass.equals(InvTweaks.getToolClass(stack, item));
                     }
-                    if(doIt && extraData.hasKey("armortype") && item instanceof ItemArmor) {
-                        ItemArmor armor = (ItemArmor) item;
+                    if(doIt && extraData.hasKey("armortype") && item instanceof ArmorItem) {
+                        ArmorItem armor = (ArmorItem) item;
                         String keyArmorType = extraData.getString("armortype");
                         String itemArmorType = armor.armorType.getName().toLowerCase();
                         doIt = (keyArmorType.equals(itemArmorType));
@@ -387,7 +387,7 @@ public class InvTweaksItemTree implements IItemTree {
             Item item = entry.getValue();
 
             if(item.getHasSubtypes()) {
-                for(CreativeTabs tab : item.getCreativeTabs()) {
+                for(ItemGroup tab : item.getCreativeTabs()) {
                     if(tab != null) {
                         NonNullList<ItemStack> stacks = NonNullList.<ItemStack>create();
                         item.getSubItems(tab, stacks);

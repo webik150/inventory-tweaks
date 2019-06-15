@@ -2,8 +2,8 @@ package invtweaks;
 
 import invtweaks.forge.InvTweaksMod;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resources.I18n;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.util.Point;
@@ -32,7 +32,7 @@ public class InvTweaksGuiSettingsAdvanced extends InvTweaksGuiSettingsAbstract {
     private static String labelServerAssist;
     private static String labelDisplayTooltip;
 
-    public InvTweaksGuiSettingsAdvanced(Minecraft mc_, GuiScreen parentScreen_, InvTweaksConfig config_) {
+    public InvTweaksGuiSettingsAdvanced(Minecraft mc_, Screen parentScreen_, InvTweaksConfig config_) {
         super(mc_, parentScreen_, config_);
 
         labelSortOnPickup = I18n.format("invtweaks.settings.advanced.sortonpickup");
@@ -47,14 +47,14 @@ public class InvTweaksGuiSettingsAdvanced extends InvTweaksGuiSettingsAbstract {
     public void initGui() {
         super.initGui();
 
-        List<GuiButton> controlList = buttonList;
+        List<Button> controlList = buttonList;
         @NotNull Point p = new Point();
         int i = 0;
 
         // Create large buttons
 
         moveToButtonCoords(1, p);
-        controlList.add(new GuiButton(ID_EDITSHORTCUTS, p.getX() + 55, height / 6 + 144, I18n.format("invtweaks.settings.advanced.mappingsfile")));
+        controlList.add(new Button(ID_EDITSHORTCUTS, p.getX() + 55, height / 6 + 144, I18n.format("invtweaks.settings.advanced.mappingsfile")));
 
         // Create settings buttons
 
@@ -107,7 +107,7 @@ public class InvTweaksGuiSettingsAdvanced extends InvTweaksGuiSettingsAbstract {
     }
 
     @Override
-    protected void actionPerformed(@NotNull GuiButton guibutton) {
+    protected void actionPerformed(@NotNull Button guibutton) {
 
         // GuiButton
         switch(guibutton.id) {

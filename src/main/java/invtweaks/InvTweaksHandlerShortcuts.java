@@ -3,8 +3,8 @@ package invtweaks;
 import invtweaks.api.container.ContainerSection;
 import invtweaks.container.IContainerManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.inventory.Slot;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -163,7 +163,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
         @NotNull ShortcutConfig shortcutConfig = new ShortcutConfig();
 
         container = InvTweaks.getCurrentContainerManager();
-        @Nullable Slot slot = InvTweaksObfuscation.getSlotAtMousePosition((GuiContainer) getCurrentScreen());
+        @Nullable Slot slot = InvTweaksObfuscation.getSlotAtMousePosition((ContainerScreen) getCurrentScreen());
         // If a valid and not empty slot is clicked
         if(shortcut != null && slot != null && (slot.getHasStack() || !getHeldStack().isEmpty())) {
             int slotNumber = getSlotNumber(slot);
@@ -301,7 +301,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
     private void runShortcut(@NotNull ShortcutConfig shortcut) throws TimeoutException {
         // Try to put held item down
         if(!getHeldStack().isEmpty()) {
-            @Nullable Slot slot = InvTweaksObfuscation.getSlotAtMousePosition((GuiContainer) getCurrentScreen());
+            @Nullable Slot slot = InvTweaksObfuscation.getSlotAtMousePosition((ContainerScreen) getCurrentScreen());
             if(slot != null) {
                 int slotNumber = getSlotNumber(slot);
                 container.putHoldItemDown(container.getSlotSection(slotNumber), container.getSlotIndex(slotNumber));

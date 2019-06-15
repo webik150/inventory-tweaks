@@ -12,21 +12,21 @@ import invtweaks.forge.InvTweaksMod;
 import invtweaks.integration.ItemListChecker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.gui.inventory.GuiCrafting;
-import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.screen.inventory.CraftingScreen;
+import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.init.Items;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.Items;
+import net.minecraft.util.SoundEvents;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -166,7 +166,7 @@ public class InvTweaks extends InvTweaksObfuscation {
         return getContainerManager(InvTweaksObfuscation.getCurrentContainer());
     }
 
-    private static int getContainerRowSize(@NotNull GuiContainer guiContainer) {
+    private static int getContainerRowSize(@NotNull ContainerScreen guiContainer) {
         return getSpecialChestRowSize(guiContainer.inventorySlots);
     }
 
@@ -226,9 +226,9 @@ public class InvTweaks extends InvTweaksObfuscation {
 
         //Minecraft hoes, shears, and fishing rods don't have tool class names.
         if(toolClassSet.isEmpty()) {
-            if(item instanceof ItemHoe) { return "hoe"; }
-            if(item instanceof ItemShears) { return "shears"; }
-            if(item instanceof ItemFishingRod) { return "fishingrod"; }
+            if(item instanceof HoeItem) { return "hoe"; }
+            if(item instanceof ShearsItem) { return "shears"; }
+            if(item instanceof FishingRodItem) { return "fishingrod"; }
             return "";
         }
 
@@ -266,7 +266,7 @@ public class InvTweaks extends InvTweaksObfuscation {
     /**
      * To be called on each tick when a menu is open. Handles the GUI additions and the middle clicking.
      */
-    public void onTickInGUI(GuiScreen guiScreen) {
+    public void onTickInGUI(Screen guiScreen) {
         if(mc.playerController.isSpectator()) {
             onTick();
             return;
@@ -281,7 +281,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                 unlockKeysIfNecessary();
             }
             if(isGuiContainer(guiScreen)) {
-                handleGUILayout((GuiContainer) guiScreen);
+                handleGUILayout((ContainerScreen) guiScreen);
             }
             if(!wasInGUI) {
                 // Right-click is always true on initial open of GUI.
@@ -289,7 +289,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                 mouseWasDown = true;
             }
             if(isGuiContainer(guiScreen)) {
-                handleShortcuts((GuiContainer) guiScreen);
+                handleShortcuts((ContainerScreen) guiScreen);
             }
 
             // Copy some info about current selected stack for auto-refill
@@ -316,8 +316,8 @@ public class InvTweaks extends InvTweaksObfuscation {
             }
 
             // Check current GUI
-            @Nullable GuiScreen guiScreen = getCurrentScreen();
-            if(guiScreen == null || (isGuiContainer(guiScreen) && (isValidChest(((GuiContainer) guiScreen).inventorySlots) || isValidInventory(((GuiContainer) guiScreen).inventorySlots)))) {
+            @Nullable Screen guiScreen = getCurrentScreen();
+            if(guiScreen == null || (isGuiContainer(guiScreen) && (isValidChest(((ContainerScreen) guiScreen).inventorySlots) || isValidInventory(((ContainerScreen) guiScreen).inventorySlots)))) {
                 // Sorting!
                 handleSorting(guiScreen);
             }
@@ -566,8 +566,8 @@ public class InvTweaks extends InvTweaksObfuscation {
     }
 
     private int compareSword(ItemStack itemStack1, ItemStack itemStack2, Item iItem, Item jItem) {
-        Multimap<String, AttributeModifier> multimap1 = itemStack1 != null ? itemStack1.getAttributeModifiers(EntityEquipmentSlot.MAINHAND) : null;
-        Multimap<String, AttributeModifier> multimap2 = itemStack2 != null ? itemStack2.getAttributeModifiers(EntityEquipmentSlot.MAINHAND) : null;
+        Multimap<String, AttributeModifier> multimap1 = itemStack1 != null ? itemStack1.getAttributeModifiers(EquipmentSlotType.MAINHAND) : null;
+        Multimap<String, AttributeModifier> multimap2 = itemStack2 != null ? itemStack2.getAttributeModifiers(EquipmentSlotType.MAINHAND) : null;
 
         final String attackDamageName = SharedMonsterAttributes.ATTACK_DAMAGE.getName();
         final String attackSpeedName = SharedMonsterAttributes.ATTACK_SPEED.getName();
@@ -606,14 +606,14 @@ public class InvTweaks extends InvTweaksObfuscation {
     }
 
     private int compareArmor(ItemStack i, ItemStack j, Item iItem, Item jItem) {
-        int isArmor1 = (iItem instanceof ItemArmor) ? 1 : 0;
-        int isArmor2 = (jItem instanceof ItemArmor) ? 1 : 0;
+        int isArmor1 = (iItem instanceof ArmorItem) ? 1 : 0;
+        int isArmor2 = (jItem instanceof ArmorItem) ? 1 : 0;
         if(isArmor1 == 0 || isArmor2 == 0) {
             //This should catch any instances where one of the stacks is null.
             return isArmor2 - isArmor1;
         } else {
-            ItemArmor a1 = (ItemArmor) iItem;
-            ItemArmor a2 = (ItemArmor) jItem;
+            ArmorItem a1 = (ArmorItem) iItem;
+            ArmorItem a2 = (ArmorItem) jItem;
             if(a1.armorType != a2.armorType) {
                 return a2.armorType.compareTo(a1.armorType);
             } else if(a1.damageReduceAmount != a2.damageReduceAmount) {
@@ -742,7 +742,7 @@ public class InvTweaks extends InvTweaksObfuscation {
         if(itemPickupPending) {
             onItemPickup();
         }
-        @Nullable GuiScreen currentScreen = getCurrentScreen();
+        @Nullable Screen currentScreen = getCurrentScreen();
         if(currentScreen == null || isGuiInventory(currentScreen)) {
             cloneHotbar();
         }
@@ -767,7 +767,7 @@ public class InvTweaks extends InvTweaksObfuscation {
     private void handleConfigSwitch() {
 
         @Nullable InvTweaksConfig config = cfgManager.getConfig();
-        @Nullable GuiScreen currentScreen = getCurrentScreen();
+        @Nullable Screen currentScreen = getCurrentScreen();
 
         // Switch between configurations (shortcut)
         cfgManager.getShortcutsHandler().updatePressedKeys();
@@ -850,7 +850,7 @@ public class InvTweaks extends InvTweaksObfuscation {
     }
 
     @SuppressWarnings("unused")
-    private void handleSorting(GuiScreen guiScreen) {
+    private void handleSorting(Screen guiScreen) {
         @NotNull ItemStack selectedItem = ItemStack.EMPTY;
         int focusedSlot = getFocusedSlot();
         NonNullList<ItemStack> mainInventory = getMainInventory();
@@ -939,7 +939,7 @@ public class InvTweaks extends InvTweaksObfuscation {
         return itemMaxDamage != 0 && itemMaxDamage - currentStackDamage < autoRefillThreshhold && itemMaxDamage - storedStackDamage >= autoRefillThreshhold;
     }
 
-    private void handleMiddleClick(GuiScreen guiScreen) {
+    private void handleMiddleClick(Screen guiScreen) {
         if(Mouse.isButtonDown(2)) {
 
             if(!cfgManager.makeSureConfigurationIsLoaded()) {
@@ -950,14 +950,14 @@ public class InvTweaks extends InvTweaksObfuscation {
             // Check that middle click sorting is allowed
             if(config.getProperty(InvTweaksConfig.PROP_ENABLE_MIDDLE_CLICK).equals(InvTweaksConfig.VALUE_TRUE) && isGuiContainer(guiScreen)) {
 
-                @NotNull GuiContainer guiContainer = (GuiContainer) guiScreen;
+                @NotNull ContainerScreen guiContainer = (ContainerScreen) guiScreen;
                 Container container = guiContainer.inventorySlots;
 
                 if(!chestAlgorithmButtonDown) {
                     chestAlgorithmButtonDown = true;
 
                     @NotNull IContainerManager containerMgr = getContainerManager(container);
-                    @Nullable Slot slotAtMousePosition = InvTweaksObfuscation.getSlotAtMousePosition((GuiContainer) getCurrentScreen());
+                    @Nullable Slot slotAtMousePosition = InvTweaksObfuscation.getSlotAtMousePosition((ContainerScreen) getCurrentScreen());
                     @Nullable ContainerSection target = null;
                     if(slotAtMousePosition != null) {
                         target = containerMgr.getSlotSection(getSlotNumber(slotAtMousePosition));
@@ -1022,10 +1022,10 @@ public class InvTweaks extends InvTweaksObfuscation {
 
 
     // NOTE: This *will* only work for vanilla GUIs. Blame Mojang for making it next to impossible to find out generically.
-    private boolean hasRecipeButton(@NotNull GuiContainer guiContainer) {
-        if(guiContainer instanceof GuiInventory) {
+    private boolean hasRecipeButton(@NotNull ContainerScreen guiContainer) {
+        if(guiContainer instanceof InventoryScreen) {
             return true;
-        } else if(guiContainer instanceof GuiCrafting) {
+        } else if(guiContainer instanceof CraftingScreen) {
             return true;
         } else {
             return false;
@@ -1033,17 +1033,17 @@ public class InvTweaks extends InvTweaksObfuscation {
     }
 
     // See note above
-    private boolean isRecipeBookVisible(@NotNull GuiContainer guiContainer) {
-        if(guiContainer instanceof GuiInventory) {
-            return ((GuiInventory) guiContainer).recipeBookGui.isVisible();
-        } else if(guiContainer instanceof GuiCrafting) {
-            return ((GuiCrafting) guiContainer).recipeBookGui.isVisible();
+    private boolean isRecipeBookVisible(@NotNull ContainerScreen guiContainer) {
+        if(guiContainer instanceof InventoryScreen) {
+            return ((InventoryScreen) guiContainer).recipeBookGui.isVisible();
+        } else if(guiContainer instanceof CraftingScreen) {
+            return ((CraftingScreen) guiContainer).recipeBookGui.isVisible();
         } else {
             return false;
         }
     }
 
-    private void handleGUILayout(@NotNull GuiContainer guiContainer) {
+    private void handleGUILayout(@NotNull ContainerScreen guiContainer) {
         @Nullable InvTweaksConfig config = cfgManager.getConfig();
 
         Container container = guiContainer.inventorySlots;
@@ -1064,9 +1064,9 @@ public class InvTweaks extends InvTweaksObfuscation {
             // Look for the mods buttons
             boolean customButtonsAdded = false;
 
-            List<GuiButton> controlList = guiContainer.buttonList;
-            @NotNull List<GuiButton> toRemove = new ArrayList<>();
-            for(@NotNull GuiButton button : controlList) {
+            List<Button> controlList = guiContainer.buttonList;
+            @NotNull List<Button> toRemove = new ArrayList<>();
+            for(@NotNull Button button : controlList) {
                 if(button.id >= InvTweaksConst.JIMEOWAN_ID && button.id < (InvTweaksConst.JIMEOWAN_ID + 4)) {
                     if(relayout) {
                         toRemove.add(button);
@@ -1114,7 +1114,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                     // Sorting buttons
                     if(!config.getProperty(InvTweaksConfig.PROP_SHOW_CHEST_BUTTONS).equals("false")) {
                         int rowSize = getContainerRowSize(guiContainer);
-                        @NotNull GuiButton button = new InvTweaksGuiSortingButton(cfgManager, id++, (isChestWayTooBig) ? x + 22 : x - 37, (isChestWayTooBig) ? y + 38 : y, w, h, "s", I18n.format("invtweaks.button.chest1.tooltip"), SortingMethod.DEFAULT, rowSize, customTextureAvailable);
+                        @NotNull Button button = new InvTweaksGuiSortingButton(cfgManager, id++, (isChestWayTooBig) ? x + 22 : x - 37, (isChestWayTooBig) ? y + 38 : y, w, h, "s", I18n.format("invtweaks.button.chest1.tooltip"), SortingMethod.DEFAULT, rowSize, customTextureAvailable);
                         controlList.add(button);
 
                         if(rowSize <= 9) {
@@ -1132,9 +1132,9 @@ public class InvTweaks extends InvTweaksObfuscation {
         } else {
             // Remove "..." button from non-survival tabs of the creative screen
             if(isGuiInventoryCreative(guiContainer)) {
-                List<GuiButton> controlList = guiContainer.buttonList;
-                @Nullable GuiButton buttonToRemove = null;
-                for(@NotNull GuiButton o : controlList) {
+                List<Button> controlList = guiContainer.buttonList;
+                @Nullable Button buttonToRemove = null;
+                for(@NotNull Button o : controlList) {
                     if(o.id == InvTweaksConst.JIMEOWAN_ID) {
                         buttonToRemove = o;
                         break;
@@ -1149,7 +1149,7 @@ public class InvTweaks extends InvTweaksObfuscation {
 
     }
 
-    private void handleShortcuts(@NotNull GuiContainer guiScreen) {
+    private void handleShortcuts(@NotNull ContainerScreen guiScreen) {
         // Check open GUI
         if(!(isValidChest(guiScreen.inventorySlots) || isValidInventory(guiScreen.inventorySlots))) {
             return;

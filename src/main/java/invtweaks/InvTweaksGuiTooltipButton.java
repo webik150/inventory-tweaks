@@ -2,7 +2,7 @@ package invtweaks;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.widget.button.Button;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Jimeo Wan
  */
-public class InvTweaksGuiTooltipButton extends GuiButton {
+public class InvTweaksGuiTooltipButton extends Button {
     public final static int LINE_HEIGHT = 11;
 
     private int hoverTime = 0;

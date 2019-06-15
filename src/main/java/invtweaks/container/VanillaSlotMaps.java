@@ -2,13 +2,13 @@ package invtweaks.container;
 
 import invtweaks.InvTweaksConst;
 import invtweaks.api.container.ContainerSection;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiContainerCreative;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.passive.AbstractChestHorse;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.ContainerHorseInventory;
-import net.minecraft.inventory.Slot;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.inventory.CreativeScreen;
+import net.minecraft.entity.passive.horse.AbstractChestedHorseEntity;
+import net.minecraft.inventory.container.HorseInventoryContainer;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.Slot;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -36,14 +36,14 @@ public class VanillaSlotMaps {
     }
 
     @SideOnly(Side.CLIENT)
-    public static boolean containerCreativeIsInventory(GuiContainerCreative.ContainerCreative container) {
-        @Nullable GuiScreen currentScreen = FMLClientHandler.instance().getClient().currentScreen;
-        return currentScreen instanceof GuiContainerCreative && ((GuiContainerCreative) currentScreen).getSelectedTabIndex() == CreativeTabs.INVENTORY.getIndex();
+    public static boolean containerCreativeIsInventory(CreativeScreen.ContainerCreative container) {
+        @Nullable Screen currentScreen = FMLClientHandler.instance().getClient().currentScreen;
+        return currentScreen instanceof CreativeScreen && ((CreativeScreen) currentScreen).getSelectedTabIndex() == ItemGroup.INVENTORY.getIndex();
     }
 
     @NotNull
     @SideOnly(Side.CLIENT)
-    public static Map<ContainerSection, List<Slot>> containerCreativeSlots(@NotNull GuiContainerCreative.ContainerCreative container) {
+    public static Map<ContainerSection, List<Slot>> containerCreativeSlots(@NotNull CreativeScreen.ContainerCreative container) {
         @NotNull Map<ContainerSection, List<Slot>> slotRefs = new HashMap<>();
 
         slotRefs.put(ContainerSection.ARMOR, container.inventorySlots.subList(5, 9));
@@ -69,12 +69,12 @@ public class VanillaSlotMaps {
     }
 
     @NotNull
-    public static Map<ContainerSection, List<Slot>> containerHorseSlots(@NotNull ContainerHorseInventory container) {
+    public static Map<ContainerSection, List<Slot>> containerHorseSlots(@NotNull HorseInventoryContainer container) {
         @NotNull Map<ContainerSection, List<Slot>> slotRefs = new HashMap<>();
 
         int size = container.inventorySlots.size();
 
-        if(container.horse instanceof AbstractChestHorse && ((AbstractChestHorse) container.horse).hasChest()) { // Chest slots are only added if chest is added. Saddle/armor slots always exist.
+        if(container.horse instanceof AbstractChestedHorseEntity && ((AbstractChestedHorseEntity) container.horse).hasChest()) { // Chest slots are only added if chest is added. Saddle/armor slots always exist.
             slotRefs.put(ContainerSection.CHEST, container.inventorySlots.subList(2, size - InvTweaksConst.INVENTORY_SIZE));
         }
         slotRefs.put(ContainerSection.INVENTORY, container.inventorySlots.subList(size - InvTweaksConst.INVENTORY_SIZE, size));
@@ -84,8 +84,8 @@ public class VanillaSlotMaps {
         return slotRefs;
     }
 
-    public static boolean containerHorseIsInventory(@NotNull ContainerHorseInventory container) {
-        return container.horse instanceof AbstractChestHorse && ((AbstractChestHorse) container.horse).hasChest();
+    public static boolean containerHorseIsInventory(@NotNull HorseInventoryContainer container) {
+        return container.horse instanceof AbstractChestedHorseEntity && ((AbstractChestedHorseEntity) container.horse).hasChest();
     }
 
     @NotNull
