@@ -9,9 +9,9 @@ import invtweaks.integration.ItemListSorter;
 import invtweaks.network.ITMessageToMessageCodec;
 import invtweaks.network.ITPacketHandlerServer;
 import invtweaks.network.packets.ITPacketLogin;
-import net.minecraft.client.multiplayer.PlayerControllerMP;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ClickType;
+import net.minecraft.client.multiplayer.PlayerController;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.ClickType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
@@ -71,7 +71,7 @@ public class CommonProxy implements InvTweaksAPI {
      * 6: Merge all valid items with held item
      */
     @SideOnly(Side.CLIENT)
-    public void slotClick(PlayerControllerMP playerController, int windowId, int slot, int data, ClickType action, EntityPlayer player) {
+    public void slotClick(PlayerController playerController, int windowId, int slot, int data, ClickType action, PlayerEntity player) {
     }
 
     public void sortComplete() {

@@ -2,7 +2,7 @@ package invtweaks.forge;
 
 import invtweaks.InvTweaksGuiSettings;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraftforge.fml.client.IModGuiFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +23,7 @@ public class ModGuiFactory implements IModGuiFactory {
 
     @NotNull
     @Override
-    public GuiScreen createConfigGui(GuiScreen parentScreen) {
+    public Screen createConfigGui(Screen parentScreen) {
         // TODO: Find out if we can just cache this?
         return new InvTweaksGuiSettings(parentScreen);
     }

@@ -1,8 +1,8 @@
 package invtweaks;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resources.I18n;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,15 +12,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public class InvTweaksGuiShortcutsHelp extends GuiScreen {
+public class InvTweaksGuiShortcutsHelp extends Screen {
 
     private final static int ID_DONE = 0;
 
     private InvTweaksObfuscation obf;
-    private GuiScreen parentScreen;
+    private Screen parentScreen;
     private InvTweaksConfig config;
 
-    public InvTweaksGuiShortcutsHelp(Minecraft mc_, GuiScreen parentScreen_, InvTweaksConfig config_) {
+    public InvTweaksGuiShortcutsHelp(Minecraft mc_, Screen parentScreen_, InvTweaksConfig config_) {
         obf = new InvTweaksObfuscation(mc_);
         parentScreen = parentScreen_;
         config = config_;
@@ -28,8 +28,8 @@ public class InvTweaksGuiShortcutsHelp extends GuiScreen {
 
     public void initGui() {
         // Create Done button
-        @NotNull List<GuiButton> controlList = new LinkedList<>();
-        controlList.add(new GuiButton(ID_DONE, width / 2 - 100, height / 6 + 168, "Done"));
+        @NotNull List<Button> controlList = new LinkedList<>();
+        controlList.add(new Button(ID_DONE, width / 2 - 100, height / 6 + 168, "Done"));
         buttonList = controlList;
     }
 
@@ -76,7 +76,7 @@ public class InvTweaksGuiShortcutsHelp extends GuiScreen {
         super.drawScreen(i, j, f);
     }
 
-    protected void actionPerformed(@NotNull GuiButton guibutton) {
+    protected void actionPerformed(@NotNull Button guibutton) {
         // GuiButton
         switch(guibutton.id) {
             case ID_DONE:

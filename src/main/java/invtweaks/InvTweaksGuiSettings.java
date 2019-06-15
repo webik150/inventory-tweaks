@@ -1,8 +1,8 @@
 package invtweaks;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resources.I18n;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.util.Point;
@@ -37,11 +37,11 @@ public class InvTweaksGuiSettings extends InvTweaksGuiSettingsAbstract {
     private static String labelBugSorting;
 
     @SuppressWarnings("unused")
-    public InvTweaksGuiSettings(GuiScreen parentScreen_) {
+    public InvTweaksGuiSettings(Screen parentScreen_) {
         this(Minecraft.getMinecraft(), parentScreen_, InvTweaks.getConfigManager().getConfig());
     }
 
-    public InvTweaksGuiSettings(Minecraft mc_, GuiScreen parentScreen_, InvTweaksConfig config_) {
+    public InvTweaksGuiSettings(Minecraft mc_, Screen parentScreen_, InvTweaksConfig config_) {
         super(mc_, parentScreen_, config_);
 
         labelMiddleClick = I18n.format("invtweaks.settings.middleclick");
@@ -56,20 +56,20 @@ public class InvTweaksGuiSettings extends InvTweaksGuiSettingsAbstract {
     public void initGui() {
         super.initGui();
 
-        List<GuiButton> controlList = buttonList;
+        List<Button> controlList = buttonList;
         @NotNull Point p = new Point();
         int i = 0;
 
         // Create large buttons
 
         moveToButtonCoords(1, p);
-        controlList.add(new GuiButton(ID_EDITRULES, p.getX() + 55, height / 6 + 96, I18n.format("invtweaks.settings.rulesfile")));
-        controlList.add(new GuiButton(ID_HELP, p.getX() + 55, height / 6 + 144, I18n.format("invtweaks.settings.onlinehelp")));
+        controlList.add(new Button(ID_EDITRULES, p.getX() + 55, height / 6 + 96, I18n.format("invtweaks.settings.rulesfile")));
+        controlList.add(new Button(ID_HELP, p.getX() + 55, height / 6 + 144, I18n.format("invtweaks.settings.onlinehelp")));
 
         moveToButtonCoords(11, p);
-        controlList.add(new GuiButton(ID_EDITTREE, p.getX(), p.getY(), 150, 20, I18n.format("invtweaks.settings.treefile")));
+        controlList.add(new Button(ID_EDITTREE, p.getX(), p.getY(), 150, 20, I18n.format("invtweaks.settings.treefile")));
         moveToButtonCoords(10, p);
-        controlList.add(new GuiButton(ID_MODDEDTREE, p.getX(), p.getY(), 150, 20, I18n.format("invtweaks.settings.moddedtreefile")));
+        controlList.add(new Button(ID_MODDEDTREE, p.getX(), p.getY(), 150, 20, I18n.format("invtweaks.settings.moddedtreefile")));
 
 
         // Create settings buttons
@@ -112,7 +112,7 @@ public class InvTweaksGuiSettings extends InvTweaksGuiSettingsAbstract {
     }
 
     @Override
-    protected void actionPerformed(@NotNull GuiButton guibutton) {
+    protected void actionPerformed(@NotNull Button guibutton) {
         super.actionPerformed(guibutton);
 
         // GuiButton

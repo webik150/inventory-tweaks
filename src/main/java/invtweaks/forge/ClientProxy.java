@@ -8,12 +8,12 @@ import invtweaks.network.ITPacketHandlerClient;
 import invtweaks.network.packets.ITPacketClick;
 import invtweaks.network.packets.ITPacketSortComplete;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.multiplayer.PlayerControllerMP;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.multiplayer.PlayerController;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.Container;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.ClickType;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -86,7 +86,7 @@ public class ClientProxy extends CommonProxy {
     }
 
     @Override
-    public void slotClick(@NotNull PlayerControllerMP playerController, int windowId, int slot, int data, @NotNull ClickType action, @NotNull EntityPlayer player) {
+    public void slotClick(@NotNull PlayerController playerController, int windowId, int slot, int data, @NotNull ClickType action, @NotNull PlayerEntity player) {
         //int modiferKeys = (shiftHold) ? 1 : 0 /* XXX Placeholder */;
         if(serverSupportEnabled) {
             player.openContainer.slotClick(slot, data, action, player);
@@ -136,7 +136,7 @@ public class ClientProxy extends CommonProxy {
 
         Container currentContainer = mc.player.inventoryContainer;
         if(InvTweaksObfuscation.isGuiContainer(mc.currentScreen)) {
-            currentContainer = ((GuiContainer) mc.currentScreen).inventorySlots;
+            currentContainer = ((ContainerScreen) mc.currentScreen).inventorySlots;
         }
 
         try {

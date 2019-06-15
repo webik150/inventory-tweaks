@@ -3,7 +3,7 @@ package invtweaks;
 import invtweaks.api.IItemTreeListener;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -135,7 +135,7 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
         if(id != null) {
             int damage = InvTweaksConst.DAMAGE_WILDCARD;
             String extraDataAttr = attributes.getValue(ATTR_DATA);
-            @Nullable NBTTagCompound extraData = null;
+            @Nullable CompoundNBT extraData = null;
             if(extraDataAttr != null) {
                 try {
                     extraData = JsonToNBT.getTagFromJson(extraDataAttr);
@@ -151,7 +151,7 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
             tree.registerOre(categoryStack.getLast(), name, oreDictNameAttr, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + name);
         } else if(className != null) {
             String extraDataAttr = attributes.getValue(ATTR_DATA);
-            @Nullable NBTTagCompound extraData = null;
+            @Nullable CompoundNBT extraData = null;
             if(extraDataAttr != null) {
                 try {
                     extraData = JsonToNBT.getTagFromJson(extraDataAttr.toLowerCase());

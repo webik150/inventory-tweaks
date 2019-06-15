@@ -1,8 +1,8 @@
 package invtweaks;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author Jimeo Wan
  */
-public abstract class InvTweaksGuiSettingsAbstract extends GuiScreen {
+public abstract class InvTweaksGuiSettingsAbstract extends Screen {
 
     protected static final Logger log = InvTweaks.log;
     protected final static int ID_DONE = 200;
@@ -25,9 +25,9 @@ public abstract class InvTweaksGuiSettingsAbstract extends GuiScreen {
     protected static String LABEL_DONE;
     protected InvTweaksObfuscation obf;
     protected InvTweaksConfig config;
-    protected GuiScreen parentScreen;
+    protected Screen parentScreen;
 
-    public InvTweaksGuiSettingsAbstract(Minecraft mc_, GuiScreen parentScreen_, InvTweaksConfig config_) {
+    public InvTweaksGuiSettingsAbstract(Minecraft mc_, Screen parentScreen_, InvTweaksConfig config_) {
 
         LABEL_DONE = I18n.format("invtweaks.settings.exit");
         ON = ": " + I18n.format("invtweaks.settings.on");
@@ -41,10 +41,10 @@ public abstract class InvTweaksGuiSettingsAbstract extends GuiScreen {
 
     @Override
     public void initGui() {
-        List<GuiButton> controlList = buttonList;
+        List<Button> controlList = buttonList;
         @NotNull Point p = new Point();
         moveToButtonCoords(1, p);
-        controlList.add(new GuiButton(ID_DONE, p.getX() + 55, height / 6 + 168, LABEL_DONE)); // GuiButton
+        controlList.add(new Button(ID_DONE, p.getX() + 55, height / 6 + 168, LABEL_DONE)); // GuiButton
 
         // Save control list
         buttonList = controlList;
@@ -59,7 +59,7 @@ public abstract class InvTweaksGuiSettingsAbstract extends GuiScreen {
     }
 
     @Override
-    protected void actionPerformed(@NotNull GuiButton guibutton) {
+    protected void actionPerformed(@NotNull Button guibutton) {
         // GuiButton
         if(guibutton.id == ID_DONE) {
             obf.displayGuiScreen(parentScreen);
@@ -78,7 +78,7 @@ public abstract class InvTweaksGuiSettingsAbstract extends GuiScreen {
         p.setY(height / 6 + (buttonOrder / 2) * 24);
     }
 
-    protected void toggleBooleanButton(@NotNull GuiButton guibutton, @NotNull String property, String label) {
+    protected void toggleBooleanButton(@NotNull Button guibutton, @NotNull String property, String label) {
         @NotNull Boolean enabled = !Boolean.valueOf(config.getProperty(property));
         config.setProperty(property, enabled.toString());
         guibutton.displayString = computeBooleanButtonLabel(property, label);

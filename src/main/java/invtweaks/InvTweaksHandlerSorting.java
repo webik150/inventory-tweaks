@@ -6,9 +6,9 @@ import invtweaks.api.container.ContainerSection;
 import invtweaks.container.ContainerSectionManager;
 import invtweaks.container.IContainerManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ArmorItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import org.apache.commons.lang3.tuple.Pair;
@@ -299,7 +299,7 @@ public class InvTweaksHandlerSorting extends InvTweaksObfuscation {
         if(sortArmorParts) {
             if(isItemArmor(fromItem)) {
                 // ItemArmor
-                @NotNull ItemArmor fromItemArmor = (ItemArmor) fromItem;
+                @NotNull ArmorItem fromItemArmor = (ArmorItem) fromItem;
                 if(globalContainer.hasSection(ContainerSection.ARMOR)) {
                     List<Slot> armorSlots = globalContainer.getSlots(ContainerSection.ARMOR);
                     for(@NotNull Slot slot : armorSlots) {
@@ -312,7 +312,7 @@ public class InvTweaksHandlerSorting extends InvTweaksObfuscation {
                             if(isItemArmor(currentArmor)) {
                                 // ItemArmor
                                 // ItemArmor
-                                int armorLevel = ((ItemArmor) currentArmor).damageReduceAmount;
+                                int armorLevel = ((ArmorItem) currentArmor).damageReduceAmount;
                                 // ItemArmor
                                 // ItemArmor
                                 if(armorLevel < fromItemArmor.damageReduceAmount || (armorLevel == fromItemArmor.damageReduceAmount && slot.getStack().getItemDamage() < from.getItemDamage())) {

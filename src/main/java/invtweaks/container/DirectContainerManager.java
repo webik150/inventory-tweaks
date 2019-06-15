@@ -4,8 +4,8 @@ import invtweaks.InvTweaks;
 import invtweaks.InvTweaksObfuscation;
 import invtweaks.api.container.ContainerSection;
 import invtweaks.forge.InvTweaksMod;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static net.minecraft.inventory.ClickType.PICKUP;
+import static net.minecraft.inventory.container.ClickType.PICKUP;
 
 /**
  * Allows to perform various operations on the inventory and/or containers. Works in both single and multiplayer.
