@@ -22,7 +22,7 @@
 
 package invtweaks.api;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 @SuppressWarnings("unused")
 public interface IItemTreeItem extends Comparable<IItemTreeItem> {
@@ -32,7 +32,7 @@ public interface IItemTreeItem extends Comparable<IItemTreeItem> {
 
     int getDamage();
 
-    CompoundNBT getExtraData();
+    CompoundTag getExtraData();
 
     int getOrder();
 

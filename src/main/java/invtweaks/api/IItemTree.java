@@ -22,7 +22,9 @@
 
 package invtweaks.api;
 
-import net.minecraft.nbt.CompoundNBT;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collection;
 import java.util.List;
@@ -30,7 +32,7 @@ import java.util.Random;
 
 @SuppressWarnings("unused")
 public interface IItemTree {
-    void registerOre(String category, String name, String oreName, int order, String path);
+    void registerOre(String category, ResourceLocation name, String oreName, int order, String path);
 
     boolean matches(List<IItemTreeItem> items, String keyword);
 
@@ -46,7 +48,7 @@ public interface IItemTree {
 
     boolean isItemUnknown(String id, int damage);
 
-    List<IItemTreeItem> getItems(String id, int damage, CompoundNBT extra);
+    List<IItemTreeItem> getItems(String id, int damage, CompoundTag extra);
 
     List<IItemTreeItem> getItems(String id, int damage);
 
@@ -64,7 +66,7 @@ public interface IItemTree {
 
     IItemTreeItem addItem(String parentCategory, String name, String id, int damage, int order) throws NullPointerException;
 
-    IItemTreeItem addItem(String parentCategory, String name, String id, int damage, CompoundNBT extra, int order) throws NullPointerException;
+    IItemTreeItem addItem(String parentCategory, String name, String id, int damage, CompoundTag extra, int order) throws NullPointerException;
 
     void addItem(String parentCategory, IItemTreeItem newItem) throws NullPointerException;
 

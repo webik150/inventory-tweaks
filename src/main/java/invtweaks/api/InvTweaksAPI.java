@@ -23,7 +23,7 @@
 package invtweaks.api;
 
 import invtweaks.api.container.ContainerSection;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
