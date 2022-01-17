@@ -1,26 +1,24 @@
 buildscript {
     repositories {
-        jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
+        maven { url = 'https://maven.minecraftforge.net' }
+        mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.+', changing: true
     }
 }
-
+/*
 plugins {
-    id "com.matthewprenger.cursegradle" version "1.0.9"
-}
+    id "com.matthewprenger.cursegradle" version "1.4.0"
+}*/
 
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'idea'
 
+//java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
 dependencies {
     minecraft 'net.minecraftforge:forge:' + minecraft_version + '-' + forge_version
-    compile 'org.jetbrains:annotations:13.0'
 }
 
 if(!hasProperty('mod_version')) {
@@ -128,45 +126,67 @@ if(git_version) {
 group = mod_group
 archivesBaseName = mod_name
 
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+
+
 minecraft {
-    mappings channel: mcp_channel, version: mcp_version
+    mappings channel: 'official', version: '1.18.1'
 
     runs {
         client = {
             // recommended logging data for a userdev environment
-            properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             // recommended logging level for the console
-            properties 'forge.logging.console.level': 'debug'
-            workingDirectory project.file('run').canonicalPath
-            source sourceSets.main
+            property 'forge.logging.console.level', 'debug'
+            workingDirectory project.file('run')
+            mods {
+                mod_name {
+                    source sourceSets.main
+                }
+            }
         }
         server = {
             // recommended logging data for a userdev environment
-            properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             // recommended logging level for the console
-            properties 'forge.logging.console.level': 'debug'
-            workingDirectory project.file('run').canonicalPath
-            source sourceSets.main
+            property 'forge.logging.console.level', 'debug'
+            workingDirectory project.file('run')
+            mods {
+                mod_name {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            // The markers can be added/remove as needed separated by commas.
+            // "SCAN": For mods scan.
+            // "REGISTRIES": For firing of registry events.
+            // "REGISTRYDUMP": For getting the contents of all registries.
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            // You can set various levels here.
+            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
+            property 'forge.logging.console.level', 'debug'
+
+            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
+            args '--mod', 'examplemod', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+
+            mods {
+                mod_name {
+                    source sourceSets.main
+                }
+            }
         }
     }
 
-    // TODO: Replace this somehow
-    //replace '@VERSION@', project.internal_version
-    //replaceIn 'InvTweaksConst.java'
 }
-// TODO: Find out what replaced this
-/*
-if(hasProperty('mod_core_plugin')) {
-    minecraft.coreMod = mod_core_plugin
 
-    jar {
-        manifest {
-            attributes 'FMLCorePlugin': mod_core_plugin, 'FMLCorePluginContainsFMLMod': mod_core_hasfmlmod
-        }
-    }
-}
-*/
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '17'
 
 compileJava {
     options.debug = true
@@ -174,7 +194,7 @@ compileJava {
 }
 
 
-ext.keystore = System.getenv("KEYSTORE")
+/*ext.keystore = System.getenv("KEYSTORE")
 ext.keystorePass = System.getenv("KEYSTORE_PASSWORD")
 ext.keyPass = System.getenv("KEY_PASSWORD")
 ext.keyAlias = System.getenv("KEY_ALIAS")
@@ -191,6 +211,7 @@ task signJar(type: Exec, dependsOn: jar) {
 }
 
 build.dependsOn signJar
+*/
 
 task apiJar(type: Jar) {
     onlyIf { project.hasProperty('api_filter') }
@@ -224,7 +245,8 @@ artifacts {
 }
 
 
-ext.curseKey = System.getenv("CURSE_API_KEY")
+//TODO: figure out curse
+/*ext.curseKey = System.getenv("CURSE_API_KEY")
 if(mod_version.endsWith("dev")) {
     ext.curseType = 'alpha'
     ext.curseVersion = version
@@ -258,7 +280,7 @@ if(curseKey && hasProperty('curse_id')) {
                     addGameVersion version
                 }
             }
-            addGameVersion 'Java 8'
+            addGameVersion 'Java 17'
 
             mainArtifact(jar) {
                 displayName = "$curse_filename $curseVersion"
@@ -274,6 +296,7 @@ if(curseKey && hasProperty('curse_id')) {
         }
     }
 }
+*/
 
 processResources {
     inputs.property 'version', internal_version
@@ -302,3 +325,5 @@ idea {
         vcs = 'Git'
     }
 }
+
+deobfJar.finalizedBy('reobfJar')
