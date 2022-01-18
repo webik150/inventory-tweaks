@@ -1,17 +1,67 @@
 package invtweaks.network;
 
+import invtweaks.InvTweaksConst;
+import invtweaks.forge.InvTweaksMod;
 import invtweaks.network.packets.ITPacket;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
-import net.minecraft.network.play.ServerPlayNetHandler;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
+import invtweaks.network.packets.ITPacketClick;
+import invtweaks.network.packets.ITPacketLogin;
+import invtweaks.network.packets.ITPacketSortComplete;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.network.simple.SimpleChannel;
 
-public class ITPacketHandlerServer extends SimpleChannelInboundHandler<ITPacket> {
-    @Override
-    protected void channelRead0(@NotNull ChannelHandlerContext ctx, @NotNull ITPacket msg) throws Exception {
-        @NotNull final ServerPlayNetHandler handler = (ServerPlayNetHandler) ctx.channel().attr(NetworkRegistry.han).get();
-        handler.player.server.addScheduledTask(() -> msg.handle(handler));
+import java.util.Optional;
+import java.util.function.Function;
+
+import static invtweaks.InvTweaksConst.PROTOCOL_VERSION;
+
+/*
+    Some of this code was stolen from https://github.com/sinkillerj/ProjectE/
+     */
+public final class ITPacketHandler {
+
+    public static final SimpleChannel invtweaksChannel = NetworkRegistry.ChannelBuilder
+            .named(new ResourceLocation(InvTweaksMod.MOD_ID, InvTweaksConst.INVTWEAKS_CHANNEL))
+            .clientAcceptedVersions(PROTOCOL_VERSION::equals)
+            .serverAcceptedVersions(PROTOCOL_VERSION::equals)
+            .networkProtocolVersion(() -> PROTOCOL_VERSION)
+            .simpleChannel();
+    private static int index;
+
+    public static void register() {
+        //Client to server messages
+        registerClientToServer(ITPacketClick.class, ITPacketClick::decode);
+        registerClientToServer(ITPacketSortComplete.class, ITPacketSortComplete::decode);
+
+        //Server to client messages
+        registerServerToClient(ITPacketLogin.class, ITPacketLogin::decode);
+
     }
+
+    private static <MSG extends ITPacket> void registerClientToServer(Class<MSG> type, Function<FriendlyByteBuf, MSG> decoder) {
+        registerMessage(type, decoder, NetworkDirection.PLAY_TO_SERVER);
+    }
+
+    private static <MSG extends ITPacket> void registerServerToClient(Class<MSG> type, Function<FriendlyByteBuf, MSG> decoder) {
+        registerMessage(type, decoder, NetworkDirection.PLAY_TO_CLIENT);
+    }
+
+    private static <MSG extends ITPacket> void registerMessage(Class<MSG> type, Function<FriendlyByteBuf, MSG> decoder, NetworkDirection networkDirection) {
+        invtweaksChannel.registerMessage(index++, type, ITPacket::encode, decoder, ITPacket::handle, Optional.of(networkDirection));
+    }
+
+    public static <MSG extends ITPacket> void sendTo(MSG msg, ServerPlayer player) {
+        invtweaksChannel.sendTo((ITPacket) new ITPacketLogin(PROTOCOL_VERSION),
+                player.connection.getConnection(),
+                NetworkDirection.PLAY_TO_CLIENT);
+    }
+
+    public static <MSG extends ITPacket> void sendToServer(MSG msg) {
+        invtweaksChannel.sendToServer(msg);
+    }
+
+
 }
