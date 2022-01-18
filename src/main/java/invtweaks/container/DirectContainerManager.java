@@ -7,6 +7,9 @@ import invtweaks.forge.InvTweaksMod;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -72,7 +75,7 @@ public class DirectContainerManager implements IContainerManager {
         // (Specifically forestry backpack UI)
         if(destIndex != DROP_SLOT) {
             @Nullable Slot destSlot = getSlot(destSection, destIndex);
-            if(!destSlot.isItemValid(srcStack)) {
+            if(!destSlot.mayPlace(srcStack)) {
                 return false;
             }
         }
@@ -96,11 +99,11 @@ public class DirectContainerManager implements IContainerManager {
             int intermediateIndex = getSlotIndex(intermediateSlot);
             if(intermediateIndex != -1) {
                 @Nullable Slot interSlot = getSlot(intermediateSection, intermediateIndex);
-                if(!interSlot.isItemValid(destStack)) {
+                if(!interSlot.mayPlace(destStack)) {
                     return false;
                 }
                 @Nullable Slot srcSlot = getSlot(srcSection, srcIndex);
-                if(!srcSlot.isItemValid(destStack)) {
+                if(!srcSlot.mayPlace(destStack)) {
                     return false;
                 }
                 // Step 1/3: Dest > Int
@@ -125,7 +128,7 @@ public class DirectContainerManager implements IContainerManager {
                 // Only return to original slot if it can be placed in that slot.
                 // (Ex. crafting/furnace outputs)
                 @Nullable Slot srcSlot = getSlot(srcSection, srcIndex);
-                if(srcSlot.isItemValid(InvTweaks.getInstance().getHeldStack())) {
+                if(srcSlot.mayPlace(InvTweaks.getInstance().getHeldStack())) {
                     leftClick(srcSection, srcIndex);
                 } else {
                     // If the item cannot be placed in its original slot, move to an empty slot.
@@ -207,7 +210,7 @@ public class DirectContainerManager implements IContainerManager {
         int slot = indexToSlot(section, index);
         if(slot != -1) {
             int data = (rightClick) ? 1 : 0;
-            InvTweaksMod.proxy.slotClick(InvTweaks.getInstance().getPlayerController(), container.windowId, slot, data, PICKUP, InvTweaks.getInstance().getThePlayer());
+            InvTweaksMod.proxy.slotClick(container.windowId, slot, data, PICKUP, InvTweaks.getInstance().getThePlayer());
         }
     }
 
@@ -254,7 +257,7 @@ public class DirectContainerManager implements IContainerManager {
     public int getFirstEmptyIndex(ContainerSection section) {
         int i = 0;
         for(@NotNull Slot slot : slotRefs.get(section)) {
-            if(!slot.getHasStack()) {
+            if(!slot.hasItem()) {
                 return i;
             }
             i++;
@@ -333,7 +336,7 @@ public class DirectContainerManager implements IContainerManager {
     @Override
     public ItemStack getItemStack(ContainerSection section, int index) {
         int slot = indexToSlot(section, index);
-        if(slot >= 0 && slot < container.inventorySlots.size()) {
+        if(slot >= 0 && slot < container.getContainerSize()) {
             return InvTweaksObfuscation.getSlotStack(container, slot);
         } else {
             return ItemStack.EMPTY;
@@ -351,7 +354,7 @@ public class DirectContainerManager implements IContainerManager {
             for(@NotNull Slot slot : slotRefs.get(section)) {
                 // Use only standard slot (to make sure
                 // we can freely put and remove items there)
-                if(InvTweaksObfuscation.isBasicSlot(slot) && !slot.getHasStack()) {
+                if(InvTweaksObfuscation.isBasicSlot(slot) && !slot.hasItem()) {
                     return InvTweaksObfuscation.getSlotNumber(slot);
                 }
             }

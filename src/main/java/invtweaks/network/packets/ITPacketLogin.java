@@ -2,25 +2,29 @@ package invtweaks.network.packets;
 
 import invtweaks.InvTweaksConst;
 import invtweaks.forge.InvTweaksMod;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.INetHandler;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class ITPacketLogin implements ITPacket {
-    public byte protocolVersion = InvTweaksConst.PROTOCOL_VERSION;
+    public String protocolVersion = InvTweaksConst.PROTOCOL_VERSION;
 
-    @Override
-    public void readBytes(@NotNull ByteBuf bytes) {
-        protocolVersion = bytes.readByte();
+    public ITPacketLogin(String protocolVersion) {
+        this.protocolVersion = protocolVersion;
+    }
+
+    public static ITPacketLogin decode(@NotNull FriendlyByteBuf buffer) {
+
+        return new ITPacketLogin(buffer.readUtf());
     }
 
     @Override
-    public void writeBytes(@NotNull ByteBuf bytes) {
-        bytes.writeByte(protocolVersion);
+    public void encode(FriendlyByteBuf buffer) {
+        buffer.writeUtf(protocolVersion);
     }
 
     @Override
-    public void handle(INetHandler handler) {
+    public void handle(NetworkEvent.Context context) {
         if(protocolVersion == InvTweaksConst.PROTOCOL_VERSION) {
             InvTweaksMod.proxy.setServerHasInvTweaks(true);
         }

@@ -1,8 +1,7 @@
 package invtweaks;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.oredict.OreDictionary;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.Level;
 
 import java.io.File;
@@ -19,7 +18,7 @@ public class InvTweaksConst {
     public static final String INVTWEAKS_CHANNEL = "InventoryTweaks";
 
     // Network Protocol version
-    public static final byte PROTOCOL_VERSION = 2;
+    public static final String PROTOCOL_VERSION = "2";
     public static final byte PACKET_LOGIN = 0x00;
     public static final byte PACKET_CLICK = 0x01;
     public static final byte PACKET_SORTCOMPLETE = 0x02;
@@ -31,7 +30,7 @@ public class InvTweaksConst {
     public static final int TOOLTIP_DELAY = 800;
 
     // File constants
-    public static final File MINECRAFT_DIR = Minecraft.getMinecraft().gameDir;
+    public static final File MINECRAFT_DIR = Minecraft.getInstance().gameDirectory;
     public static final File MINECRAFT_CONFIG_DIR = new File(MINECRAFT_DIR, "config/");
     public static final File INVTWEAKS_CONFIG_DIR = new File(MINECRAFT_CONFIG_DIR, "InvTweaks/");
     public static final File INVTWEAKS_TREES_DIR = new File(INVTWEAKS_CONFIG_DIR, "trees/");
@@ -63,5 +62,4 @@ public class InvTweaksConst {
     public static final int INVENTORY_ROW_SIZE = 9;
     public static final int HOTBAR_SIZE = 9;
     public static final int INVENTORY_HOTBAR_SIZE = INVENTORY_ROW_SIZE;
-    public static final int DAMAGE_WILDCARD = OreDictionary.WILDCARD_VALUE;
 }

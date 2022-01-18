@@ -1,12 +1,13 @@
 package invtweaks.integration;
 
 import invtweaks.InvTweaks;
+import invtweaks.forge.ClientProxy;
 import invtweaks.forge.CommonProxy;
 import invtweaks.forge.InvTweaksMod;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.Loader;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.SidedProxy;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
@@ -16,14 +17,11 @@ import java.util.Comparator;
 ;
 
 public class ItemListSorter {
-    @Mod.Instance
-    public static InvTweaksMod instance;
 
-    @SidedProxy(clientSide = "invtweaks.forge.ClientProxy", serverSide = "invtweaks.forge.CommonProxy")
-    public static CommonProxy proxy;
+    public static CommonProxy proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
 
     public static void LinkJEITComparator() {
-        if(Loader.isModLoaded("jei")) {
+        if(ModList.get().isLoaded("jei")) {
             try {
                 Class<?> ingredientListElementComparator = Class.forName("mezz.jei.ingredients.IngredientListElementComparator");
                 Class<?> clientConfig = Class.forName("mezz.jei.config.Config");
@@ -54,7 +52,7 @@ public class ItemListSorter {
     }
 
     public static void ReloadItemList() {
-        if(Loader.isModLoaded("jei")) {
+        if(ModList.get().isLoaded("jei")) {
             try {
                 Class<?> ProxyCommonClient = Class.forName("mezz.jei.startup.ProxyCommonClient");
                 if(ProxyCommonClient != null) {
