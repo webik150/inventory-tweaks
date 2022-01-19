@@ -7,7 +7,6 @@ import invtweaks.container.ContainerSectionManager;
 import invtweaks.container.IContainerManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;

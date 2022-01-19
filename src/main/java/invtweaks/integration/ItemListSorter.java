@@ -1,10 +1,7 @@
 package invtweaks.integration;
 
 import invtweaks.InvTweaks;
-import invtweaks.forge.ClientProxy;
-import invtweaks.forge.CommonProxy;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 
