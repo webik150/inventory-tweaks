@@ -1,5 +1,6 @@
 package invtweaks.network.packets;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.ClickType;
@@ -36,7 +37,6 @@ public class ITPacketClick implements ITPacket {
     public void handle(NetworkEvent.Context context) {
         if(context.getDirection() == NetworkDirection.PLAY_TO_SERVER) {
             ServerPlayer player = context.getSender();
-
             if(!player.isSpectator() && player.containerMenu.containerId == window) {
                 //TODO: Changed to clicked from slotClick. Maybe wont work
                 player.inventoryMenu.clicked(slot, data, action, player);

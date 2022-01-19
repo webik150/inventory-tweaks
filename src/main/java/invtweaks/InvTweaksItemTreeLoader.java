@@ -1,10 +1,11 @@
 package invtweaks;
 
 import invtweaks.api.IItemTreeListener;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTException;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.xml.sax.Attributes;
@@ -110,7 +111,7 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
     }
 
     @Override
-    public synchronized void startElement(String uri, String localName, String name, @NotNull Attributes attributes) throws SAXException {
+    public synchronized void startElement (String uri, String localName,String qName, Attributes attributes) throws SAXException {
 
         String rangeDMinAttr = attributes.getValue(ATTR_RANGE_DMIN);
         String newTreeVersion = attributes.getValue(ATTR_TREE_VERSION);
@@ -133,41 +134,41 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
 
         // Item
         if(id != null) {
-            int damage = InvTweaksConst.DAMAGE_WILDCARD;
+            int damage = 0;//InvTweaksConst.DAMAGE_WILDCARD;
             String extraDataAttr = attributes.getValue(ATTR_DATA);
-            @Nullable CompoundNBT extraData = null;
+            @Nullable CompoundTag extraData = null;
             if(extraDataAttr != null) {
                 try {
-                    extraData = JsonToNBT.getTagFromJson(extraDataAttr);
-                } catch(NBTException e) {
-                    throw new RuntimeException("Data attribute failed for tree entry '" + name + "'", e);
+                    extraData = NbtUtils.snbtToStructure(extraDataAttr);
+                } catch(Exception e) {
+                    throw new RuntimeException("Data attribute failed for tree entry '" + qName + "'", e);
                 }
             }
             if(attributes.getValue(ATTR_DAMAGE) != null) {
                 damage = Integer.parseInt(attributes.getValue(ATTR_DAMAGE));
             }
-            tree.addItem(categoryStack.getLast(), new InvTweaksItemTreeItem(name, id, damage, extraData, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + name));
+            tree.addItem(categoryStack.getLast(), new InvTweaksItemTreeItem(qName, id, damage, extraData, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + qName));
         } else if(oreDictNameAttr != null) {
-            tree.registerOre(categoryStack.getLast(), name, oreDictNameAttr, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + name);
+            tree.registerOre(categoryStack.getLast(), new ResourceLocation(qName), oreDictNameAttr, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + qName);
         } else if(className != null) {
             String extraDataAttr = attributes.getValue(ATTR_DATA);
-            @Nullable CompoundNBT extraData = null;
+            @Nullable CompoundTag extraData = null;
             if(extraDataAttr != null) {
                 try {
-                    extraData = JsonToNBT.getTagFromJson(extraDataAttr.toLowerCase());
-                } catch(NBTException e) {
-                    throw new RuntimeException("Data attribute failed for tree entry '" + name + "'", e);
+                    extraData = NbtUtils.snbtToStructure(extraDataAttr.toLowerCase());
+                } catch(Exception e) {
+                    throw new RuntimeException("Data attribute failed for tree entry '" + qName + "'", e);
                 }
             }
-            tree.registerClass(categoryStack.getLast(), name, className.toLowerCase(), extraData, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + name);
+            tree.registerClass(categoryStack.getLast(), qName, className.toLowerCase(), extraData, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + qName);
         } else {
             // Category
             if(categoryStack.isEmpty()) {
                 // Root category
-                tree.setRootCategory(new InvTweaksItemTreeCategory(name));
+                tree.setRootCategory(new InvTweaksItemTreeCategory(qName));
             } else {
                 // Normal category
-                tree.addCategory(categoryStack.getLast(), new InvTweaksItemTreeCategory(name));
+                tree.addCategory(categoryStack.getLast(), new InvTweaksItemTreeCategory(qName));
             }
 
             // Handle damage ranges
@@ -175,14 +176,14 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
                 int rangeDMin = Integer.parseInt(rangeDMinAttr);
                 int rangeDMax = Integer.parseInt(attributes.getValue(ATTR_RANGE_DMAX));
                 for(int damage = rangeDMin; damage <= rangeDMax; damage++) {
-                    tree.addItem(name, new InvTweaksItemTreeItem((name + id + "-" + damage), id, damage, null, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + name));
+                    tree.addItem(qName, new InvTweaksItemTreeItem((qName/* + id + "-" + damage*/), id, damage, null, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + qName));
                 }
             } else if(willMergeChildren) {
                 //Try to get a new ID for the children to use.  
                 //(If an ancestor already set the flag, this will do nothing.)
                 getNextItemOrder(lastOrder);
             }
-            categoryStack.add(name);
+            categoryStack.add(qName);
         }
 
         //This happens last so if this node got an ID and it was supposed to be new, it did.

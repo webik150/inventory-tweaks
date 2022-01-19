@@ -2,7 +2,7 @@ package invtweaks.container;
 
 import invtweaks.InvTweaks;
 import invtweaks.api.container.ContainerSection;
-import net.minecraft.world.Container;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +75,7 @@ public class ContainerSectionManager {
         return containerMgr.getItemStack(section, index);
     }
 
-    public Container getContainer() {
+    public AbstractContainerMenu getContainer() {
         return containerMgr.getContainer();
     }
 

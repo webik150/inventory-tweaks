@@ -3,11 +3,9 @@ package invtweaks.integration;
 import invtweaks.InvTweaks;
 import invtweaks.forge.ClientProxy;
 import invtweaks.forge.CommonProxy;
-import invtweaks.forge.InvTweaksMod;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
@@ -17,8 +15,6 @@ import java.util.Comparator;
 ;
 
 public class ItemListSorter {
-
-    public static CommonProxy proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
 
     public static void LinkJEITComparator() {
         if(ModList.get().isLoaded("jei")) {

@@ -4,9 +4,9 @@ import invtweaks.InvTweaks;
 import invtweaks.InvTweaksObfuscation;
 import invtweaks.api.container.ContainerSection;
 import invtweaks.forge.InvTweaksMod;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,12 +23,12 @@ public class MirroredContainerManager implements IContainerManager {
     @NotNull
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection") // Partially implemented
     private List<ItemStack> droppedItems = new ArrayList<>();
-    private Container container;
+    private AbstractContainerMenu container;
     private Map<ContainerSection, List<Integer>> itemRefs;
     @Nullable
     private Map<ContainerSection, List<Slot>> slotRefs;
 
-    public MirroredContainerManager(Container cont) {
+    public MirroredContainerManager(AbstractContainerMenu cont) {
         container = cont;
 
         slotRefs = InvTweaksObfuscation.getContainerSlotMap(container);
@@ -37,7 +37,7 @@ public class MirroredContainerManager implements IContainerManager {
         }
 
         // TODO: Detect if there is a big enough unassigned section for inventory.
-        List<Slot> slots = container.inventorySlots;
+        List<Slot> slots = container.slots;
         int size = slots.size();
 
         itemRefs = new HashMap<>();
@@ -49,7 +49,7 @@ public class MirroredContainerManager implements IContainerManager {
 
         slotItems = new ItemStack[size];
         for(int i = 0; i < size; ++i) {
-            slotItems[i] = slots.get(i).getStack().copy();
+            slotItems[i] = slots.get(i).getItem().copy();
         }
 
         heldItem = InvTweaks.getInstance().getHeldStack();
@@ -72,11 +72,11 @@ public class MirroredContainerManager implements IContainerManager {
         @NotNull ItemStack srcItem = slotItems[srcSlotIdx];
         @NotNull ItemStack destItem = slotItems[destSlotIdx];
 
-        if(srcItem != null && !destSlot.isItemValid(srcItem)) {
+        if(srcItem != null && !destSlot.mayPlace(srcItem)) {
             return false;
         }
 
-        if(destItem != null && !srcSlot.isItemValid(destItem)) {
+        if(destItem != null && !srcSlot.mayPlace(destItem)) {
             // TODO: Behavior says move dest to empty valid slot in this case.
             return false;
         }
@@ -196,7 +196,7 @@ public class MirroredContainerManager implements IContainerManager {
     }
 
     @Override
-    public Container getContainer() {
+    public AbstractContainerMenu getContainer() {
         return container;
     }
 

@@ -4,10 +4,7 @@ import invtweaks.InvTweaks;
 import invtweaks.InvTweaksObfuscation;
 import invtweaks.api.container.ContainerSection;
 import invtweaks.forge.InvTweaksMod;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.Container;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static net.minecraft.inventory.container.ClickType.PICKUP;
+import static net.minecraft.world.inventory.ClickType.PICKUP;
 
 /**
  * Allows to perform various operations on the inventory and/or containers. Works in both single and multiplayer.
@@ -28,13 +25,12 @@ public class DirectContainerManager implements IContainerManager {
 
     // TODO: Throw errors when the container isn't available anymore
 
-    @NotNull
-    private final Container container;
+    private final AbstractContainerMenu container;
     @NotNull
     private Map<ContainerSection, List<Slot>> slotRefs = new HashMap<>();
 
     // TODO: Refactor the mouse-coverage stuff that needs the GuiContainer into a different class.
-    public DirectContainerManager(@NotNull Container cont) {
+    public DirectContainerManager(AbstractContainerMenu cont) {
         container = cont;
         initSlots();
     }
@@ -205,12 +201,12 @@ public class DirectContainerManager implements IContainerManager {
 
     @Override
     public void click(ContainerSection section, int index, boolean rightClick) {
-        //System.out.println("Click " + section + ":" + index);
+        System.out.println("Click " + section + ":" + index);
         // Click! (we finally call the Minecraft code)
         int slot = indexToSlot(section, index);
         if(slot != -1) {
             int data = (rightClick) ? 1 : 0;
-            InvTweaksMod.proxy.slotClick(container.windowId, slot, data, PICKUP, InvTweaks.getInstance().getThePlayer());
+            InvTweaksMod.proxy.slotClick(container.containerId, slot, data, PICKUP, InvTweaks.getInstance().getThePlayer());
         }
     }
 
@@ -336,22 +332,21 @@ public class DirectContainerManager implements IContainerManager {
     @Override
     public ItemStack getItemStack(ContainerSection section, int index) {
         int slot = indexToSlot(section, index);
-        if(slot >= 0 && slot < container.getContainerSize()) {
+        if(slot >= 0 && slot < container.slots.size()) {
             return InvTweaksObfuscation.getSlotStack(container, slot);
         } else {
             return ItemStack.EMPTY;
         }
     }
 
-    @NotNull
     @Override
-    public Container getContainer() {
+    public AbstractContainerMenu getContainer() {
         return container;
     }
 
     private int getFirstEmptyUsableSlotNumber() {
         for(ContainerSection section : slotRefs.keySet()) {
-            for(@NotNull Slot slot : slotRefs.get(section)) {
+            for(Slot slot : slotRefs.get(section)) {
                 // Use only standard slot (to make sure
                 // we can freely put and remove items there)
                 if(InvTweaksObfuscation.isBasicSlot(slot) && !slot.hasItem()) {

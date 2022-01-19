@@ -1,7 +1,7 @@
 package invtweaks.container;
 
 import invtweaks.api.container.ContainerSection;
-import net.minecraft.world.Container;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -127,7 +127,7 @@ public interface IContainerManager {
     @NotNull
     ItemStack getItemStack(ContainerSection section, int index);
 
-    Container getContainer();
+    AbstractContainerMenu getContainer();
 
     void applyChanges();
 }

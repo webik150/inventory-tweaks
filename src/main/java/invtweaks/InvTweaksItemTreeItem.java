@@ -1,8 +1,8 @@
 package invtweaks;
 
 import invtweaks.api.IItemTreeItem;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +19,7 @@ public class InvTweaksItemTreeItem implements IItemTreeItem {
     @Nullable
     private String id;
     private int damage;
-    private CompoundNBT extraData;
+    private CompoundTag extraData;
     private int order;
     private String path;
 
@@ -29,7 +29,7 @@ public class InvTweaksItemTreeItem implements IItemTreeItem {
      * @param damage_ The item variant or InvTweaksConst.DAMAGE_WILDCARD
      * @param order_  The item order while sorting
      */
-    public InvTweaksItemTreeItem(String name_, String id_, int damage_, CompoundNBT extraData_, int order_, String path_) {
+    public InvTweaksItemTreeItem(String name_, String id_, int damage_, CompoundTag extraData_, int order_, String path_) {
         name = name_;
         id = InvTweaksObfuscation.getNamespacedID(id_);
         damage = damage_;
@@ -55,7 +55,7 @@ public class InvTweaksItemTreeItem implements IItemTreeItem {
     }
 
     @Override
-    public CompoundNBT getExtraData() {
+    public CompoundTag getExtraData() {
         return extraData;
     }
 
@@ -78,11 +78,11 @@ public class InvTweaksItemTreeItem implements IItemTreeItem {
             return false;
         }
         @Nullable IItemTreeItem item = (IItemTreeItem) o;
-        return Objects.equals(id, item.getId()) && NBTUtil.areNBTEquals(extraData, item.getExtraData(), true) && (damage == InvTweaksConst.DAMAGE_WILDCARD || damage == item.getDamage());
+        return Objects.equals(id, item.getId()) && NbtUtils.compareNbt(extraData, item.getExtraData(), true) && (/*damage == InvTweaksConst.DAMAGE_WILDCARD ||*/ damage == item.getDamage());
     }
 
     public String toString() {
-        return name;
+        return name.toString();
     }
 
     @Override
