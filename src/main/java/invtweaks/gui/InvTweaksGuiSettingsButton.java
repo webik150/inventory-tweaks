@@ -10,6 +10,8 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static invtweaks.forge.InvTweaksMod.log;
+
 /**
  * Button that opens the inventory & chest settings screen.
  *
@@ -17,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public class InvTweaksGuiSettingsButton extends InvTweaksGuiIconButton {
 
-    private static final Logger log = InvTweaks.log;
 
     public InvTweaksGuiSettingsButton(InvTweaksConfigManager cfgManager_, int x, int y, int w, int h, Component displayString_, String tooltip, boolean useCustomTexture, OnPress action) {
         super(cfgManager_, x, y, w, h, displayString_, tooltip, useCustomTexture, action);

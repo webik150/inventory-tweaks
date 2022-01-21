@@ -4,27 +4,26 @@ import invtweaks.forge.InvTweaksMod;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
-public class ITPacketAddStuff implements ITPacket {
+public class ITPacketRefill implements ITPacket {
     public int slot;
     public String id;
     public int amount;
 
 
-    public ITPacketAddStuff(int slot, String id, int amount) {
+    public ITPacketRefill(int slot, String id, int amount) {
         this.slot = slot;
         this.id = id;
         this.amount = amount;
     }
 
-    public static ITPacketAddStuff decode(@NotNull FriendlyByteBuf bytes) {
-        return new ITPacketAddStuff(bytes.readInt(), bytes.readUtf(), bytes.readInt());
+    public static ITPacketRefill decode(@NotNull FriendlyByteBuf bytes) {
+        return new ITPacketRefill(bytes.readInt(), bytes.readUtf(), bytes.readInt());
     }
 
     @Override

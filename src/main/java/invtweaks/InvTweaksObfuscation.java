@@ -14,6 +14,7 @@ import net.minecraft.client.gui.screens.inventory.SignEditScreen;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -22,12 +23,17 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,8 +45,6 @@ import java.util.Map;
  * @author Jimeo Wan
  */
 public class InvTweaksObfuscation {
-
-    private static final Logger log = InvTweaks.log;
     public Minecraft mc;
 
     public InvTweaksObfuscation() {
@@ -152,7 +156,14 @@ public class InvTweaksObfuscation {
     @SuppressWarnings({"unused", "SameReturnValue"})
     public static Map<ContainerSection, List<Slot>> getContainerSlotMap(AbstractContainerMenu container) {
         // This method gets replaced by the transformer with "return container.invtweaks$slotMap()"
-        return null;
+        HashMap<ContainerSection, List<Slot>> a = new HashMap<>();
+        a.put(ContainerSection.INVENTORY, container.slots);
+        a.put(ContainerSection.CHEST, container.slots);
+        a.put(ContainerSection.INVENTORY_NOT_HOTBAR, container.slots);
+        a.put(ContainerSection.INVENTORY_HOTBAR, container.slots);
+        a.put(ContainerSection.ARMOR, container.slots);
+        a.put(ContainerSection.BREWING_BOTTLES, container.slots);
+        return a;
     }
 
     public static boolean isGuiContainer(@Nullable Object o) { // GuiContainer (abstract class)
@@ -245,27 +256,19 @@ public class InvTweaksObfuscation {
         return getGameSettings().keyDown.getKey().getValue();
     }
 
-    public Inventory getInventoryPlayer() { // InventoryPlayer
-        return getThePlayer().getInventory();
-    }
-
-    public NonNullList<ItemStack> getMainInventory() {
-        return getInventoryPlayer().items;
+    public LazyOptional<IItemHandler> getInventoryPlayer() { // InventoryPlayer
+        return getThePlayer().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
     }
 
     @NotNull
     public ItemStack getHeldStack() {
-        return getInventoryPlayer().getSelected(); // getItemStack
+        return getThePlayer().getMainHandItem(); // getItemStack
     }
 
     //TODO: One of these is wrong
     @NotNull
     public ItemStack getFocusedStack() {
-        return getInventoryPlayer().getSelected(); // getCurrentItem
-    }
-
-    public int getFocusedSlot() {
-        return getInventoryPlayer().selected; // currentItem
+        return getThePlayer().getMainHandItem(); // getCurrentItem
     }
 
     public boolean hasTexture(@NotNull ResourceLocation texture) {
@@ -279,6 +282,6 @@ public class InvTweaksObfuscation {
 
     @NotNull
     public ItemStack getOffhandStack() {
-        return getInventoryPlayer().offhand.get(0);
+        return getThePlayer().getOffhandItem();
     }
 }

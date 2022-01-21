@@ -8,8 +8,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -20,14 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static invtweaks.forge.InvTweaksMod.log;
+
 /**
  * Handles the auto-refilling of the hotbar.
  *
  * @author Jimeo Wan
  */
 public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
-
-    private static final Logger log = InvTweaks.log;
 
     @NotNull
     private InvTweaksConfig config;
@@ -168,6 +170,7 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
                         i = i_;
                         // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
                         expectedItemId = containerMgr.getItemStack(i).getItem().getRegistryName().toString();
+                        log.info(expectedItemId);
                     } else {
                         i = containerMgr.getFirstEmptyIndex();
                         expectedItemId = null;
@@ -215,4 +218,102 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
         }
     }
 
+    public void autoRefilMainHand(@NotNull String wantedId, CompoundTag wantedTag) throws Exception {
+
+        // TODO: ResourceLocation
+        @Nullable Item original = ForgeRegistries.ITEMS.getValue(new ResourceLocation(wantedId));
+        this.getInventoryPlayer().ifPresent(inventory -> {
+            @NotNull ItemStack candidateStack, replacementStack = ItemStack.EMPTY;
+            int replacementStackSlot = -1;
+            boolean refillBeforeBreak = config.getProperty(InvTweaksConfig.PROP_AUTO_REFILL_BEFORE_BREAK).equals(InvTweaksConfig.VALUE_TRUE);
+            for(int i = 0; i < inventory.getSlots(); i++) {
+                candidateStack = inventory.getStackInSlot(i);
+                if(!candidateStack.isEmpty() && Objects.equals(candidateStack.getItem().getRegistryName().toString(), wantedId) && NbtUtils.compareNbt(candidateStack.getTag(), wantedTag, true)) {
+                    replacementStack = candidateStack;
+                    replacementStackSlot = i;
+                    break;
+                }
+            }
+
+            //// Proceed to replacement
+
+            if(!replacementStack.isEmpty() || (refillBeforeBreak && !getThePlayer().getMainHandItem().isEmpty())) {
+
+                log.info("Automatic stack replacement.");
+
+                /*
+                 * This allows to have a short feedback
+                 * that the stack/tool is empty/broken.
+                 */
+                try {
+                    InvTweaks.getInstance().addScheduledTask(new Runnable() {
+
+                        private ContainerSectionManager containerMgr;
+                        private int targetedSlot;
+                        private int i;
+                        @Nullable
+                        private String expectedItemId;
+                        private boolean refillBeforeBreak;
+
+                        @NotNull
+                        public Runnable init(int i_, boolean refillBeforeBreak_) throws Exception {
+                            containerMgr = new ContainerSectionManager(ContainerSection.INVENTORY);
+                            if(i_ != -1) {
+                                i = i_;
+                                // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
+                                expectedItemId = containerMgr.getItemStack(i).getItem().getRegistryName().toString();
+                                log.info(expectedItemId);
+                            } else {
+                                i = containerMgr.getFirstEmptyIndex();
+                                expectedItemId = null;
+                            }
+                            refillBeforeBreak = refillBeforeBreak_;
+                            return this;
+                        }
+
+                        public void run() {
+                            if(i < 0) {
+                                return;
+                            }
+
+                            // TODO: Look for better update detection now that this runs tick-based. It'll probably fail a bit if latency is > 50ms (1 tick)
+                            // Since last tick, things might have changed
+                            @NotNull ItemStack stack = inventory.extractItem(i, Integer.MAX_VALUE, true).copy();
+
+                            // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
+                            if(!stack.isEmpty() && StringUtils.equals(stack.getItem().getRegistryName().toString(), expectedItemId) || this.refillBeforeBreak) {
+                                //getThePlayer().setItemInHand(InteractionHand.MAIN_HAND, stack);
+                                var cand = inventory.extractItem(i, Integer.MAX_VALUE, false);
+                                inventory.insertItem(getThePlayer().getInventory().selected, stack, false);
+                                getThePlayer().setItemInHand(InteractionHand.MAIN_HAND, stack);
+                                if(!config.getProperty(InvTweaksConfig.PROP_ENABLE_SOUNDS).equals(InvTweaksConfig.VALUE_FALSE)) {
+                                    mc.player.playSound(SoundEvents.CHICKEN_EGG, 1.0f, 1.0f);
+                                }
+                                // If item are swapped (like for mushroom soups),
+                                // put the item back in the inventory if it is in the hotbar
+                                if(!containerMgr.getItemStack(i).isEmpty() && i >= 27) {
+                                    for(int j = 0; j < InvTweaksConst.INVENTORY_SIZE; j++) {
+                                        if(containerMgr.getItemStack(j).isEmpty()) {
+                                            containerMgr.move(i, j);
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                // Make sure the inventory resyncs
+                                containerMgr.applyChanges();
+
+                            }
+                        }
+
+                    }.init(replacementStackSlot, refillBeforeBreak));
+                } catch (Exception e) {
+                    log.error(e);
+                }
+
+            }
+        });
+
+
+    }
 }

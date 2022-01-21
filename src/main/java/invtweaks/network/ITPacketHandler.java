@@ -2,10 +2,7 @@ package invtweaks.network;
 
 import invtweaks.InvTweaksConst;
 import invtweaks.forge.InvTweaksMod;
-import invtweaks.network.packets.ITPacket;
-import invtweaks.network.packets.ITPacketClick;
-import invtweaks.network.packets.ITPacketLogin;
-import invtweaks.network.packets.ITPacketSortComplete;
+import invtweaks.network.packets.*;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,6 +32,7 @@ public final class ITPacketHandler {
         //Client to server messages
         registerClientToServer(ITPacketClick.class, ITPacketClick::decode);
         registerClientToServer(ITPacketSortComplete.class, ITPacketSortComplete::decode);
+        registerClientToServer(ITPacketAddStuff.class, ITPacketAddStuff::decode);
 
         //Server to client messages
         registerServerToClient(ITPacketLogin.class, ITPacketLogin::decode);

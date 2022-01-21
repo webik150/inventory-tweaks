@@ -16,6 +16,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 
+import static invtweaks.forge.InvTweaksMod.log;
+
 /**
  * @author Jimeo Wan
  */
@@ -55,7 +57,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
                     @NotNull String[] keysToHold = keyMapping.split("\\+");
                     //TODO: Change completely to keymaps
                     //registerShortcutMapping(shortcutType, new KeyMapping("invtweaks.key."+shortcutType.name().toLowerCase(Locale.ROOT), KeyConflictContext.GUI, InputConstants.Type.KEYSYM, GLFW.glfwGetKeyScancode(keyMapping.charAt(0)), "invtweaks.key.category"));
-                    InvTweaks.log.info(keyMapping);
+                    log.info(keyMapping);
                 }
             }
         }

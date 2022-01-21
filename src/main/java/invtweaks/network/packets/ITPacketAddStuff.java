@@ -1,44 +1,47 @@
 package invtweaks.network.packets;
 
+import invtweaks.forge.InvTweaksMod;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
-public class ITPacketClick implements ITPacket {
+public class ITPacketAddStuff implements ITPacket {
     public int slot;
-    public int data;
-    public ClickType action;
-    public int window;
+    public String id;
+    public int amount;
 
-    public ITPacketClick(int _slot, int _data, ClickType _action, int _window) {
-        slot = _slot;
-        data = _data;
-        action = _action;
-        window = _window;
+
+    public ITPacketAddStuff(int slot, String id, int amount) {
+        this.slot = slot;
+        this.id = id;
+        this.amount = amount;
     }
 
-    public static ITPacketClick decode(@NotNull FriendlyByteBuf bytes) {
-        return new ITPacketClick(bytes.readInt(), bytes.readInt(), ClickType.values()[bytes.readInt()], bytes.readByte());
+    public static ITPacketAddStuff decode(@NotNull FriendlyByteBuf bytes) {
+        return new ITPacketAddStuff(bytes.readInt(), bytes.readUtf(), bytes.readInt());
     }
 
     @Override
     public void encode(FriendlyByteBuf buffer) {
         buffer.writeInt(slot);
-        buffer.writeInt(data);
-        buffer.writeInt(action.ordinal());
-        buffer.writeByte(window);
+        buffer.writeUtf(id);
+        buffer.writeInt(amount);
     }
 
     @Override
     public void handle(NetworkEvent.Context context) {
         if(context.getDirection() == NetworkDirection.PLAY_TO_SERVER) {
             ServerPlayer player = context.getSender();
-            if(!player.isSpectator() && player.containerMenu.containerId == window) {
+            InvTweaksMod.log.info("Adding items to player {}",player.getDisplayName());
+            if(!player.isSpectator()) {
                 //TODO: Changed to clicked from slotClick. Maybe wont work
-                player.inventoryMenu.clicked(slot, data, action, player);
+                player.getInventory().setItem(slot, new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(id)),amount));
             }
             // TODO: Might want to set a flag to ignore all packets until next sortcomplete even if client window changes.
         }

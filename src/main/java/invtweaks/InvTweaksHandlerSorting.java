@@ -20,6 +20,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.Map.Entry;
 
+import static invtweaks.forge.InvTweaksMod.log;
+
 /**
  * Core of the sorting behaviour. Allows to move items in a container (inventory or chest) with respect to the mod's
  * configuration.
@@ -27,7 +29,6 @@ import java.util.Map.Entry;
  * @author Jimeo Wan
  */
 public class InvTweaksHandlerSorting extends InvTweaksObfuscation {
-    private static final Logger log = InvTweaks.log;
     private static final int MAX_CONTAINER_SIZE = 999;
     @Nullable
     private static int[] DEFAULT_LOCK_PRIORITIES = null;
@@ -230,7 +231,7 @@ public class InvTweaksHandlerSorting extends InvTweaksObfuscation {
         log.info("Locking stacks.");
 
         for(int i = 0; i < size; i++) {
-            if(hasToBeMoved(i, 1) && lockPriorities[i] > 0) {
+            if(hasToBeMoved(i, 1) && i<lockPriorities.length-1 && lockPriorities[i] > 0) {
                 markAsMoved(i, 1);
             }
         }

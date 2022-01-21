@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import static invtweaks.forge.InvTweaksMod.log;
+
 /**
  * Handles the (re)loading of the configuration, and all that is related to file extraction/moves.
  *
@@ -22,8 +24,6 @@ import java.util.List;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored") // Lots of these from file creation
 public class InvTweaksConfigManager {
-
-    private static final Logger log = InvTweaks.log;
 
     private final Minecraft mc;
 

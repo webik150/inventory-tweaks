@@ -8,11 +8,14 @@ import invtweaks.api.container.ContainerSection;
 import invtweaks.container.ContainerSectionManager;
 import invtweaks.container.DirectContainerManager;
 import invtweaks.container.IContainerManager;
+import invtweaks.forge.ClientProxy;
 import invtweaks.forge.InvTweaksMod;
 import invtweaks.gui.InvTweaksGuiSettingsButton;
 import invtweaks.gui.InvTweaksGuiSortingButton;
 import invtweaks.gui.InvTweaksGuiTooltipButton;
 import invtweaks.integration.ItemListChecker;
+import invtweaks.network.ITPacketHandler;
+import invtweaks.network.packets.ITPacketAddStuff;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -42,6 +45,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.items.IItemHandler;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,7 +65,6 @@ import java.util.stream.Collectors;
  * Source code: <a href="https://github.com/kobata/inventory-tweaks">GitHub</a> License: MIT
  */
 public class InvTweaks extends InvTweaksObfuscation {
-    public static final Logger log = LogManager.getLogger();
 
     private static InvTweaks instance;
     @NotNull
@@ -89,8 +92,7 @@ public class InvTweaks extends InvTweaksObfuscation {
     @Nullable
     private String storedStackId = null;
     private CompoundTag storedTag = null;
-    private int storedFocusedSlot = -1;
-    private boolean hadFocus = true, mouseWasDown = false;
+    private boolean mouseWasDown = false;
     private boolean wasInGUI = false;
     private boolean previousRecipeBookVisibility = false;
     /**
@@ -110,7 +112,7 @@ public class InvTweaks extends InvTweaksObfuscation {
      * Debug tools:
      */
     private String mostRecentComparison = "";
-    private boolean debugTree = false;
+    private boolean debugTree = true;
 
     /**
      * Creates an instance of the mod, and loads the configuration from the files, creating them if necessary.
@@ -129,9 +131,9 @@ public class InvTweaks extends InvTweaksObfuscation {
         // Load config files
         cfgManager = new InvTweaksConfigManager(mc);
         if(cfgManager.makeSureConfigurationIsLoaded()) {
-            log.info("Mod initialized");
+            InvTweaksMod.log.info("Mod initialized");
         } else {
-            log.error("Mod failed to initialize!");
+            InvTweaksMod.log.error("Mod failed to initialize!");
         }
     }
 
@@ -227,8 +229,8 @@ public class InvTweaks extends InvTweaksObfuscation {
         if(itemStack == null || item == null) { return ""; }
         //TODO: How tf do I change this
         Set<String> toolClassSet = new HashSet<>();//item.getToolClasses(itemStack);
-        InvTweaks.log.warn("Item tags:");
-        InvTweaks.log.warn(item.getTags());
+        InvTweaksMod.log.warn("Item tags:");
+        InvTweaksMod.log.warn(item.getTags());
         if(toolClassSet.contains("sword")) {
             //Swords are not "tools".
             Set<String> newClassSet = new HashSet<String>();
@@ -267,7 +269,7 @@ public class InvTweaks extends InvTweaksObfuscation {
             if(!onTick()) {
                 return;
             }
-            handleAutoRefill();
+            //handleAutoRefill();
             if(wasInGUI) {
                 wasInGUI = false;
                 textboxMode = false;
@@ -721,12 +723,12 @@ public class InvTweaks extends InvTweaksObfuscation {
             addChatMessage(formattedMsg);
         }
 
-        log.info(formattedMsg);
+        InvTweaksMod.log.info(formattedMsg);
     }
 
     public void logInGameError(@NotNull String message, @NotNull Exception e) {
         @NotNull String formattedMsg = buildLogString(Level.SEVERE, I18n.get(message), e);
-        log.error(formattedMsg, e);
+        InvTweaksMod.log.error(formattedMsg, e);
 
         if(mc.screen == null) {
             queuedMessages.add(formattedMsg);
@@ -764,6 +766,8 @@ public class InvTweaks extends InvTweaksObfuscation {
             if(!sortKeyDown) {
                 sortKeyDown = true;
                 onSortingKeyPressed();
+                var r = new Random();
+                ITPacketHandler.sendToServer(new ITPacketAddStuff(r.nextInt(30),"minecraft:diamond", r.nextInt(32)));
             }
         } else {
             sortKeyDown = false;
@@ -863,37 +867,35 @@ public class InvTweaks extends InvTweaksObfuscation {
 
     @SuppressWarnings("unused")
     private void handleSorting(Screen guiScreen) {
-        @NotNull ItemStack selectedItem = ItemStack.EMPTY;
-        int focusedSlot = getFocusedSlot();
-        NonNullList<ItemStack> mainInventory = getMainInventory();
-        if(focusedSlot < mainInventory.size() && focusedSlot >= 0) {
-            selectedItem = mainInventory.get(focusedSlot);
-        }
+        getInventoryPlayer().ifPresent(mainInventory->{
+            @NotNull ItemStack selectedItem;
+            selectedItem = getThePlayer().getInventory().getSelected();
 
-        if(debugTree && selectedItem != null && !selectedItem.isEmpty()) {
-            logInGame("Hand Item Details:", true);
-            logInGame(selectedItem.toString(), true);
-            logInGame("Classes: " + ListOfClassNameKind(selectedItem.getItem()));
-            logInGame("Item Order Index: " + getItemOrder(selectedItem), true);
-            @NotNull ItemStack offhandStack = getOffhandStack();
-            if(offhandStack != null && !offhandStack.isEmpty()) {
-                logInGame("Off-Hand Item Details:", true);
-                logInGame(offhandStack.toString(), true);
-                logInGame("Item Order Index: " + getItemOrder(offhandStack), true);
-                logInGame("Comparator result: " + compareItems(selectedItem, offhandStack), true);
-                logInGame("Comparator debug: " + mostRecentComparison, true);
+            if(debugTree && selectedItem != null && !selectedItem.isEmpty()) {
+                logInGame("Hand Item Details:", true);
+                logInGame(selectedItem.toString(), true);
+                logInGame("Classes: " + ListOfClassNameKind(selectedItem.getItem()));
+                logInGame("Item Order Index: " + getItemOrder(selectedItem), true);
+                @NotNull ItemStack offhandStack = getOffhandStack();
+                if(offhandStack != null && !offhandStack.isEmpty()) {
+                    logInGame("Off-Hand Item Details:", true);
+                    logInGame(offhandStack.toString(), true);
+                    logInGame("Item Order Index: " + getItemOrder(offhandStack), true);
+                    logInGame("Comparator result: " + compareItems(selectedItem, offhandStack), true);
+                    logInGame("Comparator debug: " + mostRecentComparison, true);
+                }
             }
-        }
 
-        // Sorting
-        try {
-            new InvTweaksHandlerSorting(cfgManager.getConfig(), ContainerSection.INVENTORY, SortingMethod.INVENTORY, InvTweaksConst.INVENTORY_ROW_SIZE).sort();
-        } catch(Exception e) {
-            logInGameError("invtweaks.sort.inventory.error", e);
-            e.printStackTrace();
-        }
+            // Sorting
+            try {
+                new InvTweaksHandlerSorting(cfgManager.getConfig(), ContainerSection.INVENTORY, SortingMethod.INVENTORY, InvTweaksConst.INVENTORY_ROW_SIZE).sort();
+            } catch(Exception e) {
+                logInGameError("invtweaks.sort.inventory.error", e);
+                e.printStackTrace();
+            }
 
-        playClick();
+            playClick();
+        });
     }
 
     private void handleAutoRefill() {
@@ -904,12 +906,9 @@ public class InvTweaks extends InvTweaksObfuscation {
         @Nullable String currentStackId = (currentStack.isEmpty()) ? null : currentStack.getItem().getRegistryName().toString();
 
         CompoundTag currentStackDamage = (currentStack.isEmpty()) ? null : currentStack.getTag();
-        int focusedSlot = getFocusedSlot() + 27; // Convert to container slots index
         @Nullable InvTweaksConfig config = cfgManager.getConfig();
 
-        if(storedFocusedSlot != focusedSlot) { // Filter selection change
-            storedFocusedSlot = focusedSlot;
-        } else if(!ItemStack.isSame(currentStack, storedStack) && storedStackId != null) {
+        if(!ItemStack.isSame(currentStack, storedStack) && storedStackId != null) {
             if(!storedStack.isEmpty() && !ItemStack.isSameItemSameTags(offhandStack, storedStack)) { // Checks not switched to offhand
                 if(currentStack.isEmpty() || (currentStack.getItem() == Items.BOWL && Objects.equals(storedStackId, "minecraft:mushroom_stew"))
                         // Handle eaten mushroom soup
@@ -918,7 +917,8 @@ public class InvTweaks extends InvTweaksObfuscation {
 
                     if(config.isAutoRefillEnabled(storedStackId, storedTag)) {
                         try {
-                            cfgManager.getAutoRefillHandler().autoRefillSlot(focusedSlot, storedStackId, storedTag);
+                            InvTweaksMod.log.info("{} - {}", storedStackId, storedTag);
+                            cfgManager.getAutoRefillHandler().autoRefilMainHand(storedStackId, storedTag);
                         } catch(Exception e) {
                             logInGameError("invtweaks.sort.autorefill.error", e);
                         }
@@ -930,7 +930,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                     if(canToolBeReplaced(currentStack.getDamageValue(), itemMaxDamage, autoRefillThreshhold) && config.getProperty(InvTweaksConfig.PROP_AUTO_REFILL_BEFORE_BREAK).equals(InvTweaksConfig.VALUE_TRUE) && config.isAutoRefillEnabled(storedStackId, storedTag)) {
                         // Trigger auto-refill before the tool breaks
                         try {
-                            cfgManager.getAutoRefillHandler().autoRefillSlot(focusedSlot, storedStackId, storedTag);
+                            cfgManager.getAutoRefillHandler().autoRefilMainHand(storedStackId, storedTag);
                         } catch(Exception e) {
                             logInGameError("invtweaks.sort.autorefill.error", e);
                         }
@@ -1215,8 +1215,7 @@ public class InvTweaks extends InvTweaksObfuscation {
 
     private boolean isSortingShortcutDown() {
         if(sortKeyEnabled && !textboxMode) {
-            KeyMapping key = cfgManager.getConfig().getSortKeyMapping();
-            return key.isDown();
+            return ClientProxy.KEYBINDING_SORT.isDown();
         } else {
             return false;
         }
@@ -1261,7 +1260,7 @@ public class InvTweaks extends InvTweaksObfuscation {
      * features).
      */
     private void cloneHotbar() {
-        NonNullList<ItemStack> mainInventory = getMainInventory();
+        NonNullList<ItemStack> mainInventory = getThePlayer().getInventory().items;
         for(int i = 0; i < 9; i++) {
             hotbarClone[i] = mainInventory.get(i).copy();
         }

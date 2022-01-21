@@ -8,16 +8,22 @@ import invtweaks.gui.InvTweaksGuiSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.ConfigGuiHandler;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.IExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.jmx.Server;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
@@ -36,8 +42,9 @@ import static net.minecraftforge.network.NetworkConstants.IGNORESERVERONLY;
 public class InvTweaksMod implements InvTweaksAPI {
     public static final String MOD_ID = "inventorytweaks";
     public static InvTweaksMod instance;
+    public static final Logger log = LogManager.getLogger();
 
-    public static CommonProxy proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
+    public static CommonProxy proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> ServerProxy::new);
 
     public InvTweaksMod() {
         instance = this;
@@ -47,11 +54,16 @@ public class InvTweaksMod implements InvTweaksAPI {
         //FMLJavaModLoadingContext.get().getModEventBus().addListener(this::enqueueIMC);
         // Register the processIMC method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::postInit);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
 
         //ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> IGNORESERVERONLY, (a, b) -> true));
 
         ModLoadingContext.get().registerExtensionPoint(ConfigGuiHandler.ConfigGuiFactory.class,
                 () -> new ConfigGuiHandler.ConfigGuiFactory((mc, screen) -> new InvTweaksGuiSettings(screen)));
+    }
+
+    private void clientSetup(FMLClientSetupEvent e) {
+        proxy.clientSetup(e);
     }
 
     // Helper for ASM transform of GuiTextField to disable sorting on focus.

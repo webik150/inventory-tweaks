@@ -21,6 +21,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+import static invtweaks.forge.InvTweaksMod.log;
+
 /**
  * Contains the whole hierarchy of categories and items, as defined in the XML item tree. Is used to recognize keywords
  * and store item orders.
@@ -30,7 +32,6 @@ import java.util.*;
 public class InvTweaksItemTree implements IItemTree {
     public static final String UNKNOWN_ITEM = "unknown";
 
-    private static final Logger log = InvTweaks.log;
     @Nullable
     private static List<IItemTreeItem> defaultItems = null;
     /**

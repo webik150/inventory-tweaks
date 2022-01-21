@@ -61,6 +61,8 @@ public class DirectContainerManager implements IContainerManager {
         @NotNull ItemStack srcStack = getItemStack(srcSection, srcIndex);
         @NotNull ItemStack destStack = getItemStack(destSection, destIndex);
 
+        InvTweaksMod.log.warn("{} -> {}", srcStack.toString(), destStack.toString());
+
         if(srcStack.isEmpty() && destIndex != DROP_SLOT) {
             return false;
         } else if(srcSection == destSection && srcIndex == destIndex) {

@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import static invtweaks.forge.InvTweaksMod.log;
+
 /**
  * Loads the item tree by parsing the XML file.
  *
@@ -208,17 +210,17 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
 
     @Override
     public void warning(SAXParseException e) throws SAXException {
-        InvTweaks.log.warn("Tree XML Warning: ", e);
+        log.warn("Tree XML Warning: ", e);
     }
 
     @Override
     public void error(SAXParseException e) throws SAXException {
-        InvTweaks.log.error("Tree XML Error: ", e);
+        log.error("Tree XML Error: ", e);
     }
 
     @Override
     public void fatalError(SAXParseException e) throws SAXException {
-        InvTweaks.log.fatal("Tree XML Fatal Error: ", e);
+        log.fatal("Tree XML Fatal Error: ", e);
     }
 
     private static class VersionLoader extends DefaultHandler {

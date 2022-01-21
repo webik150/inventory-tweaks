@@ -28,11 +28,12 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 public class ClientProxy extends CommonProxy {
-    public static final KeyMapping KEYBINDING_SORT = new KeyMapping("invtweaks.key.sort", KeyConflictContext.UNIVERSAL, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, "invtweaks.key.category");
+    public static final KeyMapping KEYBINDING_SORT = new KeyMapping("invtweaks.key.sort", KeyConflictContext.GUI, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, "invtweaks.key.category");
     public boolean serverSupportEnabled = false;
     public boolean serverSupportDetected = false;
     private InvTweaks instance;
@@ -57,6 +58,7 @@ public class ClientProxy extends CommonProxy {
 
     @SubscribeEvent
     public void onTick(@NotNull TickEvent.ClientTickEvent tick) {
+
         if(tick.phase == TickEvent.Phase.START) {
             Minecraft mc = Minecraft.getInstance();
             if(mc.level != null && mc.player != null) {
@@ -103,6 +105,7 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void sortComplete() {
         if(serverSupportEnabled) {
+            InvTweaksMod.log.info("Sending sort complete packet");
             ITPacketHandler.sendToServer(new ITPacketSortComplete());
         }
     }

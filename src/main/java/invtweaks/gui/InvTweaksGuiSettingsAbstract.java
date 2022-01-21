@@ -19,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class InvTweaksGuiSettingsAbstract extends Screen {
 
-    protected static final Logger log = InvTweaks.log;
     protected static String ON;
     protected static String OFF;
     protected static String LABEL_DONE;
@@ -28,7 +27,7 @@ public abstract class InvTweaksGuiSettingsAbstract extends Screen {
     protected Screen parentScreen;
 
     public InvTweaksGuiSettingsAbstract(Screen parentScreen_, InvTweaksConfig config_) {
-        super((Component) parentScreen_);
+        super(new TextComponent("Inventory Tweaks GUI Settings"));
 
         LABEL_DONE = I18n.get("invtweaks.settings.exit");
         ON = ": " + I18n.get("invtweaks.settings.on");

@@ -19,9 +19,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static invtweaks.forge.InvTweaksMod.log;
+
 public class InvTweaksItemTreeBuilder {
 
-    private static final Logger log = InvTweaks.log;
     private DocumentBuilder docBuilder;
     private Document newDoc;
 
