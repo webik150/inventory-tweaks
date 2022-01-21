@@ -4,11 +4,25 @@ import invtweaks.api.IItemTreeListener;
 import invtweaks.api.InvTweaksAPI;
 import invtweaks.api.SortingMethod;
 import invtweaks.api.container.ContainerSection;
-import net.minecraft.item.ItemStack;
+import invtweaks.gui.InvTweaksGuiSettings;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.client.ConfigGuiHandler;
+import net.minecraftforge.event.server.ServerAboutToStartEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.IExtensionPoint;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.function.BiFunction;
+
+import static net.minecraftforge.network.NetworkConstants.IGNORESERVERONLY;
 
 /**
  * ModLoader entry point to load and configure the mod.
@@ -18,13 +32,27 @@ import org.jetbrains.annotations.NotNull;
  * Contact: jimeo.wan (at) gmail (dot) com Website: <a href="https://inventory-tweaks.readthedocs.org/">https://inventory-tweaks.readthedocs.org/</a>
  * Source code: <a href="https://github.com/kobata/inventory-tweaks">GitHub</a> License: MIT
  */
-@Mod(modid = "inventorytweaks", dependencies = "required-after:forge@[14.21.0,)", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "", guiFactory = "invtweaks.forge.ModGuiFactory", certificateFingerprint = "55d2cd4f5f0961410bf7b91ef6c6bf00a766dcbe")
+@Mod(InvTweaksMod.MOD_ID)
 public class InvTweaksMod implements InvTweaksAPI {
-    @Mod.Instance
+    public static final String MOD_ID = "inventorytweaks";
     public static InvTweaksMod instance;
 
-    @SidedProxy(clientSide = "invtweaks.forge.ClientProxy", serverSide = "invtweaks.forge.CommonProxy")
-    public static CommonProxy proxy;
+    public static CommonProxy proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
+
+    public InvTweaksMod() {
+        instance = this;
+        // Register the setup method for modloading
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
+        // Register the enqueueIMC method for modloading
+        //FMLJavaModLoadingContext.get().getModEventBus().addListener(this::enqueueIMC);
+        // Register the processIMC method for modloading
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::postInit);
+
+        //ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> IGNORESERVERONLY, (a, b) -> true));
+
+        ModLoadingContext.get().registerExtensionPoint(ConfigGuiHandler.ConfigGuiFactory.class,
+                () -> new ConfigGuiHandler.ConfigGuiFactory((mc, screen) -> new InvTweaksGuiSettings(screen)));
+    }
 
     // Helper for ASM transform of GuiTextField to disable sorting on focus.
     @SuppressWarnings("unused")
@@ -32,34 +60,14 @@ public class InvTweaksMod implements InvTweaksAPI {
         instance.setTextboxMode(enabled);
     }
 
-    @Mod.EventHandler
     @SuppressWarnings("unused")
-    public void preInit(FMLPreInitializationEvent e) {
-        proxy.preInit(e);
+    public void commonSetup(FMLCommonSetupEvent e) {
+        proxy.commonSetup(e);
     }
 
-    @Mod.EventHandler
     @SuppressWarnings("unused")
-    public void init(FMLInitializationEvent e) {
-        proxy.init(e);
-    }
-
-    @Mod.EventHandler
-    @SuppressWarnings("unused")
-    public void postInit(FMLPostInitializationEvent e) {
+    public void postInit(final InterModProcessEvent e) {
         proxy.postInit(e);
-    }
-
-    @Mod.EventHandler
-    @SuppressWarnings("unused")
-    public void serverAboutToStart(@NotNull FMLServerAboutToStartEvent e) {
-        proxy.serverAboutToStart(e);
-    }
-
-    @Mod.EventHandler
-    @SuppressWarnings("unused")
-    public void serverStopped(FMLServerStoppedEvent e) {
-        proxy.serverStopped(e);
     }
 
     @Override

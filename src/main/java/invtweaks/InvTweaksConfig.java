@@ -2,6 +2,8 @@ package invtweaks;
 
 import invtweaks.api.IItemTreeItem;
 import invtweaks.forge.ClientProxy;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -317,9 +319,9 @@ public class InvTweaksConfig {
         return rulesets.get(currentRuleset).getFrozenSlots();
     }
 
-    public boolean isAutoRefillEnabled(String itemID, int itemDamage) {
+    public boolean isAutoRefillEnabled(String itemID, CompoundTag storedTag) {
         if(!getProperty(PROP_ENABLE_AUTO_REFILL).equals(VALUE_FALSE)) {
-            List<IItemTreeItem> items = tree.getItems(itemID, itemDamage);
+            List<IItemTreeItem> items = tree.getItems(itemID, storedTag);
             List<String> autoReplaceRules = rulesets.get(currentRuleset).getAutoReplaceRules();
             boolean found = false;
             for(@NotNull String keyword : autoReplaceRules) {
@@ -383,16 +385,14 @@ public class InvTweaksConfig {
 
         if(newProperties.get(PROP_VERSION) != null) {
             // Override default values
-            for(@NotNull Entry<Object, Object> entry : newProperties.entrySet()) {
-                properties.put(entry.getKey(), entry.getValue());
-            }
+            properties.putAll(newProperties);
         }
 
         properties.put(PROP_VERSION, InvTweaksConst.MOD_VERSION.split(" ")[0]);
     }
 
-    public int getSortKeyCode() {
-        return ClientProxy.KEYBINDING_SORT.getKey().getValue();
+    public KeyMapping getSortKeyMapping() {
+        return ClientProxy.KEYBINDING_SORT;
     }
 
 }

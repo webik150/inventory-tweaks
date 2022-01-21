@@ -1,65 +1,67 @@
 package invtweaks.forge;
 
-import invtweaks.*;
+import com.mojang.blaze3d.platform.InputConstants;
+import invtweaks.InvTweaks;
+import invtweaks.InvTweaksConfig;
+import invtweaks.InvTweaksItemTreeLoader;
+import invtweaks.InvTweaksObfuscation;
 import invtweaks.api.IItemTreeListener;
 import invtweaks.api.SortingMethod;
 import invtweaks.api.container.ContainerSection;
-import invtweaks.network.ITPacketHandlerClient;
+import invtweaks.network.ITPacketHandler;
 import invtweaks.network.packets.ITPacketClick;
 import invtweaks.network.packets.ITPacketSortComplete;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.multiplayer.PlayerController;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.ClickType;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.client.ClientRegistry;
+import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
 public class ClientProxy extends CommonProxy {
-    public static final KeyBinding KEYBINDING_SORT = new KeyBinding("invtweaks.key.sort", Keyboard.KEY_R, "invtweaks.key.category");
+    public static final KeyMapping KEYBINDING_SORT = new KeyMapping("invtweaks.key.sort", KeyConflictContext.UNIVERSAL, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, "invtweaks.key.category");
     public boolean serverSupportEnabled = false;
     public boolean serverSupportDetected = false;
     private InvTweaks instance;
 
     @Override
-    public void preInit(@NotNull FMLPreInitializationEvent e) {
-        super.preInit(e);
-
-        InvTweaks.log = e.getModLog();
+    public void commonSetup(FMLCommonSetupEvent e) {
+        super.commonSetup(e);
+        MinecraftForge.EVENT_BUS.register(ToolTipEvent.class);
+        // Instantiate mod core
+        //TODO: Uncomment this
+        instance = new InvTweaks();
     }
 
     @Override
-    public void init(FMLInitializationEvent e) {
-        super.init(e);
-
-        invtweaksChannel.get(Side.CLIENT).pipeline().addAfter("ITMessageToMessageCodec#0", "InvTweaks Handler Client", new ITPacketHandlerClient());
-
-        Minecraft mc = FMLClientHandler.instance().getClient();
-        // Instantiate mod core
-        instance = new InvTweaks(mc);
-
+    public void clientSetup(FMLClientSetupEvent e) {
+        super.clientSetup(e);
         ClientRegistry.registerKeyBinding(KEYBINDING_SORT);
+        e.enqueueWork(()->{
+                    //Minecraft registrations
+        });
     }
 
     @SubscribeEvent
     public void onTick(@NotNull TickEvent.ClientTickEvent tick) {
         if(tick.phase == TickEvent.Phase.START) {
-            Minecraft mc = FMLClientHandler.instance().getClient();
-            if(mc.world != null && mc.player != null) {
-                if(mc.currentScreen != null) {
-                    instance.onTickInGUI(mc.currentScreen);
+            Minecraft mc = Minecraft.getInstance();
+            if(mc.level != null && mc.player != null) {
+                if(mc.screen != null) {
+                    instance.onTickInGUI(mc.screen);
                 } else {
                     instance.onTickInGame();
                 }
@@ -86,21 +88,22 @@ public class ClientProxy extends CommonProxy {
     }
 
     @Override
-    public void slotClick(@NotNull PlayerController playerController, int windowId, int slot, int data, @NotNull ClickType action, @NotNull PlayerEntity player) {
+    public void slotClick(int windowId, int slot, int data, @NotNull ClickType action, Player player) {
         //int modiferKeys = (shiftHold) ? 1 : 0 /* XXX Placeholder */;
         if(serverSupportEnabled) {
-            player.openContainer.slotClick(slot, data, action, player);
+            player.containerMenu.clicked(slot, data, action, player);
 
-            invtweaksChannel.get(Side.CLIENT).writeOutbound(new ITPacketClick(slot, data, action, windowId));
+            ITPacketHandler.sendToServer(new ITPacketClick(slot, data, action, windowId));
         } else {
-            playerController.windowClick(windowId, slot, data, action, player);
+            //Minecraft.getInstance().windowClick(windowId, slot, data, action, player); //TODO: uuuggggghhhh
+            KeyMapping.click(Minecraft.getInstance().options.keyAttack.getKey());
         }
     }
 
     @Override
     public void sortComplete() {
         if(serverSupportEnabled) {
-            invtweaksChannel.get(Side.CLIENT).writeOutbound(new ITPacketSortComplete());
+            ITPacketHandler.sendToServer(new ITPacketSortComplete());
         }
     }
 
@@ -132,15 +135,18 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void sort(ContainerSection section, SortingMethod method) {
         // TODO: This seems like something useful enough to be a util method somewhere.
-        Minecraft mc = FMLClientHandler.instance().getClient();
+        Minecraft mc = Minecraft.getInstance();
 
-        Container currentContainer = mc.player.inventoryContainer;
-        if(InvTweaksObfuscation.isGuiContainer(mc.currentScreen)) {
-            currentContainer = ((ContainerScreen) mc.currentScreen).inventorySlots;
+        //TODO: what to do with this... change sorting so that it doesn't use container?
+        NonNullList<ItemStack> currentContainer = mc.player.containerMenu.getItems();
+
+        if(InvTweaksObfuscation.isGuiContainer(mc.screen)) {
+            currentContainer = ((ContainerScreen) mc.screen).getMenu().getItems();
         }
 
         try {
-            new InvTweaksHandlerSorting(mc, InvTweaks.getConfigManager().getConfig(), section, method, InvTweaksObfuscation.getSpecialChestRowSize(currentContainer)).sort();
+            //TODO: fix
+            //new InvTweaksHandlerSorting(mc, InvTweaks.getConfigManager().getConfig(), section, method, InvTweaksObfuscation.getSpecialChestRowSize(currentContainer)).sort();
         } catch(Exception e) {
             InvTweaks.logInGameErrorStatic("invtweaks.sort.chest.error", e);
             e.printStackTrace();
@@ -149,11 +155,11 @@ public class ClientProxy extends CommonProxy {
 
     @Override
     public void addClientScheduledTask(@NotNull Runnable task) {
-        Minecraft.getMinecraft().addScheduledTask(task);
+        Minecraft.getInstance().submitAsync(task);
     }
 
     @SubscribeEvent
-    public void onConnectionToServer(FMLNetworkEvent.ClientConnectedToServerEvent e) {
+    public void onConnectionToServer(EntityJoinWorldEvent e) {
         setServerHasInvTweaks(false);
     }
 }

@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import invtweaks.forge.asm.compatibility.CompatibilityConfigLoader;
 import invtweaks.forge.asm.compatibility.ContainerInfo;
 import invtweaks.forge.asm.compatibility.MethodInfo;
-import net.minecraft.launchwrapper.IClassTransformer;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +20,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class ContainerTransformer implements IClassTransformer {
+public class ContainerTransformer {
     private static final String VALID_INVENTORY_METHOD = "invtweaks$validInventory";
     private static final String VALID_CHEST_METHOD = "invtweaks$validChest";
     private static final String LARGE_CHEST_METHOD = "invtweaks$largeChest";
@@ -227,7 +226,6 @@ public class ContainerTransformer implements IClassTransformer {
     }
 
     @Nullable
-    @Override
     public byte[] transform(String name, String transformedName, @Nullable byte[] bytes) {
         // Sanity checking so it doesn't look like this mod caused crashes when things were missing.
         if(bytes == null || bytes.length == 0) {

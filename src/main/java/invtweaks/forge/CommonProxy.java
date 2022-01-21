@@ -1,57 +1,55 @@
 package invtweaks.forge;
 
-import invtweaks.InvTweaksConst;
 import invtweaks.api.IItemTreeListener;
 import invtweaks.api.InvTweaksAPI;
 import invtweaks.api.SortingMethod;
 import invtweaks.api.container.ContainerSection;
 import invtweaks.integration.ItemListSorter;
-import invtweaks.network.ITMessageToMessageCodec;
-import invtweaks.network.ITPacketHandlerServer;
+import invtweaks.network.ITPacketHandler;
+import invtweaks.network.packets.ITPacket;
 import invtweaks.network.packets.ITPacketLogin;
-import net.minecraft.client.multiplayer.PlayerController;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.ClickType;
-import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.event.*;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
-import net.minecraftforge.fml.common.network.FMLOutboundHandler;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.server.ServerAboutToStartEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.EnumMap;
+import static invtweaks.InvTweaksConst.PROTOCOL_VERSION;
 
 public class CommonProxy implements InvTweaksAPI {
-    protected static EnumMap<Side, FMLEmbeddedChannel> invtweaksChannel;
-    @Nullable
     private static MinecraftServer server;
+    protected ITPacketHandler packetHandler;
 
-    public void preInit(FMLPreInitializationEvent e) {
-    }
-
-    public void init(FMLInitializationEvent e) {
-        invtweaksChannel = NetworkRegistry.INSTANCE.newChannel(InvTweaksConst.INVTWEAKS_CHANNEL, new ITMessageToMessageCodec());
-        invtweaksChannel.get(Side.SERVER).pipeline().addAfter("ITMessageToMessageCodec#0", "InvTweaks Handler Server", new ITPacketHandlerServer());
-
+    public void commonSetup(final FMLCommonSetupEvent e) {
+        ITPacketHandler.register();
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    public void postInit(FMLPostInitializationEvent e) {
+    public void postInit(final InterModProcessEvent e) {
+        //TODO: should this be Process or Enqueue Event
         ItemListSorter.LinkJEITComparator();
     }
 
-    public void serverAboutToStart(@NotNull FMLServerAboutToStartEvent e) {
+    @SubscribeEvent
+    public void serverAboutToStart(@NotNull ServerAboutToStartEvent e) {
         server = e.getServer();
     }
 
-    public void serverStopped(FMLServerStoppedEvent e) {
+    public void clientSetup(final FMLClientSetupEvent e){}
+
+    @SubscribeEvent
+    public void serverStopped(ServerStoppedEvent e) {
         server = null;
     }
 
@@ -70,8 +68,8 @@ public class CommonProxy implements InvTweaksAPI {
      * 5: Spread items (Drag behavior)
      * 6: Merge all valid items with held item
      */
-    @SideOnly(Side.CLIENT)
-    public void slotClick(PlayerController playerController, int windowId, int slot, int data, ClickType action, PlayerEntity player) {
+    @OnlyIn(Dist.CLIENT)
+    public void slotClick(int windowId, int slot, int data, ClickType action, Player player) {
     }
 
     public void sortComplete() {
@@ -112,17 +110,13 @@ public class CommonProxy implements InvTweaksAPI {
 
     @SubscribeEvent
     public void onPlayerLoggedIn(@NotNull PlayerEvent.PlayerLoggedInEvent e) {
-        FMLEmbeddedChannel channel = invtweaksChannel.get(Side.SERVER);
-
-        channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
-        channel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(e.player);
-
-        channel.writeOutbound(new ITPacketLogin());
+        if(e.getPlayer() instanceof ServerPlayer)
+            ITPacketHandler.sendTo((ITPacket) new ITPacketLogin(PROTOCOL_VERSION), (ServerPlayer) e.getPlayer());
     }
 
     @SuppressWarnings("unused")
     public void addServerScheduledTask(@NotNull Runnable task) {
-        server.addScheduledTask(task);
+        server.submitAsync(task);
     }
 
     public void addClientScheduledTask(Runnable task) {

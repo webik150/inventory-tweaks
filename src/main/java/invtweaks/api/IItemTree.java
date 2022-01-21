@@ -46,11 +46,9 @@ public interface IItemTree {
 
     IItemTreeCategory getCategory(String keyword);
 
-    boolean isItemUnknown(String id, int damage);
+    boolean isItemUnknown(String id, CompoundTag tag);
 
-    List<IItemTreeItem> getItems(String id, int damage, CompoundTag extra);
-
-    List<IItemTreeItem> getItems(String id, int damage);
+    List<IItemTreeItem> getItems(String id, CompoundTag storedTag);
 
     List<IItemTreeItem> getItems(String name);
 
@@ -64,9 +62,7 @@ public interface IItemTree {
 
     void addCategory(String parentCategory, IItemTreeCategory newCategory) throws NullPointerException;
 
-    IItemTreeItem addItem(String parentCategory, String name, String id, int damage, int order) throws NullPointerException;
-
-    IItemTreeItem addItem(String parentCategory, String name, String id, int damage, CompoundTag extra, int order) throws NullPointerException;
+    IItemTreeItem addItem(String parentCategory, String name, String id, CompoundTag tag, int order) throws NullPointerException;
 
     void addItem(String parentCategory, IItemTreeItem newItem) throws NullPointerException;
 

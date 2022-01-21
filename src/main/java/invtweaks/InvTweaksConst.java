@@ -15,7 +15,7 @@ public class InvTweaksConst {
     // Change only when the tree evolves significantly enough to need to override all configs
     public static final String TREE_VERSION = "1.12.2";
 
-    public static final String INVTWEAKS_CHANNEL = "InventoryTweaks";
+    public static final String INVTWEAKS_CHANNEL = "main";
 
     // Network Protocol version
     public static final String PROTOCOL_VERSION = "2";

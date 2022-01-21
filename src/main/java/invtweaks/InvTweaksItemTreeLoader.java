@@ -146,7 +146,7 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
             if(attributes.getValue(ATTR_DAMAGE) != null) {
                 damage = Integer.parseInt(attributes.getValue(ATTR_DAMAGE));
             }
-            tree.addItem(categoryStack.getLast(), new InvTweaksItemTreeItem(qName, id, damage, extraData, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + qName));
+            tree.addItem(categoryStack.getLast(), new InvTweaksItemTreeItem(qName, id, extraData, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + qName));
         } else if(oreDictNameAttr != null) {
             tree.registerOre(categoryStack.getLast(), new ResourceLocation(qName), oreDictNameAttr, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + qName);
         } else if(className != null) {
@@ -175,7 +175,7 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
                 int rangeDMin = Integer.parseInt(rangeDMinAttr);
                 int rangeDMax = Integer.parseInt(attributes.getValue(ATTR_RANGE_DMAX));
                 for(int damage = rangeDMin; damage <= rangeDMax; damage++) {
-                    tree.addItem(qName, new InvTweaksItemTreeItem((qName/* + id + "-" + damage*/), id, damage, null, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + qName));
+                    tree.addItem(qName, new InvTweaksItemTreeItem((qName/* + id + "-" + damage*/), id, null, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + qName));
                 }
             } else if(willMergeChildren) {
                 //Try to get a new ID for the children to use.  

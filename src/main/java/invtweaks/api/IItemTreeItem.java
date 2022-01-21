@@ -30,9 +30,7 @@ public interface IItemTreeItem extends Comparable<IItemTreeItem> {
 
     String getId();
 
-    int getDamage();
-
-    CompoundTag getExtraData();
+    CompoundTag getTag();
 
     int getOrder();
 

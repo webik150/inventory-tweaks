@@ -41,12 +41,10 @@ import java.util.Map;
 public class InvTweaksObfuscation {
 
     private static final Logger log = InvTweaks.log;
-    private static MouseHandler mouseHelper;
     public Minecraft mc;
 
     public InvTweaksObfuscation() {
         mc = Minecraft.getInstance();
-        mouseHelper = new MouseHandler(mc);
     }
 
     // Minecraft members
@@ -101,13 +99,13 @@ public class InvTweaksObfuscation {
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static int getMouseX(@NotNull ContainerScreen guiContainer) {
-        return (int) ((mouseHelper.xpos() * guiContainer.width) / getDisplayWidth());
+    private int getMouseX(@NotNull ContainerScreen guiContainer) {
+        return (int) ((mc.mouseHandler.xpos() * guiContainer.width) / getDisplayWidth());
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static int getMouseY(@NotNull ContainerScreen guiContainer) {
-        return (int) (guiContainer.height - (mouseHelper.ypos() * guiContainer.height) / getDisplayHeight() - 1);
+    private int getMouseY(@NotNull ContainerScreen guiContainer) {
+        return (int) (guiContainer.height - (mc.mouseHandler.ypos() * guiContainer.height) / getDisplayHeight() - 1);
     }
 
     @Contract("!null->_")

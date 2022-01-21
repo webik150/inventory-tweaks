@@ -4,6 +4,8 @@ import invtweaks.api.IItemTreeItem;
 import invtweaks.api.container.ContainerSection;
 import invtweaks.container.ContainerSectionManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.Item;
@@ -44,7 +46,7 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
      *
      * @throws Exception
      */
-    public void autoRefillSlot(int slot, @NotNull String wantedId, int wantedDamage) throws Exception {
+    public void autoRefillSlot(int slot, @NotNull String wantedId, CompoundTag wantedTag) throws Exception {
 
         @NotNull ContainerSectionManager container = new ContainerSectionManager(ContainerSection.INVENTORY);
         @NotNull ItemStack candidateStack, replacementStack = ItemStack.EMPTY;
@@ -60,15 +62,15 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
         InvTweaksItemTree tree = config.getTree();
 
         // Check that the item is in the tree
-        if(!tree.isItemUnknown(wantedId, wantedDamage)) {
+        if(!tree.isItemUnknown(wantedId, wantedTag)) {
 
             //// Search replacement
 
-            @NotNull List<IItemTreeItem> items = tree.getItems(wantedId, wantedDamage);
+            @NotNull List<IItemTreeItem> items = tree.getItems(wantedId, wantedTag);
 
             // Find rules that match the slot
             for(@NotNull IItemTreeItem item : items) {
-                if(item.getDamage() == wantedDamage) {
+                if(NbtUtils.compareNbt(item.getTag(),wantedTag,true)) {
                     // Since we search a matching item using rules,
                     // create a fake one that matches the exact item first
                     matchingRules.add(new InvTweaksConfigSortingRule(tree, "D" + (slot - 26), item.getName(), InvTweaksConst.INVENTORY_SIZE, InvTweaksConst.INVENTORY_ROW_SIZE));
@@ -78,7 +80,7 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
             // Fallback to wildcard entry for items with subtypes only if no other entries are found
             if(matchingRules.isEmpty()) {
                 for(@NotNull IItemTreeItem item : items) {
-                    if(item.getDamage() == 0) {
+                    if(item.getTag().isEmpty()) {
                         // Since we search a matching item using rules,
                         // create a fake one that matches the exact item first
                         matchingRules.add(new InvTweaksConfigSortingRule(tree, "D" + (slot - 26), item.getName(), InvTweaksConst.INVENTORY_SIZE, InvTweaksConst.INVENTORY_ROW_SIZE));
@@ -105,7 +107,7 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
                     candidateStack = container.getItemStack(i);
                     if(!candidateStack.isEmpty()) {
                         // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
-                        @NotNull List<IItemTreeItem> candidateItems = tree.getItems(candidateStack.getItem().getRegistryName().toString(), candidateStack.getDamageValue());
+                        @NotNull List<IItemTreeItem> candidateItems = tree.getItems(candidateStack.getItem().getRegistryName().toString(), candidateStack.getTag());
                         if(tree.matches(candidateItems, rule.getKeyword())) {
                             // Choose tool of highest damage value
                             if(candidateStack.getMaxStackSize() == 1) {
@@ -131,7 +133,7 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
             for(int i = 0; i < InvTweaksConst.INVENTORY_SIZE; i++) {
                 candidateStack = container.getItemStack(i);
                 // TODO: ResourceLocation
-                if(!candidateStack.isEmpty() && Objects.equals(candidateStack.getItem().getRegistryName().toString(), wantedId) && candidateStack.getDamageValue() == wantedDamage) {
+                if(!candidateStack.isEmpty() && Objects.equals(candidateStack.getItem().getRegistryName().toString(), wantedId) && NbtUtils.compareNbt(candidateStack.getTag(), wantedTag, true)) {
                     replacementStack = candidateStack;
                     replacementStackSlot = i;
                     break;
