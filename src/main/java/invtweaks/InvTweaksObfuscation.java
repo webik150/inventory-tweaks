@@ -1,6 +1,10 @@
 package invtweaks;
 
 import invtweaks.api.container.ContainerSection;
+import invtweaks.container.VanillaSlotMaps;
+import invtweaks.forge.InvTweaksMod;
+import invtweaks.forge.asm.compatibility.CompatibilityConfigLoader;
+import invtweaks.forge.asm.compatibility.ContainerInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.Options;
@@ -49,6 +53,7 @@ public class InvTweaksObfuscation {
 
     public InvTweaksObfuscation() {
         mc = Minecraft.getInstance();
+        //TODO: Add the rest of the classes
     }
 
     // Minecraft members
@@ -112,58 +117,58 @@ public class InvTweaksObfuscation {
         return (int) (guiContainer.height - (mc.mouseHandler.ypos() * guiContainer.height) / getDisplayHeight() - 1);
     }
 
-    @Contract("!null->_")
     @SuppressWarnings({"unused", "SameReturnValue"})
     public static int getSpecialChestRowSize(AbstractContainerMenu container) {
-        // This method gets replaced by the transformer with "return container.invtweaks$rowSize()"
+        if(InvTweaksMod.configClasses.containsKey(container.getClass().getTypeName())){
+            return InvTweaksMod.configClasses.get(container.getClass().getTypeName()).rowSize;
+        }
         return 0;
     }
 
     // EntityPlayer members
 
     // Static access
-    @Contract("!null->_")
     @SuppressWarnings({"unused", "SameReturnValue"})
     public static boolean isValidChest(AbstractContainerMenu container) {
-        // This method gets replaced by the transformer with "return container.invtweaks$validChest()"
+        if(InvTweaksMod.configClasses.containsKey(container.getClass().getTypeName())){
+            return InvTweaksMod.configClasses.get(container.getClass().getTypeName()).validChest;
+        }
         return false;
     }
 
-    @Contract("!null->_")
     @SuppressWarnings({"unused", "SameReturnValue"})
     public static boolean isLargeChest(AbstractContainerMenu container) {
-        // This method gets replaced by the transformer with "return container.invtweaks$largeChest()"
+        if(InvTweaksMod.configClasses.containsKey(container.getClass().getTypeName())){
+            return InvTweaksMod.configClasses.get(container.getClass().getTypeName()).largeChest;
+        }
         return false;
     }
 
     // InventoryPlayer members
 
-    @Contract("!null->_")
     @SuppressWarnings({"unused", "SameReturnValue"})
     public static boolean isValidInventory(AbstractContainerMenu container) {
-        // This method gets replaced by the transformer with "return container.invtweaks$validInventory()"
+        if(InvTweaksMod.configClasses.containsKey(container.getClass().getTypeName())){
+            return InvTweaksMod.configClasses.get(container.getClass().getTypeName()).validInventory;
+        }
         return false;
     }
 
-    @Contract("!null->_")
     @SuppressWarnings({"unused", "SameReturnValue"})
     public static boolean showButtons(AbstractContainerMenu container) {
-        // This method gets replaced by the transformer with "return container.invtweaks$showButtons()"
+        if(InvTweaksMod.configClasses.containsKey(container.getClass().getTypeName())){
+            return InvTweaksMod.configClasses.get(container.getClass().getTypeName()).showButtons;
+        }
         return false;
     }
 
-    @Contract("!null->_")
     @SuppressWarnings({"unused", "SameReturnValue"})
     public static Map<ContainerSection, List<Slot>> getContainerSlotMap(AbstractContainerMenu container) {
         // This method gets replaced by the transformer with "return container.invtweaks$slotMap()"
-        HashMap<ContainerSection, List<Slot>> a = new HashMap<>();
-        a.put(ContainerSection.INVENTORY, container.slots);
-        a.put(ContainerSection.CHEST, container.slots);
-        a.put(ContainerSection.INVENTORY_NOT_HOTBAR, container.slots);
-        a.put(ContainerSection.INVENTORY_HOTBAR, container.slots);
-        a.put(ContainerSection.ARMOR, container.slots);
-        a.put(ContainerSection.BREWING_BOTTLES, container.slots);
-        return a;
+        if(InvTweaksMod.configClasses.containsKey(container.getClass().getTypeName())){
+            return InvTweaksMod.configClasses.get(container.getClass().getTypeName()).defaultMethod.apply(container);
+        }
+        return new HashMap<>();
     }
 
     public static boolean isGuiContainer(@Nullable Object o) { // GuiContainer (abstract class)
@@ -240,6 +245,10 @@ public class InvTweaksObfuscation {
 
     public void displayGuiScreen(Screen parentScreen) {
         mc.pushGuiLayer(parentScreen);
+    }
+
+    public void hideScreen() {
+        mc.popGuiLayer();
     }
 
     public Options getGameSettings() {

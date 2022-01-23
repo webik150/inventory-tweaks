@@ -1,7 +1,16 @@
 package invtweaks.forge.asm.compatibility;
 
-import invtweaks.forge.asm.ContainerTransformer;
+import invtweaks.api.container.ContainerSection;
+import invtweaks.container.VanillaSlotMaps;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 @SuppressWarnings("UnusedDeclaration")
 public class ContainerInfo {
@@ -10,11 +19,11 @@ public class ContainerInfo {
     public boolean validChest = false;
     public boolean largeChest = false;
     public short rowSize = 9;
-    public MethodInfo slotMapMethod = ContainerTransformer.getVanillaSlotMapInfo("unknownContainerSlots");
+    public Function<AbstractContainerMenu, Map<ContainerSection, List<Slot>>> defaultMethod = VanillaSlotMaps::unknownContainerSlots;
     @Nullable
-    public MethodInfo rowSizeMethod = null;
+    public Function<AbstractContainerMenu, Map<ContainerSection, List<Slot>>> rowSizeMethod = null;
     @Nullable
-    public MethodInfo largeChestMethod = null;
+    public Function<AbstractContainerMenu, Map<ContainerSection, List<Slot>>> largeChestMethod = null;
 
     public ContainerInfo() {
     }
@@ -32,11 +41,11 @@ public class ContainerInfo {
         largeChest = largeCh;
     }
 
-    public ContainerInfo(boolean standard, boolean validInv, boolean validCh, MethodInfo slotMap) {
+    public ContainerInfo(boolean standard, boolean validInv, boolean validCh, @NotNull Function<AbstractContainerMenu, Map<ContainerSection, List<Slot>>> slotMap) {
         showButtons = standard;
         validInventory = validInv;
         validChest = validCh;
-        slotMapMethod = slotMap;
+        defaultMethod = slotMap;
     }
 
     public ContainerInfo(boolean standard, boolean validInv, boolean validCh, short rowS) {
@@ -54,11 +63,11 @@ public class ContainerInfo {
         rowSize = rowS;
     }
 
-    public ContainerInfo(boolean standard, boolean validInv, boolean validCh, short rowS, MethodInfo slotMap) {
+    public ContainerInfo(boolean standard, boolean validInv, boolean validCh, short rowS, Function<AbstractContainerMenu, Map<ContainerSection, List<Slot>>> slotMap) {
         showButtons = standard;
         validInventory = validInv;
         validChest = validCh;
         rowSize = rowS;
-        slotMapMethod = slotMap;
+        defaultMethod = slotMap;
     }
 }

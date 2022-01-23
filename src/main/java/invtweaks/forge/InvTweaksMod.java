@@ -4,6 +4,9 @@ import invtweaks.api.IItemTreeListener;
 import invtweaks.api.InvTweaksAPI;
 import invtweaks.api.SortingMethod;
 import invtweaks.api.container.ContainerSection;
+import invtweaks.container.VanillaSlotMaps;
+import invtweaks.forge.asm.compatibility.CompatibilityConfigLoader;
+import invtweaks.forge.asm.compatibility.ContainerInfo;
 import invtweaks.gui.InvTweaksGuiSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -26,6 +29,8 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.jmx.Server;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 import static net.minecraftforge.network.NetworkConstants.IGNORESERVERONLY;
@@ -44,7 +49,9 @@ public class InvTweaksMod implements InvTweaksAPI {
     public static InvTweaksMod instance;
     public static final Logger log = LogManager.getLogger();
 
-    public static CommonProxy proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> ServerProxy::new);
+    public static CommonProxy proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> ClientProxy::new);
+    public static Map<String, ContainerInfo> configClasses = new HashMap<>();
+
 
     public InvTweaksMod() {
         instance = this;
@@ -60,6 +67,32 @@ public class InvTweaksMod implements InvTweaksAPI {
 
         ModLoadingContext.get().registerExtensionPoint(ConfigGuiHandler.ConfigGuiFactory.class,
                 () -> new ConfigGuiHandler.ConfigGuiFactory((mc, screen) -> new InvTweaksGuiSettings(screen)));
+
+        initializeKnownContainers();
+    }
+
+    private void initializeKnownContainers() {
+        configClasses.clear();
+        configClasses.put("net.minecraft.world.inventory.InventoryMenu", new ContainerInfo(true, true, false, VanillaSlotMaps::containerPlayerSlots));
+        configClasses.put("net.minecraft.world.inventory.MerchantMenu", new ContainerInfo(true, true, false));
+        configClasses.put("net.minecraft.world.inventory.AnvilMenu", new ContainerInfo(true, true, false, VanillaSlotMaps::containerRepairSlots));
+        configClasses.put("net.minecraft.world.inventory.HopperMenu", new ContainerInfo(true, true, false));
+        configClasses.put("net.minecraft.world.inventory.BeaconMenu", new ContainerInfo(true, true, false));
+        configClasses.put("net.minecraft.world.inventory.BrewingStandMenu", new ContainerInfo(true, true, false, VanillaSlotMaps::containerBrewingSlots));
+        configClasses.put("net.minecraft.world.inventory.CraftingMenu", new ContainerInfo(true, true, false, VanillaSlotMaps::containerWorkbenchSlots));
+        configClasses.put("net.minecraft.world.inventory.EnchantmentMenu", new ContainerInfo(false, true, false, VanillaSlotMaps::containerEnchantmentSlots));
+        configClasses.put("net.minecraft.world.inventory.FurnaceMenu", new ContainerInfo(true, true, false, VanillaSlotMaps::containerFurnaceSlots));
+
+        // Chest-type
+        configClasses.put("net.minecraft.world.inventory.DispenserMenu", new ContainerInfo(true, false, true, (short) 3, VanillaSlotMaps::containerChestDispenserSlots));
+        configClasses.put("net.minecraft.world.inventory.ChestMenu", new ContainerInfo(true, false, true, VanillaSlotMaps::containerChestDispenserSlots));
+        configClasses.put("net.minecraft.world.inventory.ShulkerBoxMenu", new ContainerInfo(true, false, true, VanillaSlotMaps::containerChestDispenserSlots));
+
+        try {
+            configClasses.putAll(CompatibilityConfigLoader.load("config/InvTweaksCompatibility.xml"));
+        } catch (Exception e) {
+            InvTweaksMod.log.warn("Compatibility file not found. Modded inventories might be broken.");
+        }
     }
 
     private void clientSetup(FMLClientSetupEvent e) {
