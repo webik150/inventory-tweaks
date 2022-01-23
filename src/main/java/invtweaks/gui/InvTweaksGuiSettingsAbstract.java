@@ -6,11 +6,14 @@ import invtweaks.InvTweaksConfig;
 import invtweaks.InvTweaksObfuscation;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.player.KeyboardInput;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+
+import static com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE;
 
 /**
  * The inventory and chest settings menu.
@@ -47,7 +50,8 @@ public abstract class InvTweaksGuiSettingsAbstract extends Screen {
     public void init() {
         @NotNull InvTweaksGuiSettings.Point p = new InvTweaksGuiSettings.Point();
         moveToButtonCoords(1, p);
-        renderables.add(new Button(p.getX(), p.getY(), p.getX() + 55, height / 6 + 168, new TextComponent(LABEL_DONE), button -> obf.displayGuiScreen(parentScreen)));
+
+        addRenderableWidget(new Button(p.getX() + 55, height / 6 + 168, 150, 20, new TextComponent(LABEL_DONE), button -> obf.hideScreen()));
 
     }
 
@@ -58,13 +62,15 @@ public abstract class InvTweaksGuiSettingsAbstract extends Screen {
         super.render(stack,i, j, f);
     }
 
-/* TODO: Handle ESC
+
+
     @Override
-    protected void keyTyped(char c, int keyCode) {
-        if(keyCode == Keyboard.KEY_ESCAPE) {
-            obf.displayGuiScreen(parentScreen);
+    public boolean keyPressed(int code, int p_96553_, int p_96554_) {
+        if(code == KEY_ESCAPE){
+            obf.hideScreen();
         }
-    }*/
+        return super.keyPressed(code, p_96553_, p_96554_);
+    }
 
     protected void moveToButtonCoords(int buttonOrder, @NotNull InvTweaksGuiSettings.Point p) {
         p.setX(width / 2 - 155 + ((buttonOrder + 1) % 2) * 160);

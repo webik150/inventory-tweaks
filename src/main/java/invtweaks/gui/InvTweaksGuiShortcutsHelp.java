@@ -25,7 +25,7 @@ public class InvTweaksGuiShortcutsHelp extends Screen {
     }
 
     public void init() {
-        renderables.add(new Button(width / 2 - 100, height / 6 + 168, 120, 20, new TextComponent("Done"), p_93751_ ->
+        addWidget(new Button(width / 2 - 100, height / 6 + 168, 150, 20, new TextComponent("Done"), p_93751_ ->
                 // or   obf.displayGuiScreen(parentScreen);
                 obf.displayGuiScreen(new InvTweaksGuiSettings(parentScreen, config))));
     }

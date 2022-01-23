@@ -47,7 +47,7 @@ public class InvTweaksGuiSettingsAdvanced extends InvTweaksGuiSettingsAbstract {
         // Create large buttons
 
         moveToButtonCoords(1, p);
-        renderables.add(new Button(p.getX() + 55, height / 6 + 144, 120, 60, new TextComponent(I18n.get("invtweaks.settings.advanced.mappingsfile")), p_93751_ -> {
+        addRenderableWidget(new Button(p.getX() + 55, height / 6 + 144, 150, 20, new TextComponent(I18n.get("invtweaks.settings.advanced.mappingsfile")), p_93751_ -> {
             try {
                 Desktop.getDesktop().open(InvTweaksConst.CONFIG_PROPS_FILE);
             } catch(Exception e) {
@@ -60,18 +60,18 @@ public class InvTweaksGuiSettingsAdvanced extends InvTweaksGuiSettingsAbstract {
         i += 2;
         moveToButtonCoords(i++, p);
         @NotNull InvTweaksGuiTooltipButton sortOnPickupBtn = new InvTweaksGuiTooltipButton(p.getX(), p.getY(), new TextComponent(computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SORTING_ON_PICKUP, labelSortOnPickup)), I18n.get("invtweaks.settings.advanced.sortonpickup.tooltip"), button -> toggleBooleanButton(button, InvTweaksConfig.PROP_ENABLE_SORTING_ON_PICKUP, labelSortOnPickup));
-        renderables.add(sortOnPickupBtn);
+        addRenderableWidget(sortOnPickupBtn);
 
         moveToButtonCoords(i++, p);
         @NotNull InvTweaksGuiTooltipButton enableSoundsBtn = new InvTweaksGuiTooltipButton(p.getX(), p.getY(), new TextComponent(computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SOUNDS, labelEnableSounds)), I18n.get("invtweaks.settings.advanced.sounds.tooltip"), button ->  toggleBooleanButton(button, InvTweaksConfig.PROP_ENABLE_SOUNDS, labelEnableSounds));
-        renderables.add(enableSoundsBtn);
+        addRenderableWidget(enableSoundsBtn);
 
         moveToButtonCoords(i++, p);
-        renderables.add(new InvTweaksGuiTooltipButton(p.getX(), p.getY(), new TextComponent(computeBooleanButtonLabel(InvTweaksConfig.PROP_SHOW_CHEST_BUTTONS, labelChestButtons)), I18n.get("invtweaks.settings.chestbuttons.tooltip"), button -> toggleBooleanButton(button, InvTweaksConfig.PROP_SHOW_CHEST_BUTTONS, labelChestButtons)));
+        addRenderableWidget(new InvTweaksGuiTooltipButton(p.getX(), p.getY(), new TextComponent(computeBooleanButtonLabel(InvTweaksConfig.PROP_SHOW_CHEST_BUTTONS, labelChestButtons)), I18n.get("invtweaks.settings.chestbuttons.tooltip"), button -> toggleBooleanButton(button, InvTweaksConfig.PROP_SHOW_CHEST_BUTTONS, labelChestButtons)));
 
         moveToButtonCoords(i++, p);
         @NotNull InvTweaksGuiTooltipButton autoEquipArmorBtn = new InvTweaksGuiTooltipButton(p.getX(), p.getY(), new TextComponent(computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_AUTO_EQUIP_ARMOR, labelEquipArmor)), I18n.get("invtweaks.settings.advanced.autoequip.tooltip"), button -> toggleBooleanButton(button, InvTweaksConfig.PROP_ENABLE_AUTO_EQUIP_ARMOR, labelEquipArmor));
-        renderables.add(autoEquipArmorBtn);
+        addRenderableWidget(autoEquipArmorBtn);
 
         //noinspection UnusedAssignment
         moveToButtonCoords(i++, p);
@@ -79,11 +79,11 @@ public class InvTweaksGuiSettingsAdvanced extends InvTweaksGuiSettingsAbstract {
             toggleBooleanButton(button, InvTweaksConfig.PROP_ENABLE_SERVER_ITEMSWAP, labelServerAssist);
             InvTweaksMod.proxy.setServerAssistEnabled(!InvTweaks.getConfigManager().getConfig().getProperty(InvTweaksConfig.PROP_ENABLE_SERVER_ITEMSWAP).equals(InvTweaksConfig.VALUE_FALSE));
         });
-        renderables.add(serverAssistBtn);
+        addRenderableWidget(serverAssistBtn);
 
         moveToButtonCoords(i++, p);
         @NotNull InvTweaksGuiTooltipButton displayTooltipBtn = new InvTweaksGuiTooltipButton(p.getX(), p.getY(), new TextComponent(computeBooleanButtonLabel(InvTweaksConfig.PROP_TOOLTIP_PATH, labelDisplayTooltip)), I18n.get("invtweaks.settings.displaytooltip.tooltip"), button -> toggleBooleanButton(button, InvTweaksConfig.PROP_TOOLTIP_PATH, labelDisplayTooltip));
-        renderables.add(displayTooltipBtn);
+        addRenderableWidget(displayTooltipBtn);
 
         // Check if links to files are supported, if not disable the buttons
         if(!Desktop.isDesktopSupported()) {

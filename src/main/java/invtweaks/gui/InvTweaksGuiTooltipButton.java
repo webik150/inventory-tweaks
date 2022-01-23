@@ -41,6 +41,7 @@ public class InvTweaksGuiTooltipButton extends ExtendedButton {
         if(tooltip_ != null) {
             setTooltip(tooltip_);
         }
+
     }
 
     public InvTweaksGuiTooltipButton(int x, int y, int w, int h, @NotNull Component displayString_, @Nullable String tooltip_, boolean drawBackground_, OnPress action) {
@@ -52,7 +53,7 @@ public class InvTweaksGuiTooltipButton extends ExtendedButton {
     }
 
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         if(this.drawBackground) {
             super.renderButton(poseStack, mouseX, mouseY, partialTicks);
         } else {
@@ -121,6 +122,8 @@ public class InvTweaksGuiTooltipButton extends ExtendedButton {
         return textColor;
 
     }
+
+
 
     @Nullable
     public String getTooltip() {
