@@ -9,28 +9,37 @@ import invtweaks.api.IItemTreeListener;
 import invtweaks.api.SortingMethod;
 import invtweaks.api.container.ContainerSection;
 import invtweaks.network.ITPacketHandler;
+import invtweaks.network.packets.ITPacket;
 import invtweaks.network.packets.ITPacketClick;
+import invtweaks.network.packets.ITPacketLogin;
 import invtweaks.network.packets.ITPacketSortComplete;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.core.NonNullList;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.ClientRegistry;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
+
+import static invtweaks.InvTweaksConst.PROTOCOL_VERSION;
 
 public class ClientProxy extends CommonProxy {
     public static final KeyMapping KEYBINDING_SORT = new KeyMapping("invtweaks.key.sort", KeyConflictContext.GUI, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, "invtweaks.key.category");
@@ -43,7 +52,6 @@ public class ClientProxy extends CommonProxy {
         super.commonSetup(e);
         MinecraftForge.EVENT_BUS.register(ToolTipEvent.class);
         // Instantiate mod core
-        //TODO: Uncomment this
         instance = new InvTweaks();
     }
 
@@ -54,6 +62,18 @@ public class ClientProxy extends CommonProxy {
         e.enqueueWork(()->{
                     //Minecraft registrations
         });
+    }
+
+    @SubscribeEvent
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if(ClientProxy.KEYBINDING_SORT.isDown()){
+            InvTweaksMod.log.info("Server Ticking");
+        }
+        if(event.phase == TickEvent.Phase.END && event.side == LogicalSide.SERVER) {
+            if(event.player != null) {
+                //handleAutoRefill(event.player);
+            }
+        }
     }
 
     @SubscribeEvent
@@ -76,10 +96,16 @@ public class ClientProxy extends CommonProxy {
         instance.setItemPickupPending(true);
     }
 
+    @SubscribeEvent
+    public void onPlayerContainerOpen(PlayerContainerEvent.Open e){
+        InvTweaksMod.log.info("Opened container "+ e.getContainer().toString());
+        InvTweaksMod.log.info("Its size is: "+ InvTweaks.getContainerMenuRowSize(e.getContainer()));
+    }
+
     @Override
     public void setServerAssistEnabled(boolean enabled) {
         serverSupportEnabled = serverSupportDetected && enabled;
-        //InvTweaks.log.info("Server has support: " + serverSupportDetected + " support enabled: " + serverSupportEnabled);
+        InvTweaksMod.log.info("Server has support: " + serverSupportDetected + " support enabled: " + serverSupportEnabled);
     }
 
     @Override
@@ -87,6 +113,18 @@ public class ClientProxy extends CommonProxy {
         serverSupportDetected = hasInvTweaks;
         serverSupportEnabled = hasInvTweaks && !InvTweaks.getConfigManager().getConfig().getProperty(InvTweaksConfig.PROP_ENABLE_SERVER_ITEMSWAP).equals(InvTweaksConfig.VALUE_FALSE);
         //InvTweaks.log.info("Server has support: " + hasInvTweaks + " support enabled: " + serverSupportEnabled);
+    }
+
+    @SubscribeEvent
+    public void onPlayerLoggedIn(@NotNull PlayerEvent.PlayerLoggedInEvent e) {
+        if(e.getPlayer() instanceof ServerPlayer)
+            ITPacketHandler.sendTo((ITPacket) new ITPacketLogin(PROTOCOL_VERSION), (ServerPlayer) e.getPlayer());
+    }
+
+    @Override
+    public void serverAboutToStart(@NotNull ServerAboutToStartEvent e) {
+        super.serverAboutToStart(e);
+        InvTweaksMod.log.warn("Joining server "+e.getServer().getServerVersion());
     }
 
     @Override
@@ -156,13 +194,14 @@ public class ClientProxy extends CommonProxy {
         }
     }
 
+
     @Override
     public void addClientScheduledTask(@NotNull Runnable task) {
         Minecraft.getInstance().submitAsync(task);
     }
 
     @SubscribeEvent
-    public void onConnectionToServer(EntityJoinWorldEvent e) {
+    public void onConnectionToServer(ClientPlayerNetworkEvent.LoggedOutEvent e) {
         setServerHasInvTweaks(false);
     }
 }

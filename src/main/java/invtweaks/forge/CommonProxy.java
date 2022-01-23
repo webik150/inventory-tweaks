@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import static invtweaks.InvTweaksConst.PROTOCOL_VERSION;
 
 public class CommonProxy implements InvTweaksAPI {
-    private static MinecraftServer server;
+    protected static MinecraftServer server;
     protected ITPacketHandler packetHandler;
 
     public void commonSetup(final FMLCommonSetupEvent e) {
@@ -106,12 +106,6 @@ public class CommonProxy implements InvTweaksAPI {
 
     @Override
     public void sort(ContainerSection section, SortingMethod method) {
-    }
-
-    @SubscribeEvent
-    public void onPlayerLoggedIn(@NotNull PlayerEvent.PlayerLoggedInEvent e) {
-        if(e.getPlayer() instanceof ServerPlayer)
-            ITPacketHandler.sendTo((ITPacket) new ITPacketLogin(PROTOCOL_VERSION), (ServerPlayer) e.getPlayer());
     }
 
     @SuppressWarnings("unused")
