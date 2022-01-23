@@ -10,6 +10,9 @@ So I got fed up waiting for someone to update this and decided to try for myself
 * Inventory shortcuts: Nonfunctional
 * Config and config screen: **Functional**
 * Inventory GUI / Buttons: Nonfunctional (and I didn't check why yet)
+* Packets (for Server-Assist): **Functional**
+
+On a positive note, the mod compiles a doesn't crash the game.
 
 ## Description
 
