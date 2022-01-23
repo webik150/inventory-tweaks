@@ -25,7 +25,7 @@ public class ITPacketLogin implements ITPacket {
 
     @Override
     public void handle(NetworkEvent.Context context) {
-        if(protocolVersion == InvTweaksConst.PROTOCOL_VERSION) {
+        if(protocolVersion.equals(InvTweaksConst.PROTOCOL_VERSION)) {
             InvTweaksMod.proxy.setServerHasInvTweaks(true);
         }
     }
