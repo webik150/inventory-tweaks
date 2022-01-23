@@ -163,11 +163,11 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
                 private boolean refillBeforeBreak;
 
                 @NotNull
-                public Runnable init(int i_, int currentItem, boolean refillBeforeBreak_) throws Exception {
+                public Runnable init(int replacementStackSlot, int currentItem, boolean refillBeforeBreak_) throws Exception {
                     containerMgr = new ContainerSectionManager(ContainerSection.INVENTORY);
                     targetedSlot = currentItem;
-                    if(i_ != -1) {
-                        i = i_;
+                    if(replacementStackSlot != -1) {
+                        i = replacementStackSlot;
                         // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
                         expectedItemId = containerMgr.getItemStack(i).getItem().getRegistryName().toString();
                         log.info(expectedItemId);
@@ -190,10 +190,13 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
 
                     // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
                     if(!stack.isEmpty() && StringUtils.equals(stack.getItem().getRegistryName().toString(), expectedItemId) || this.refillBeforeBreak) {
+                        log.info("{} contains {} and {} contains {}", i, containerMgr.getItemStack(i).toString(), targetedSlot, containerMgr.getItemStack(targetedSlot).toString());
                         if(containerMgr.move(targetedSlot, i) || containerMgr.move(i, targetedSlot)) {
                             if(!config.getProperty(InvTweaksConfig.PROP_ENABLE_SOUNDS).equals(InvTweaksConfig.VALUE_FALSE)) {
                                 mc.player.playSound(SoundEvents.CHICKEN_EGG, 1.0f, 1.0f);
                             }
+                            log.info("Moved {} from {} to {}", expectedItemId, i, targetedSlot);
+                            log.info("{} now contains {} and {} contains {}", i, containerMgr.getItemStack(i).toString(), targetedSlot, containerMgr.getItemStack(targetedSlot).toString());
                             // If item are swapped (like for mushroom soups),
                             // put the item back in the inventory if it is in the hotbar
                             if(!containerMgr.getItemStack(i).isEmpty() && i >= 27) {
