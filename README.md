@@ -3,6 +3,13 @@
 ## 1.18 Port of Inventory Tweaks
 So I got fed up waiting for someone to update this and decided to try for myself. SO MUCH of Minecraft and Forge has changed since the 1.12 version. I'm close to a somewhat functional version, but no ETA.
 
+### Rundown
+
+* Sorting: Nonfunctional (need to figure out how to read mouse input in screens)
+* Autofill: Nonfunctional (works but the slot layout has changed and needs to be fixed)
+* Inventory shortcuts: Nonfunctional
+* Config and config screen: **Functional**
+* Inventory GUI / Buttons: Nonfunctional (and I didn't check why yet)
 
 ## Description
 
