@@ -24,6 +24,7 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -62,6 +63,12 @@ public class ClientProxy extends CommonProxy {
         e.enqueueWork(()->{
                     //Minecraft registrations
         });
+    }
+
+    @SubscribeEvent
+    public void onRawMouse(InputEvent.RawMouseEvent event){
+        //TODO: listen to input
+        InvTweaksMod.log.info("Clicked button {} with action {} and modifiers {}", event.getButton(), event.getAction(), event.getModifiers());
     }
 
     @SubscribeEvent
