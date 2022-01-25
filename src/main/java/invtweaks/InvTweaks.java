@@ -26,7 +26,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CraftingScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.resources.language.I18n;
@@ -47,6 +46,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.commons.lang3.ObjectUtils;
@@ -309,7 +309,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                 mouseWasDown = true;
             }
             if(isGuiContainer(guiScreen)) {
-                handleShortcuts((ContainerScreen) guiScreen);
+                handleShortcuts((AbstractContainerScreen) guiScreen);
             }
 
             // Copy some info about current selected stack for auto-refill
@@ -336,7 +336,7 @@ public class InvTweaks extends InvTweaksObfuscation {
 
             // Check current GUI
             @Nullable Screen guiScreen = getCurrentScreen();
-            if(guiScreen == null || (isGuiContainer(guiScreen) && (isValidChest(((ContainerScreen) guiScreen).getMenu()) || isValidInventory(((ContainerScreen) guiScreen).getMenu())))) {
+            if(guiScreen == null || (isGuiContainer(guiScreen) && (isValidChest(((AbstractContainerScreen) guiScreen).getMenu()) || isValidInventory(((AbstractContainerScreen) guiScreen).getMenu())))) {
                 // Sorting!
                 handleSorting(guiScreen);
             }
@@ -775,15 +775,17 @@ public class InvTweaks extends InvTweaksObfuscation {
             if(!sortKeyDown) {
                 sortKeyDown = true;
                 onSortingKeyPressed();
-                var r = new Random();
-                ITPacketHandler.sendToServer(new ITPacketAddStuff(slotNum,"minecraft:diamond", r.nextInt(32)));
                 try {
-                    var yeet = new ContainerSectionManager(ContainerSection.INVENTORY);
-                    yeet.click(slotNum,false);
+                    ITPacketHandler.sendToServer(new ITPacketAddStuff(slotNum,"minecraft:diamond", slotNum));
+                    //var yeet = new ContainerSectionManager(ContainerSection.INVENTORY);
+                    //yeet.click(slotNum,false);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    slotNum = 0;
                 }
                 slotNum++;
+                if(slotNum > 50){
+                    slotNum = 0;
+                }
             }
         } else {
             sortKeyDown = false;
@@ -979,14 +981,14 @@ public class InvTweaks extends InvTweaksObfuscation {
             // Check that middle click sorting is allowed
             if(config.getProperty(InvTweaksConfig.PROP_ENABLE_MIDDLE_CLICK).equals(InvTweaksConfig.VALUE_TRUE) && isGuiContainer(guiScreen)) {
 
-                @NotNull ContainerScreen guiContainer = (ContainerScreen) guiScreen;
+                @NotNull AbstractContainerScreen guiContainer = (AbstractContainerScreen) guiScreen;
                 AbstractContainerMenu container = guiContainer.getMenu();
 
                 if(!chestAlgorithmButtonDown) {
                     chestAlgorithmButtonDown = true;
 
                     @NotNull IContainerManager containerMgr = getContainerManager(container);
-                    Slot slotAtMousePosition = InvTweaksObfuscation.getSlotAtMousePosition((ContainerScreen) getCurrentScreen());
+                    Slot slotAtMousePosition = InvTweaksObfuscation.getSlotAtMousePosition((AbstractContainerScreen) getCurrentScreen());
                     @Nullable ContainerSection target = null;
                     if(slotAtMousePosition != null) {
                         target = containerMgr.getSlotSection(getSlotNumber(slotAtMousePosition));
@@ -1169,7 +1171,7 @@ public class InvTweaks extends InvTweaksObfuscation {
 
     }
 
-    private void handleShortcuts(@NotNull ContainerScreen guiScreen) {
+    private void handleShortcuts(@NotNull AbstractContainerScreen<?> guiScreen) {
         // Check open GUI
         if(!(isValidChest(guiScreen.getMenu()) || isValidInventory(guiScreen.getMenu()))) {
             return;
@@ -1185,6 +1187,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                 if(cfgManager.getConfig().getProperty(InvTweaksConfig.PROP_ENABLE_SHORTCUTS).equals("true")) {
                     cfgManager.getShortcutsHandler().handleShortcut();
                 }
+
             }
         } else {
             mouseWasDown = false;

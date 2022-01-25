@@ -1,25 +1,15 @@
 package invtweaks;
 
 import invtweaks.api.container.ContainerSection;
-import invtweaks.container.VanillaSlotMaps;
 import invtweaks.forge.InvTweaksMod;
-import invtweaks.forge.asm.compatibility.CompatibilityConfigLoader;
-import invtweaks.forge.asm.compatibility.ContainerInfo;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.MouseHandler;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.ContainerScreen;
-import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.gui.screens.inventory.SignEditScreen;
-import net.minecraft.core.NonNullList;
+import net.minecraft.client.gui.screens.inventory.*;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
@@ -30,9 +20,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
-import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -90,7 +77,7 @@ public class InvTweaksObfuscation {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static Slot getSlotAtMousePosition(@Nullable ContainerScreen guiContainer) {
+    public static Slot getSlotAtMousePosition(@Nullable AbstractContainerScreen guiContainer) {
         if(guiContainer != null) {
             return guiContainer.getSlotUnderMouse();
         } else {
@@ -99,7 +86,7 @@ public class InvTweaksObfuscation {
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static boolean getIsMouseOverSlot(@Nullable ContainerScreen guiContainer, @NotNull Slot slot, int x, int y) {
+    private static boolean getIsMouseOverSlot(@Nullable AbstractContainerScreen guiContainer, @NotNull Slot slot, int x, int y) {
         if(guiContainer != null) {
             return guiContainer.getSlotUnderMouse().equals(slot);
         } else {
@@ -108,12 +95,12 @@ public class InvTweaksObfuscation {
     }
 
     @OnlyIn(Dist.CLIENT)
-    private int getMouseX(@NotNull ContainerScreen guiContainer) {
+    private int getMouseX(@NotNull AbstractContainerScreen guiContainer) {
         return (int) ((mc.mouseHandler.xpos() * guiContainer.width) / getDisplayWidth());
     }
 
     @OnlyIn(Dist.CLIENT)
-    private int getMouseY(@NotNull ContainerScreen guiContainer) {
+    private int getMouseY(@NotNull AbstractContainerScreen guiContainer) {
         return (int) (guiContainer.height - (mc.mouseHandler.ypos() * guiContainer.height) / getDisplayHeight() - 1);
     }
 
@@ -172,7 +159,7 @@ public class InvTweaksObfuscation {
     }
 
     public static boolean isGuiContainer(@Nullable Object o) { // GuiContainer (abstract class)
-        return o != null && o instanceof ContainerScreen;
+        return o != null && o instanceof AbstractContainerScreen;
     }
 
     public static boolean isGuiInventoryCreative(@Nullable Object o) { // GuiInventoryCreative
@@ -207,7 +194,7 @@ public class InvTweaksObfuscation {
         Minecraft mc = Minecraft.getInstance();
         AbstractContainerMenu currentContainer = mc.player.containerMenu;
         if(InvTweaksObfuscation.isGuiContainer(mc.screen)) {
-            currentContainer = ((ContainerScreen) mc.screen).getMenu();
+            currentContainer = ((AbstractContainerScreen) mc.screen).getMenu();
         }
         return currentContainer;
     }
