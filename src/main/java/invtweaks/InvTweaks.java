@@ -8,22 +8,17 @@ import invtweaks.api.container.ContainerSection;
 import invtweaks.container.ContainerSectionManager;
 import invtweaks.container.DirectContainerManager;
 import invtweaks.container.IContainerManager;
-import invtweaks.container.VanillaSlotMaps;
 import invtweaks.forge.ClientProxy;
 import invtweaks.forge.InvTweaksMod;
-import invtweaks.forge.asm.compatibility.CompatibilityConfigLoader;
-import invtweaks.forge.asm.compatibility.ContainerInfo;
+import invtweaks.forge.InputEventHandler;
 import invtweaks.gui.InvTweaksGuiSettings;
 import invtweaks.gui.InvTweaksGuiSettingsButton;
 import invtweaks.gui.InvTweaksGuiSortingButton;
-import invtweaks.gui.InvTweaksGuiTooltipButton;
 import invtweaks.integration.ItemListChecker;
 import invtweaks.network.ITPacketHandler;
 import invtweaks.network.packets.ITPacketAddStuff;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CraftingScreen;
@@ -46,7 +41,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.commons.lang3.ObjectUtils;
@@ -971,7 +965,7 @@ public class InvTweaks extends InvTweaksObfuscation {
     }
 
     private void handleMiddleClick(Screen guiScreen) {
-        if(mc.mouseHandler.isMiddlePressed()) {
+        if(InputEventHandler.isMiddleDown()) {
 
             if(!cfgManager.makeSureConfigurationIsLoaded()) {
                 return;
@@ -981,14 +975,14 @@ public class InvTweaks extends InvTweaksObfuscation {
             // Check that middle click sorting is allowed
             if(config.getProperty(InvTweaksConfig.PROP_ENABLE_MIDDLE_CLICK).equals(InvTweaksConfig.VALUE_TRUE) && isGuiContainer(guiScreen)) {
 
-                @NotNull AbstractContainerScreen guiContainer = (AbstractContainerScreen) guiScreen;
+                @NotNull AbstractContainerScreen<?> guiContainer = (AbstractContainerScreen<?>) guiScreen;
                 AbstractContainerMenu container = guiContainer.getMenu();
 
                 if(!chestAlgorithmButtonDown) {
                     chestAlgorithmButtonDown = true;
 
                     @NotNull IContainerManager containerMgr = getContainerManager(container);
-                    Slot slotAtMousePosition = InvTweaksObfuscation.getSlotAtMousePosition((AbstractContainerScreen) getCurrentScreen());
+                    Slot slotAtMousePosition = InvTweaksObfuscation.getSlotAtMousePosition((AbstractContainerScreen<?>) getCurrentScreen());
                     @Nullable ContainerSection target = null;
                     if(slotAtMousePosition != null) {
                         target = containerMgr.getSlotSection(getSlotNumber(slotAtMousePosition));
@@ -1053,14 +1047,14 @@ public class InvTweaks extends InvTweaksObfuscation {
 
 
     // NOTE: This *will* only work for vanilla GUIs. Blame Mojang for making it next to impossible to find out generically.
-    private boolean hasRecipeButton(@NotNull AbstractContainerScreen guiContainer) {
+    private boolean hasRecipeButton(@NotNull AbstractContainerScreen<?> guiContainer) {
         if(guiContainer instanceof InventoryScreen) {
             return true;
         } else return guiContainer instanceof CraftingScreen;
     }
 
     // See note above
-    private boolean isRecipeBookVisible(@NotNull AbstractContainerScreen guiContainer) {
+    private boolean isRecipeBookVisible(@NotNull AbstractContainerScreen<?> guiContainer) {
         if(guiContainer instanceof InventoryScreen) {
             return ((InventoryScreen) guiContainer).getRecipeBookComponent().isVisible();
         } else if(guiContainer instanceof CraftingScreen) {
@@ -1072,11 +1066,10 @@ public class InvTweaks extends InvTweaksObfuscation {
 
     @SubscribeEvent
     public void onInitGuiEvent(@NotNull ScreenEvent.InitScreenEvent.Post initScreenEvent) {
-        if(!(initScreenEvent.getScreen() instanceof AbstractContainerScreen<?>)){
+        if(!(initScreenEvent.getScreen() instanceof AbstractContainerScreen<?> containerScreen)){
             return;
         }
         @Nullable InvTweaksConfig config = cfgManager.getConfig();
-        var containerScreen = ((AbstractContainerScreen<?>)initScreenEvent.getScreen());
         AbstractContainerMenu container = containerScreen.getMenu();
 
         boolean isValidChest = isValidChest(container);
@@ -1094,7 +1087,6 @@ public class InvTweaks extends InvTweaksObfuscation {
 
             // Look for the mods buttons
             boolean customButtonsAdded = false;
-            initScreenEvent.addListener(new Button(0,0,0,0,null,a->logInGame("")));
 
             if(!customButtonsAdded) {
 

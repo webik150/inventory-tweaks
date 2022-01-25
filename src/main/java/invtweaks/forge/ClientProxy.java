@@ -15,7 +15,6 @@ import invtweaks.network.packets.ITPacketLogin;
 import invtweaks.network.packets.ITPacketSortComplete;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,11 +23,9 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
@@ -36,7 +33,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
@@ -47,6 +43,7 @@ public class ClientProxy extends CommonProxy {
     public boolean serverSupportEnabled = false;
     public boolean serverSupportDetected = false;
     private InvTweaks instance;
+
 
     @Override
     public void commonSetup(FMLCommonSetupEvent e) {
@@ -60,15 +57,10 @@ public class ClientProxy extends CommonProxy {
     public void clientSetup(FMLClientSetupEvent e) {
         super.clientSetup(e);
         ClientRegistry.registerKeyBinding(KEYBINDING_SORT);
+        MinecraftForge.EVENT_BUS.register(InputEventHandler.class);
         e.enqueueWork(()->{
                     //Minecraft registrations
         });
-    }
-
-    @SubscribeEvent
-    public void onRawMouse(InputEvent.RawMouseEvent event){
-        //TODO: listen to input
-        InvTweaksMod.log.info("Clicked button {} with action {} and modifiers {}", event.getButton(), event.getAction(), event.getModifiers());
     }
 
     @SubscribeEvent
