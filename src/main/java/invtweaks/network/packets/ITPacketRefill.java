@@ -40,7 +40,7 @@ public class ITPacketRefill implements ITPacket {
             InvTweaksMod.log.info("Adding items to player {}",player.getDisplayName());
             if(!player.isSpectator()) {
                 //TODO: Changed to clicked from slotClick. Maybe wont work
-                player.getInventory().setItem(slot, new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(id)),amount));
+                player.inventoryMenu.slots.get(slot).set(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(id)), amount));
             }
             // TODO: Might want to set a flag to ignore all packets until next sortcomplete even if client window changes.
         }
