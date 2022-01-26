@@ -5,11 +5,11 @@ So I got fed up waiting for someone to update this and decided to try for myself
 
 ### Rundown
 
-* Sorting: Nonfunctional (need to figure out how to read mouse input in screens)
+* Sorting: Can be triggered, but rn only inventory is without desync, and sometimes it does some fucky stuff with slots.
 * Autofill: Nonfunctional (works but the slot layout has changed and needs to be fixed)
 * Inventory shortcuts: Nonfunctional
 * Config and config screen: **Functional**
-* Inventory GUI / Buttons: Nonfunctional (and I didn't check why yet)
+* Inventory GUI / Buttons: They render and sort/open settings **but for some reason there's a server desync.**
 * Packets (for Server-Assist): **Functional**
 
 On a positive note, the mod compiles a doesn't crash the game.
