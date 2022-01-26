@@ -38,7 +38,7 @@ public class ITPacketClick implements ITPacket {
             ServerPlayer player = context.getSender();
             if(!player.isSpectator() && player.containerMenu.containerId == window) {
                 //TODO: Changed to clicked from slotClick. Maybe wont work
-                player.inventoryMenu.clicked(slot, data, action, player);
+                player.containerMenu.clicked(slot, data, action, player);
             }
             // TODO: Might want to set a flag to ignore all packets until next sortcomplete even if client window changes.
         }
