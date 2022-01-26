@@ -1157,7 +1157,7 @@ public class InvTweaks extends InvTweaksObfuscation {
         }
 
         // Configurable shortcuts
-        if(mc.mouseHandler.isLeftPressed() || mc.mouseHandler.isRightPressed()) {
+        if(InputEventHandler.isLeftDown() || InputEventHandler.isRightDown()) {
             if(!mouseWasDown) {
                 mouseWasDown = true;
 
@@ -1182,7 +1182,7 @@ public class InvTweaks extends InvTweaksObfuscation {
 
     private boolean isSortingShortcutDown() {
         if(sortKeyEnabled && !textboxMode) {
-            return ClientProxy.KEYBINDING_SORT.isDown();
+            return InputEventHandler.isKeyDown(ClientProxy.KEYBINDING_SORT);
         } else {
             return false;
         }
