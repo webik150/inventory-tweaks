@@ -8,7 +8,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.opengl.GL11;
 
 /**
  * Icon-size button, which get drawns in a specific way to fit its small size.
@@ -34,8 +33,8 @@ public class InvTweaksGuiIconButton extends InvTweaksGuiTooltipButton {
     public void renderButton(PoseStack mStack, int mouseX, int mouseY, float partial) {
         super.renderButton(mStack, mouseX, mouseY, partial);
         // Draw background (use the 4 corners of the texture to fit best its small size)
-        int k = isHoveredOrFocused()? 1:0;
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        int k = isHoveredOrFocused()? 0:1;
+        //glColor4f(1.0F, 1.0F, 1.0F, 1.0F); //TODO: What was this for?
 
         if(useCustomTexture) {
             RenderSystem.setShaderTexture(0,resourceButtonCustom);
