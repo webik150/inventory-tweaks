@@ -8,6 +8,9 @@ import invtweaks.InvTweaksObfuscation;
 import invtweaks.api.IItemTreeListener;
 import invtweaks.api.SortingMethod;
 import invtweaks.api.container.ContainerSection;
+import invtweaks.gui.InvTweaksGuiSettings;
+import invtweaks.gui.InvTweaksGuiSettingsButton;
+import invtweaks.gui.InvTweaksGuiSortingButton;
 import invtweaks.network.ITPacketHandler;
 import invtweaks.network.packets.ITPacket;
 import invtweaks.network.packets.ITPacketClick;
@@ -15,14 +18,21 @@ import invtweaks.network.packets.ITPacketLogin;
 import invtweaks.network.packets.ITPacketSortComplete;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -34,6 +44,7 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import static invtweaks.InvTweaksConst.PROTOCOL_VERSION;
@@ -132,7 +143,8 @@ public class ClientProxy extends CommonProxy {
         if(serverSupportEnabled) {
             player.containerMenu.clicked(slot, data, action, player);
 
-            ITPacketHandler.sendToServer(new ITPacketClick(slot, data, action, windowId));
+            //ITPacketHandler.sendToServer(new ITPacketClick(slot, data, action, windowId));
+            player.containerMenu.broadcastChanges();
         } else {
             //Minecraft.getInstance().windowClick(windowId, slot, data, action, player); //TODO: uuuggggghhhh
             KeyMapping.click(Minecraft.getInstance().options.keyAttack.getKey());
@@ -190,6 +202,13 @@ public class ClientProxy extends CommonProxy {
         } catch(Exception e) {
             InvTweaks.logInGameErrorStatic("invtweaks.sort.chest.error", e);
             e.printStackTrace();
+        }
+    }
+
+    @SubscribeEvent
+    public void onInitScreenPost(final ScreenEvent.InitScreenEvent.Post initScreenEvent) {
+        if((initScreenEvent.getScreen() instanceof AbstractContainerScreen<?>)){
+            instance.addButtonsToScreen(initScreenEvent);
         }
     }
 

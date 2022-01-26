@@ -1051,8 +1051,8 @@ public class InvTweaks extends InvTweaksObfuscation {
         }
     }
 
-    @SubscribeEvent
-    public void onInitGuiEvent(@NotNull ScreenEvent.InitScreenEvent.Post initScreenEvent) {
+
+    public void addButtonsToScreen(final ScreenEvent.InitScreenEvent.Post initScreenEvent) {
         if(!(initScreenEvent.getScreen() instanceof AbstractContainerScreen<?> containerScreen)){
             return;
         }
@@ -1141,12 +1141,6 @@ public class InvTweaks extends InvTweaksObfuscation {
                 }
             }
         }
-
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @SubscribeEvent
-    public void onGuiInit(ScreenEvent.InitScreenEvent.InitScreenEvent event) {
 
     }
 
