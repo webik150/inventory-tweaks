@@ -203,7 +203,7 @@ public class DirectContainerManager implements IContainerManager {
 
     @Override
     public void click(ContainerSection section, int index, boolean rightClick) {
-        System.out.println("Click " + section + ":" + index);
+        InvTweaksMod.log.info("Click " + section + ":" + index);
         // Click! (we finally call the Minecraft code)
         int slot = indexToSlot(section, index);
         if(slot != -1) {
@@ -383,6 +383,7 @@ public class DirectContainerManager implements IContainerManager {
 
     @Override
     public void applyChanges() {
+        container.broadcastChanges();
         InvTweaksMod.proxy.sortComplete();
     }
 }

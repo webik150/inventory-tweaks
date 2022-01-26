@@ -67,7 +67,7 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
         if(!tree.isItemUnknown(wantedId, wantedTag)) {
 
             //// Search replacement
-
+            //TODO: SUS AMOGUS gets weird items probably because the tree is fucked up in 1.18
             @NotNull List<IItemTreeItem> items = tree.getItems(wantedId, wantedTag);
 
             // Find rules that match the slot
