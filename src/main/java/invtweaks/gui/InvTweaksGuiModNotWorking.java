@@ -12,8 +12,8 @@ import org.jetbrains.annotations.NotNull;
  * @author Jimeo Wan
  */
 public class InvTweaksGuiModNotWorking extends InvTweaksGuiSettingsAbstract {
-    public InvTweaksGuiModNotWorking(Screen parentScreen_, InvTweaksConfig config_) {
-        super(parentScreen_, config_);
+    public InvTweaksGuiModNotWorking(InvTweaksConfig config_) {
+        super(config_);
     }
 
     @Override

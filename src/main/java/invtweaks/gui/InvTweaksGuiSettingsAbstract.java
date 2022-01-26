@@ -27,9 +27,8 @@ public abstract class InvTweaksGuiSettingsAbstract extends Screen {
     protected static String LABEL_DONE;
     protected InvTweaksObfuscation obf;
     protected InvTweaksConfig config;
-    protected Screen parentScreen;
 
-    public InvTweaksGuiSettingsAbstract(Screen parentScreen_, InvTweaksConfig config_) {
+    public InvTweaksGuiSettingsAbstract(InvTweaksConfig config_) {
         super(new TextComponent("Inventory Tweaks GUI Settings"));
 
         LABEL_DONE = I18n.get("invtweaks.settings.exit");
@@ -37,14 +36,12 @@ public abstract class InvTweaksGuiSettingsAbstract extends Screen {
         OFF = ": " + I18n.get("invtweaks.settings.off");
 
         obf = new InvTweaksObfuscation();
-        parentScreen = parentScreen_;
         config = config_;
     }
 
     protected InvTweaksGuiSettingsAbstract(Component p_96550_) {
         super(p_96550_);
     }
-
 
     @Override
     public void init() {

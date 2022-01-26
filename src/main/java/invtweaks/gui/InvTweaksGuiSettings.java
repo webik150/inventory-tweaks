@@ -32,7 +32,7 @@ public class InvTweaksGuiSettings extends InvTweaksGuiSettingsAbstract {
     }
 
     public InvTweaksGuiSettings(Screen parentScreen_, InvTweaksConfig config_) {
-        super(parentScreen_, config_);
+        super(config_);
 
         labelMiddleClick = I18n.get("invtweaks.settings.middleclick");
         labelShortcuts = I18n.get("invtweaks.settings.shortcuts");
@@ -121,7 +121,7 @@ public class InvTweaksGuiSettings extends InvTweaksGuiSettingsAbstract {
         // Create settings buttons
 
         moveToButtonCoords(i++, p);
-        addRenderableWidget(new InvTweaksGuiTooltipButton(p.getX() + 130, p.getY(), 20, 20, new TextComponent("?"), "Shortcuts help", button -> obf.displayGuiScreen(new InvTweaksGuiShortcutsHelp( this, config))));
+        addRenderableWidget(new InvTweaksGuiTooltipButton(p.getX() + 130, p.getY(), 20, 20, new TextComponent("?"), "Shortcuts help", button -> minecraft.pushGuiLayer(new InvTweaksGuiShortcutsHelp( this, config))));
         @NotNull InvTweaksGuiTooltipButton shortcutsBtn = new InvTweaksGuiTooltipButton(p.getX(), p.getY(), 130, 20, new TextComponent(computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SHORTCUTS, labelShortcuts)), I18n.get("invtweaks.settings.shortcuts.tooltip"), button -> toggleBooleanButton(button, InvTweaksConfig.PROP_ENABLE_SHORTCUTS, labelShortcuts));
         addRenderableWidget(shortcutsBtn);
 
@@ -134,9 +134,9 @@ public class InvTweaksGuiSettings extends InvTweaksGuiSettingsAbstract {
         addRenderableWidget(autoRefillBtn);
 
         moveToButtonCoords(i++, p);
-        addRenderableWidget(new InvTweaksGuiTooltipButton(p.getX(), p.getY(), new TextComponent(labelMoreOptions), I18n.get("invtweaks.settings.moreoptions.tooltip"), button -> obf.displayGuiScreen(new InvTweaksGuiSettingsAdvanced(parentScreen, config))));
+        addRenderableWidget(new InvTweaksGuiTooltipButton(p.getX(), p.getY(), new TextComponent(labelMoreOptions), I18n.get("invtweaks.settings.moreoptions.tooltip"), button -> minecraft.pushGuiLayer(new InvTweaksGuiSettingsAdvanced(config))));
 
-        addRenderableWidget(new InvTweaksGuiTooltipButton(5, this.height - 20, 100, 20, new TextComponent(labelBugSorting), null, false, button -> obf.displayGuiScreen(new InvTweaksGuiModNotWorking(parentScreen, config))));
+        addRenderableWidget(new InvTweaksGuiTooltipButton(5, this.height - 20, 100, 20, new TextComponent(labelBugSorting), null, false, button -> minecraft.pushGuiLayer(new InvTweaksGuiModNotWorking(config))));
 
         //noinspection UnusedAssignment
         moveToButtonCoords(i++, p);

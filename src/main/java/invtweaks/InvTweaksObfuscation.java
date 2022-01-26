@@ -231,7 +231,8 @@ public class InvTweaksObfuscation {
     }
 
     public void displayGuiScreen(Screen parentScreen) {
-        mc.pushGuiLayer(parentScreen);
+        //mc.pushGuiLayer(parentScreen);
+        mc.setScreen(parentScreen);
     }
 
     public void hideScreen() {

@@ -26,8 +26,8 @@ public class InvTweaksGuiSettingsAdvanced extends InvTweaksGuiSettingsAbstract {
     private static String labelServerAssist;
     private static String labelDisplayTooltip;
 
-    public InvTweaksGuiSettingsAdvanced(Screen parentScreen_, InvTweaksConfig config_) {
-        super(parentScreen_, config_);
+    public InvTweaksGuiSettingsAdvanced(InvTweaksConfig config_) {
+        super(config_);
 
         labelSortOnPickup = I18n.get("invtweaks.settings.advanced.sortonpickup");
         labelEquipArmor = I18n.get("invtweaks.settings.advanced.autoequip");
