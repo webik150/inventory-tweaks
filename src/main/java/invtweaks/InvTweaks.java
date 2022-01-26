@@ -21,6 +21,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CraftingScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.resources.language.I18n;
@@ -41,6 +42,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.ContainerScreenEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.commons.lang3.ObjectUtils;
@@ -109,7 +111,7 @@ public class InvTweaks extends InvTweaksObfuscation {
      * Debug tools:
      */
     private String mostRecentComparison = "";
-    private boolean debugTree = true;
+    private final boolean debugTree = false;
     private int storedFocusedSlot;
 
     /**
@@ -118,9 +120,7 @@ public class InvTweaks extends InvTweaksObfuscation {
     public InvTweaks() {
         super();
 
-        for(int i = 0; i < hotbarClone.length; ++i) {
-            hotbarClone[i] = ItemStack.EMPTY;
-        }
+        Arrays.fill(hotbarClone, ItemStack.EMPTY);
         //log.setLevel(InvTweaksConst.DEFAULT_LOG_LEVEL);
 
         // Store instance
@@ -864,9 +864,12 @@ public class InvTweaks extends InvTweaksObfuscation {
         return resString;
     }
 
-    @SuppressWarnings("unused")
     private void handleSorting(Screen guiScreen) {
-        getInventoryPlayer().ifPresent(mainInventory->{
+
+            if(guiScreen == null){
+                return;
+            }
+
             @NotNull ItemStack selectedItem;
             selectedItem = getThePlayer().getInventory().getSelected();
 
@@ -894,7 +897,7 @@ public class InvTweaks extends InvTweaksObfuscation {
             }
 
             playClick();
-        });
+
     }
 
     private void handleAutoRefill() {
