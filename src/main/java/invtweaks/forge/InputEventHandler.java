@@ -1,5 +1,7 @@
 package invtweaks.forge;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyMapping;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.glfw.GLFW;
@@ -62,4 +64,8 @@ public class InputEventHandler {
         lastKeyAction.put(event.getKey(), event.getAction());
         modifierMask = event.getModifiers();
     }
+
+    public static boolean isKeyDown(int keyCode){return lastKeyAction.containsKey(keyCode) && lastKeyAction.get(keyCode).equals(GLFW_PRESS);}
+    public static boolean isKeyDown(InputConstants.Key key){return isKeyDown(key.getValue());}
+    public static boolean isKeyDown(KeyMapping keyMapping){return isKeyDown(keyMapping.getKey());}
 }
