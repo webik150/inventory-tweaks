@@ -738,8 +738,6 @@ public class InvTweaks extends InvTweaksObfuscation {
         }
     }
 
-    int slotNum = 0;
-
     private boolean onTick() {
         printQueuedMessages();
 
@@ -769,17 +767,6 @@ public class InvTweaks extends InvTweaksObfuscation {
             if(!sortKeyDown) {
                 sortKeyDown = true;
                 onSortingKeyPressed();
-                try {
-                    ITPacketHandler.sendToServer(new ITPacketAddStuff(slotNum,"minecraft:diamond", slotNum));
-                    //var yeet = new ContainerSectionManager(ContainerSection.INVENTORY);
-                    //yeet.click(slotNum,false);
-                } catch (Exception e) {
-                    slotNum = 0;
-                }
-                slotNum++;
-                if(slotNum > 50){
-                    slotNum = 0;
-                }
             }
         } else {
             sortKeyDown = false;
