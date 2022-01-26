@@ -1,11 +1,11 @@
 package invtweaks;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import invtweaks.api.container.ContainerSection;
 import invtweaks.container.IContainerManager;
+import invtweaks.forge.InputEventHandler;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -26,11 +26,6 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
     private InvTweaksConfig config;
     private IContainerManager container;
 
-
-    /**
-     * Stores all pressed keys (only the one that are related to shortcuts)
-     */
-    private Map<InputConstants.Key, Boolean> pressedKeys;
     /**
      * Stores the shortcuts mappings
      */
@@ -39,14 +34,11 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
     public InvTweaksHandlerShortcuts(Minecraft mc_, InvTweaksConfig config_) {
         super();
         config = config_;
-        pressedKeys = new HashMap<InputConstants.Key, Boolean>();
         shortcuts = new HashMap<>();
     }
 
     public void loadShortcuts() {
-        pressedKeys.clear();
         shortcuts.clear();
-
         // Register shortcut mappings
         @NotNull Map<String, String> keys = config.getProperties(InvTweaksConfig.PROP_SHORTCUT_PREFIX);
         for(String key : keys.keySet()) {
@@ -96,31 +88,31 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
         updatePressedKeys();
 
         boolean validAction = false;
-        if(mc.options.keyDrop.isDown()) {
+        if(InputEventHandler.isKeyDown(mc.options.keyDrop)) {
             action = ShortcutSpecification.Action.DROP;
             validAction = true;
         }
 
         if(action != ShortcutSpecification.Action.DROP) {
-            if(Arrays.stream(mc.options.keyHotbarSlots).anyMatch(KeyMapping::isDown)) {
+            if(Arrays.stream(mc.options.keyHotbarSlots).anyMatch(InputEventHandler::isKeyDown)) {
                 target = ShortcutSpecification.Target.HOTBAR_SLOT;
                 validAction = true;
-            } else if(mc.options.keyUp.isDown()) {
+            } else if(InputEventHandler.isKeyDown(mc.options.keyUp)) {
                 target = ShortcutSpecification.Target.UP;
                 validAction = true;
-            } else if(mc.options.keyDown.isDown()) {
+            } else if(InputEventHandler.isKeyDown(mc.options.keyDown)) {
                 target = ShortcutSpecification.Target.DOWN;
                 validAction = true;
             }
         }
 
-        if(mc.options.keyShift.isDown()) {
+        if(InputEventHandler.isKeyDown(mc.options.keyShift)) {
             scope = ShortcutSpecification.Scope.ALL_ITEMS;
             validAction = true;
-        } else if(mc.options.keyJump.isDown()) {
+        } else if(InputEventHandler.isKeyDown(mc.options.keyJump)) {
             scope = ShortcutSpecification.Scope.EVERYTHING;
             validAction = true;
-        } else if(mc.options.keySprint.isDown()) {
+        } else if(InputEventHandler.isKeyDown(mc.options.keySprint)) {
             scope = ShortcutSpecification.Scope.ONE_ITEM;
             validAction = true;
         }
@@ -138,7 +130,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
         @NotNull ShortcutConfig shortcutConfig = new ShortcutConfig();
 
         container = InvTweaks.getCurrentContainerManager();
-        Slot slot = InvTweaksObfuscation.getSlotAtMousePosition((ContainerScreen) getCurrentScreen());
+        Slot slot = InvTweaksObfuscation.getSlotAtMousePosition((AbstractContainerScreen<?>) getCurrentScreen());
         // If a valid and not empty slot is clicked
         if(shortcut != null && slot != null && (slot.hasItem() || !getHeldStack().isEmpty())) {
             int slotNumber = getSlotNumber(slot);
@@ -159,7 +151,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
                     // Compute shortcut target
                     if(shortcut.getTarget() == ShortcutSpecification.Target.HOTBAR_SLOT) {
                         shortcutConfig.toSection = ContainerSection.INVENTORY_HOTBAR;
-                        @Nullable var hotbarShortcut = Arrays.stream(mc.options.keyHotbarSlots).filter(KeyMapping::isDown).findFirst();
+                        @Nullable var hotbarShortcut = Arrays.stream(mc.options.keyHotbarSlots).filter(InputEventHandler::isKeyDown).findFirst();
                         if(hotbarShortcut.isPresent()) {
                             String keyName = hotbarShortcut.get().getName();
                             shortcutConfig.toIndex = -1 + Integer.parseInt(keyName.replace("NUMPAD", ""));
@@ -250,14 +242,6 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
     //TODO: What the actual fuck is this.... Convert to KeyMaps.
     // XXX Bad API
     public void updatePressedKeys() {
-        //Update hotbar keys
-        for (KeyMapping keymap : mc.options.keyHotbarSlots) {
-            if(!pressedKeys.get(keymap.getKey())) {
-                pressedKeys.put(keymap.getKey(), true);
-            }else{
-                pressedKeys.put(keymap.getKey(), false);
-            }
-        }
 
         //TODO: check for shift/modifiers and other keys
 
@@ -272,13 +256,13 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
      * @return true if the shortuts listeners have to be reset
      */
     private boolean haveControlsChanged() {
-        return (!pressedKeys.containsKey(getKeyBindingForwardKeyCode()) || !pressedKeys.containsKey(getKeyBindingBackKeyCode()));
+        return false;//(!pressedKeys.containsKey(getKeyBindingForwardKeyCode()) || !pressedKeys.containsKey(getKeyBindingBackKeyCode()));
     }
 
     private void runShortcut(@NotNull ShortcutConfig shortcut) throws TimeoutException {
         // Try to put held item down
         if(!getHeldStack().isEmpty()) {
-            Slot slot = InvTweaksObfuscation.getSlotAtMousePosition((ContainerScreen) getCurrentScreen());
+            Slot slot = InvTweaksObfuscation.getSlotAtMousePosition((AbstractContainerScreen<?>) getCurrentScreen());
             if(slot != null) {
                 int slotNumber = getSlotNumber(slot);
                 container.putHoldItemDown(container.getSlotSection(slotNumber), container.getSlotIndex(slotNumber));
