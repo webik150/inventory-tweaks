@@ -141,10 +141,10 @@ public class ClientProxy extends CommonProxy {
     public void slotClick(int windowId, int slot, int data, @NotNull ClickType action, Player player) {
         //int modiferKeys = (shiftHold) ? 1 : 0 /* XXX Placeholder */;
         if(serverSupportEnabled) {
-            player.containerMenu.clicked(slot, data, action, player);
+            //player.containerMenu.clicked(slot, data, action, player);
 
-            //ITPacketHandler.sendToServer(new ITPacketClick(slot, data, action, windowId));
-            player.containerMenu.broadcastChanges();
+            ITPacketHandler.sendToServer(new ITPacketClick(slot, data, action, windowId));
+            //player.containerMenu.broadcastChanges();
         } else {
             //Minecraft.getInstance().windowClick(windowId, slot, data, action, player); //TODO: uuuggggghhhh
             KeyMapping.click(Minecraft.getInstance().options.keyAttack.getKey());
