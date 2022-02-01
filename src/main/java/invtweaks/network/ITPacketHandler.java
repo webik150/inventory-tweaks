@@ -33,6 +33,8 @@ public final class ITPacketHandler {
         registerClientToServer(ITPacketClick.class, ITPacketClick::decode);
         registerClientToServer(ITPacketSortComplete.class, ITPacketSortComplete::decode);
         registerClientToServer(ITPacketAddStuff.class, ITPacketAddStuff::decode);
+        registerClientToServer(ITPacketMoveStack.class, ITPacketMoveStack::decode);
+        registerClientToServer(ITPacketRefill.class, ITPacketRefill::decode);
 
         //Server to client messages
         registerServerToClient(ITPacketLogin.class, ITPacketLogin::decode);

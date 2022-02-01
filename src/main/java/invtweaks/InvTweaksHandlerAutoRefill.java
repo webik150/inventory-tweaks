@@ -3,6 +3,8 @@ package invtweaks;
 import invtweaks.api.IItemTreeItem;
 import invtweaks.api.container.ContainerSection;
 import invtweaks.container.ContainerSectionManager;
+import invtweaks.network.ITPacketHandler;
+import invtweaks.network.packets.ITPacketRefill;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -191,7 +193,13 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
                     // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
                     if(!stack.isEmpty() && StringUtils.equals(stack.getItem().getRegistryName().toString(), expectedItemId) || this.refillBeforeBreak) {
                         log.info("{} contains {} and {} contains {}", i, containerMgr.getItemStack(i).toString(), targetedSlot, containerMgr.getItemStack(targetedSlot).toString());
-                        if(containerMgr.move(targetedSlot, i) || containerMgr.move(i, targetedSlot)) {
+
+                        ITPacketHandler.sendToServer(new ITPacketRefill(targetedSlot-27, i+9, mc.player.getId()));
+
+                        if(!config.getProperty(InvTweaksConfig.PROP_ENABLE_SOUNDS).equals(InvTweaksConfig.VALUE_FALSE)) {
+                            mc.player.playSound(SoundEvents.SLIME_BLOCK_STEP, 1.0f, 1.0f);
+                        }
+                       /*if(containerMgr.move(targetedSlot, i) || containerMgr.move(i, targetedSlot)) {
                             if(!config.getProperty(InvTweaksConfig.PROP_ENABLE_SOUNDS).equals(InvTweaksConfig.VALUE_FALSE)) {
                                 mc.player.playSound(SoundEvents.CHICKEN_EGG, 1.0f, 1.0f);
                             }
@@ -212,7 +220,7 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
                             containerMgr.applyChanges();
                         } else {
                             log.warn("Failed to move stack for autoreplace, despite of prior tests.");
-                        }
+                        }*/
                     }
                 }
 
