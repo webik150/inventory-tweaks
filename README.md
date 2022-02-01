@@ -6,7 +6,7 @@ So I got fed up waiting for someone to update this and decided to try for myself
 ### Rundown
 
 * Sorting: Can be triggered, but rn only inventory is without desync, and sometimes it does some fucky stuff with slots.
-* Autofill: Nonfunctional (works but the slot layout has changed and needs to be fixed)
+* Autofill: ~~non~~semifunctional (works but the slot layout has changed and needs to be fixed)
 * Inventory shortcuts: Nonfunctional
 * Config and config screen: **Functional**
 * Inventory GUI / Buttons: They render and sort/open settings **but for some reason there's a server desync.**
