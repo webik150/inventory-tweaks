@@ -7,6 +7,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -67,8 +68,8 @@ public class InvTweaksGuiShortcutsHelp extends Screen {
         drawShortcutLine(stack, I18n.get("invtweaks.help.shortcuts.craftone"), config.getProperty(InvTweaksConfig.PROP_SHORTCUT_ONE_ITEM) + " + " + clickLabel, 0x00FF8800, y);
         y += 19;
 
-        String sortKeyName = config.getSortKeyMapping().getName();
-        drawShortcutLine(stack, I18n.get("invtweaks.help.shortcuts.selectconfig"), "0-9 + " + sortKeyName, 0x0088FFFF, y);
+        Component sortKeyName = config.getSortKeyMapping().getKey().getDisplayName();
+        drawShortcutLine(stack, I18n.get("invtweaks.help.shortcuts.selectconfig"), "0-9 + " + sortKeyName.getContents().toUpperCase(), 0x0088FFFF, y);
 
         super.render(stack, i, j, f);
     }
