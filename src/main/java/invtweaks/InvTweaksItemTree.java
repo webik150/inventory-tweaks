@@ -12,6 +12,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShieldItem;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -353,9 +354,9 @@ public class InvTweaksItemTree implements IItemTree {
                         doIt = (keyArmorType.equals(itemArmorType));
                         armor = null;
                     }
-                    /*if(doIt && extraData.contains("isshield")) {
-                        doIt = item.isShield(stack, null);
-                    }*/
+                    if(doIt && extraData.contains("isshield")) {
+                        doIt = item instanceof ShieldItem;
+                    }
                 }
                 //Checks out, add it to the tree:
                 if(doIt) {
