@@ -367,29 +367,17 @@ public class InvTweaksItemTree implements IItemTree {
 
     private void populateGameItems() {
         for(Map.Entry<ResourceKey<Item>, Item> entry : ForgeRegistries.ITEMS.getEntries()) {
-            //getDataForItemSubtypes(itemDump, entry.getValue(), entry.getKey(), includeToolClass, dumpNBT);
             Item item = entry.getValue();
-
-            /*if(item.getHasSubtypes()) {
-                for(CreativeModeTab tab : item.getCreativeTabs()) {
-                    if(tab != null) {
-                        NonNullList<ItemStack> stacks = NonNullList.<ItemStack>create();
-                        item.getSubItems(tab, stacks);
-
-                        for(ItemStack stack : stacks) {
-                            allGameItems.add(stack);
-                            // FIXME: Ignore identical duplicate entries from different tabs...
-                            //addData(itemDump, item, rl, true, includeToolClass, dumpNBT, stack);
-                        }
-                    }
-                }
-            } else {*/
-                allGameItems.add(item.getDefaultInstance());
-                //addData(itemDump, item, rl, false, includeToolClass, dumpNBT, new ItemStack(item, 1, 0));
-            //}
+            allGameItems.add(item.getDefaultInstance());
         }
     }
 
+    /**
+     * Check if the object is a descendant of a class.
+     * @param o Object to check
+     * @param className Class to check for
+     * @return true if descendant, false if not.
+     */
     private boolean InstanceOfClassNameKind(Object o, String className) {
         Class testClass = o.getClass();
         while(testClass != null) {

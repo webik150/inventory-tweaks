@@ -383,7 +383,6 @@ public class DirectContainerManager implements IContainerManager {
 
     @Override
     public void applyChanges() {
-        container.broadcastChanges();
         InvTweaksMod.proxy.sortComplete();
     }
 }

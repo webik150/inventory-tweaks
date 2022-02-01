@@ -6,6 +6,7 @@ import invtweaks.api.IItemTreeItem;
 import invtweaks.api.SortingMethod;
 import invtweaks.api.container.ContainerSection;
 import invtweaks.container.ContainerSectionManager;
+import invtweaks.container.ContainerUtils;
 import invtweaks.container.DirectContainerManager;
 import invtweaks.container.IContainerManager;
 import invtweaks.forge.ClientProxy;
@@ -17,6 +18,8 @@ import invtweaks.gui.InvTweaksGuiSortingButton;
 import invtweaks.integration.ItemListChecker;
 import invtweaks.network.ITPacketHandler;
 import invtweaks.network.packets.ITPacketAddStuff;
+import invtweaks.network.packets.ITPacketMoveStack;
+import invtweaks.network.packets.ITPacketSortComplete;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -738,6 +741,8 @@ public class InvTweaks extends InvTweaksObfuscation {
         }
     }
 
+    boolean keyPressed = false;
+
     private boolean onTick() {
         printQueuedMessages();
 
@@ -760,6 +765,25 @@ public class InvTweaks extends InvTweaksObfuscation {
         @Nullable Screen currentScreen = getCurrentScreen();
         if(currentScreen == null || isGuiInventory(currentScreen)) {
             cloneHotbar();
+        }
+
+        if(InputEventHandler.isKeyDown('K')){
+            if(!keyPressed) {
+                keyPressed = true;
+                // Check current GUI
+                @Nullable Screen guiScreen = getCurrentScreen();
+                if((isGuiContainer(guiScreen) && (isValidChest(((AbstractContainerScreen) guiScreen).getMenu()) || isValidInventory(((AbstractContainerScreen) guiScreen).getMenu())))) {
+                    // Sorting!
+                    var menu = ((AbstractContainerScreen)guiScreen).getMenu();
+                    /*ContainerUtils.moveItemStackTo(menu, menu.getSlot(0).getItem(), 10, 13, false);
+                    menu.broadcastChanges();
+                    menu.broadcastFullState();*/
+                    ITPacketHandler.sendToServer(new ITPacketMoveStack(menu.containerId, 0, 10, 13, false));
+                    //TODO: add packet to move item
+                }
+            }
+        } else {
+            keyPressed = false;
         }
 
         // Handle sort key

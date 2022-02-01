@@ -21,7 +21,7 @@ public class ITPacketSortComplete implements ITPacket {
         if(context.getDirection() == NetworkDirection.PLAY_TO_SERVER) {
             ServerPlayer player = context.getSender();
             //TODO: Wtf do here
-            //player.sendContainerToPlayer(player.openContainer);
+            player.containerMenu.broadcastFullState();
         }
     }
 }
