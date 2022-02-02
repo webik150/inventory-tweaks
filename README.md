@@ -1,4 +1,4 @@
-<img src="https://github.com/webik150/inventory-tweaks/raw/port-to-1.18.1/src/main/resources/invtweaks.png" />
+<img src="https://github.com/webik150/inventory-tweaks/raw/33268b4a136f5fb1fb14123f648bcd691b46bc87/src/main/resources/invtweaks.png" />
 
 ## 1.18 Port of Inventory Tweaks
 So I got fed up waiting for someone to update this and decided to try for myself. SO MUCH of Minecraft and Forge has changed since the 1.12 version. I'm close to a somewhat functional version, but no ETA.
