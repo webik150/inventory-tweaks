@@ -93,7 +93,7 @@ public class InvTweaks extends InvTweaksObfuscation {
     private ItemStack storedStack = ItemStack.EMPTY;
     @Nullable
     private String storedStackId = null;
-    private CompoundTag storedTag = null;
+    private int storedStackDamage = 0;
     private boolean mouseWasDown = false;
     private boolean wasInGUI = false;
     private boolean previousRecipeBookVisibility = false;
@@ -931,22 +931,22 @@ public class InvTweaks extends InvTweaksObfuscation {
         // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
         @Nullable String currentStackId = (currentStack.isEmpty()) ? null : currentStack.getItem().getRegistryName().toString();
         int focusedSlot = getThePlayer().getInventory().selected + 27; // Convert to container slots index
-        CompoundTag currentStackDamage = (currentStack.isEmpty()) ? null : currentStack.getTag();
+        int currentStackDamage = (currentStack.isEmpty()) ? 0 : currentStack.getDamageValue();
         @Nullable InvTweaksConfig config = cfgManager.getConfig();
 
         if(storedFocusedSlot != focusedSlot) { // Filter selection change
             storedFocusedSlot = focusedSlot;
-        }else if(!ItemStack.isSame(currentStack, storedStack) && storedStackId != null) {
+        }else if((!ItemStack.isSame(currentStack, storedStack) || storedStackDamage != currentStackDamage) && storedStackId != null) {
             if(!storedStack.isEmpty() && !ItemStack.isSameItemSameTags(offhandStack, storedStack)) { // Checks not switched to offhand
                 if(currentStack.isEmpty() || (currentStack.getItem() == Items.BOWL && Objects.equals(storedStackId, "minecraft:mushroom_stew"))
                         // Handle eaten mushroom soup
                         && (getCurrentScreen() == null || // Filter open inventory or other window
                         isGuiEditSign(getCurrentScreen()))) { // TODO: This should be more expandable on 'equivalent' items (API?) and allowed GUIs
 
-                    if(config.isAutoRefillEnabled(storedStackId, storedTag)) {
+                    if(config.isAutoRefillEnabled(storedStackId, null)) {
                         try {
-                            InvTweaksMod.log.info("{} - {}", storedStackId, storedTag);
-                            cfgManager.getAutoRefillHandler().autoRefillSlot(focusedSlot, storedStackId, storedTag);
+                            InvTweaksMod.log.info("{} - {}", storedStackId, storedStackDamage);
+                            cfgManager.getAutoRefillHandler().autoRefillSlot(focusedSlot, storedStackId, null/*TODO: Should I pass NBT? Probably?*/);
                         } catch(Exception e) {
                             logInGameError("invtweaks.sort.autorefill.error", e);
                         }
@@ -955,10 +955,10 @@ public class InvTweaks extends InvTweaksObfuscation {
                     // Item
                     int itemMaxDamage = currentStack.getMaxDamage();
                     int autoRefillThreshhold = config.getIntProperty(InvTweaksConfig.PROP_AUTO_REFILL_DAMAGE_THRESHHOLD);
-                    if(canToolBeReplaced(currentStack.getDamageValue(), itemMaxDamage, autoRefillThreshhold) && config.getProperty(InvTweaksConfig.PROP_AUTO_REFILL_BEFORE_BREAK).equals(InvTweaksConfig.VALUE_TRUE) && config.isAutoRefillEnabled(storedStackId, storedTag)) {
+                    if(canToolBeReplaced(currentStack.getDamageValue(), itemMaxDamage, autoRefillThreshhold) && config.getProperty(InvTweaksConfig.PROP_AUTO_REFILL_BEFORE_BREAK).equals(InvTweaksConfig.VALUE_TRUE) && config.isAutoRefillEnabled(storedStackId, null)) {
                         // Trigger auto-refill before the tool breaks
                         try {
-                            cfgManager.getAutoRefillHandler().autoRefillSlot(focusedSlot, storedStackId, storedTag);
+                            cfgManager.getAutoRefillHandler().autoRefillSlot(focusedSlot, storedStackId, null);
                         } catch(Exception e) {
                             logInGameError("invtweaks.sort.autorefill.error", e);
                         }
@@ -970,12 +970,12 @@ public class InvTweaks extends InvTweaksObfuscation {
         // Copy some info about current selected stack for auto-refill
         storedStack = currentStack.copy();
         storedStackId = currentStackId;
-        storedTag = currentStackDamage;
+        storedStackDamage = currentStackDamage;
 
     }
 
     private boolean canToolBeReplaced(int currentStackDamage, int itemMaxDamage, int autoRefillThreshhold) {
-        return itemMaxDamage != 0 && itemMaxDamage - currentStackDamage < autoRefillThreshhold && itemMaxDamage - storedTag.getInt("Damage") >= autoRefillThreshhold;
+        return itemMaxDamage != 0 && itemMaxDamage - currentStackDamage < autoRefillThreshhold && itemMaxDamage - storedStackDamage >= autoRefillThreshhold;
     }
 
     private void handleMiddleClick(Screen guiScreen) {

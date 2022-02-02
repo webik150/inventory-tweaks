@@ -11,6 +11,9 @@ import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Handles refilling of hotbar.
+ */
 public class ITPacketRefill implements ITPacket {
     public int targetSlot;
     public int refillFromSlot;
@@ -38,21 +41,19 @@ public class ITPacketRefill implements ITPacket {
         if(context.getDirection() == NetworkDirection.PLAY_TO_SERVER) {
             ServerPlayer player = context.getSender();
             if(!player.isSpectator() && player.getId() == playerId) {
-                //TODO: Changed to clicked from slotClick. Maybe wont work
                 var inv = player.getInventory();
-                if(/*inv.getItem(refillFromSlot).isEmpty() &&*/ !inv.getItem(refillFromSlot).isEmpty()){
+                if(!inv.getItem(refillFromSlot).isEmpty()){
+                    ItemStack replacedItem = ItemStack.EMPTY;
                     if(!inv.getItem(targetSlot).isEmpty()){
-                        InvTweaksMod.log.warn("Target slot is not empty");
+                        replacedItem = inv.getItem(targetSlot);
                     }
-                    //ContainerUtils.moveItemStackTo(player.containerMenu, player.containerMenu.getSlot(refillFromSlot).getItem(), targetSlot, targetSlot, false);
-                    //inv.getItem(targetSlot).setCount(0);
+
                     inv.setItem(targetSlot, player.containerMenu.getSlot(refillFromSlot).getItem().copy());
-                    inv.setItem(refillFromSlot, ItemStack.EMPTY);
+                    inv.setItem(refillFromSlot, replacedItem);
 
                     inv.setChanged();
                 }
             }
-            // TODO: Might want to set a flag to ignore all packets until next sortcomplete even if client window changes.
         }
     }
 }
