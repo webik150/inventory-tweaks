@@ -1,12 +1,13 @@
-<img src="http://inventory-tweaks.readthedocs.org/en/latest/_images/invtweaks.png" />
+<img src="https://github.com/webik150/inventory-tweaks/raw/port-to-1.18.1/src/main/resources/invtweaks.png" />
 
 ## 1.18 Port of Inventory Tweaks
 So I got fed up waiting for someone to update this and decided to try for myself. SO MUCH of Minecraft and Forge has changed since the 1.12 version. I'm close to a somewhat functional version, but no ETA.
 
+Right now I'm focusing on the server-side part of the mod, which means it'll mostly be usable in singleplayer, co-op, and on servers that have it too.
 ### Rundown
 
 * Sorting: Can be triggered, but rn only inventory is without desync, and sometimes it does some fucky stuff with slots.
-* Autofill: ~~non~~semifunctional (works but the slot layout has changed and needs to be fixed)
+* Autofill: ~~non-semi-~~*almost*-functional (Works apart from not filling from hotbar)
 * Inventory shortcuts: Nonfunctional
 * Config and config screen: **Functional**
 * Inventory GUI / Buttons: They render and sort/open settings **but for some reason there's a server desync.**
