@@ -108,7 +108,7 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
             // else one that matches the slot's rules
             for(@NotNull InvTweaksConfigSortingRule rule : matchingRules) {
                 for(int i = 0; i < InvTweaksConst.INVENTORY_SIZE; i++) {
-                    candidateStack = container.getItemStack(i);
+                    candidateStack = container.getSlot(i).getItem();
                     if(!candidateStack.isEmpty()) {
                         // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
                         @NotNull List<IItemTreeItem> candidateItems = tree.getItems(candidateStack.getItem().getRegistryName().toString(), candidateStack.getTag());
@@ -194,7 +194,7 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
                     if(!stack.isEmpty() && StringUtils.equals(stack.getItem().getRegistryName().toString(), expectedItemId) || this.refillBeforeBreak) {
                         log.info("{} contains {} and {} contains {}", i, containerMgr.getItemStack(i).toString(), targetedSlot, containerMgr.getItemStack(targetedSlot).toString());
 
-                        ITPacketHandler.sendToServer(new ITPacketRefill(targetedSlot-27, i+9, mc.player.getId()));
+                        ITPacketHandler.sendToServer(new ITPacketRefill(targetedSlot-27, i/*+9*/, mc.player.getId()));
 
                         if(!config.getProperty(InvTweaksConfig.PROP_ENABLE_SOUNDS).equals(InvTweaksConfig.VALUE_FALSE)) {
                             mc.player.playSound(SoundEvents.SLIME_BLOCK_STEP, 1.0f, 1.0f);
@@ -224,7 +224,7 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
                     }
                 }
 
-            }.init(replacementStackSlot, slot, refillBeforeBreak));
+            }.init(replacementStackSlot, container.getSlot(slot).getSlotIndex(), refillBeforeBreak));
 
         }
     }

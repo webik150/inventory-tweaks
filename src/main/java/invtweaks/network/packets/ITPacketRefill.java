@@ -64,7 +64,7 @@ public class ITPacketRefill implements ITPacket {
                     }
 
                     // Replace with a copy to avoid duplication (I guess? I've seen people do it lol)
-                    inv.setItem(targetSlot, player.containerMenu.getSlot(refillFromSlot).getItem().copy());
+                    inv.setItem(targetSlot, inv.getItem(refillFromSlot).copy());
                     inv.setItem(refillFromSlot, replacedItem);
 
                     inv.setChanged();

@@ -937,7 +937,7 @@ public class InvTweaks extends InvTweaksObfuscation {
         if(storedFocusedSlot != focusedSlot) { // Filter selection change
             storedFocusedSlot = focusedSlot;
         }else if((!ItemStack.isSame(currentStack, storedStack) || storedStackDamage != currentStackDamage) && storedStackId != null) {
-            if(!storedStack.isEmpty() && !ItemStack.isSameItemSameTags(offhandStack, storedStack)) { // Checks not switched to offhand
+            if(!storedStack.isEmpty() && storedStack != offhandStack) { // Checks not switched to offhand
                 if(currentStack.isEmpty() || (currentStack.getItem() == Items.BOWL && Objects.equals(storedStackId, "minecraft:mushroom_stew"))
                         // Handle eaten mushroom soup
                         && (getCurrentScreen() == null || // Filter open inventory or other window
