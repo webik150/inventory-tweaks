@@ -58,8 +58,8 @@ public class DirectContainerManager implements IContainerManager {
     // TODO: Server helper directly implementing this as a swap without the need for intermediate slots.
     @Override
     public boolean move(ContainerSection srcSection, int srcIndex, ContainerSection destSection, int destIndex) {
-        @NotNull ItemStack srcStack = getItemStack(srcSection, srcIndex);
-        @NotNull ItemStack destStack = getItemStack(destSection, destIndex);
+        @NotNull ItemStack srcStack = getSlot(srcSection, srcIndex).getItem();
+        @NotNull ItemStack destStack = getSlot(destSection, destIndex).getItem();
 
         InvTweaksMod.log.warn("{} -> {}", srcStack.toString(), destStack.toString());
 
@@ -333,12 +333,7 @@ public class DirectContainerManager implements IContainerManager {
     @NotNull
     @Override
     public ItemStack getItemStack(ContainerSection section, int index) {
-        int slot = indexToSlot(section, index);
-        if(slot >= 0 && slot < container.slots.size()) {
-            return InvTweaksObfuscation.getSlotStack(container, slot);
-        } else {
-            return ItemStack.EMPTY;
-        }
+        return getSlot(section,index).getItem();
     }
 
     @Override
@@ -372,7 +367,7 @@ public class DirectContainerManager implements IContainerManager {
         } else if(hasSection(section)) {
             Slot slot = slotRefs.get(section).get(index);
             if(slot != null) {
-                return InvTweaksObfuscation.getSlotNumber(slot);
+                return container.slots.indexOf(slot);
             } else {
                 return -1;
             }
