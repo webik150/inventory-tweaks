@@ -1,17 +1,18 @@
 [
 {
     "modid": "inventorytweaks",
-    "name": "Inventory Tweaks",
+    "name": "Inventory Tweaks Sorted",
     "description": "Tweaks to inventory handling for ease of use, including sorting and automatic replacement of broken tools or exhausted stacks of items.",
     "mcversion": "$mcversion",
     "version": "$version",
-    "url": "https://github.com/Kobata/inventory-tweaks",
+    "url": "https://github.com/webik150/inventory-tweaks-sorted",
     "updateUrl": "",
     "authors": [
         "Jimeo Wan",
-        "Kobata"
+        "Kobata",
+        "webik150"
     ],
-    "credits": "By Jimeo Wan, updated for Forge by Kobata, updated to 1.18.1 by webik150",
+    "credits": "Idea and original version by Jimeo Wan, updated for Forge by Kobata, Sorted version maintained by webik150",
     "logoFile": "/invtweaks.png",
     "screenshots": [
     ],

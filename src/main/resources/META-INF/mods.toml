@@ -6,7 +6,7 @@ modLoader="javafml" #mandatory
 loaderVersion="[39,)" #mandatory (26 is current forge version)
 
 # A URL to refer people to when problems occur with this mod
-issueTrackerURL="http://my.issue.tracker/" #optional
+issueTrackerURL="https://github.com/webik150/inventory-tweaks-sorted/issues" #optional
 
 license="WTFPL"
 
@@ -20,13 +20,13 @@ modId="inventorytweaks" #mandatory
 version="${file.jarVersion}" #mandatory
 
  # A display name for the mod
-displayName="Inventory Tweaks Fucked" #mandatory
+displayName="Inventory Tweaks Sorted" #mandatory
 
 # A URL to query for updates for this mod. See the JSON update specification <here>
 #updateJSONURL="http://myurl.me/" #optional
 
 # A URL for the "homepage" for this mod, displayed in the mod UI
-displayURL="https://github.com/Kobata/inventory-tweaks" #optional
+displayURL="https://github.com/webik150/inventory-tweaks-sorted" #optional
 
 # A file name (in the root of the mod JAR) containing a logo for display
 logoFile="invtweaks.png" #optional
