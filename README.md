@@ -7,7 +7,7 @@ Right now I'm focusing on the server-side part of the mod, which means it'll mos
 ### Rundown
 
 * Sorting: Can be triggered, but rn only inventory is without desync, and sometimes it does some fucky stuff with slots.
-* Autofill: ~~non-semi-~~*almost*-functional (Works apart from not filling from hotbar)
+* Autofill: ~~non-semi-*almost*-~~ **Functional**
 * Inventory shortcuts: Nonfunctional
 * Config and config screen: **Functional**
 * Inventory GUI / Buttons: They render and sort/open settings **but for some reason there's a server desync.**
